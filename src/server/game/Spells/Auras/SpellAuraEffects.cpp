@@ -4976,14 +4976,17 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         target->CastSpell(target, GetAmount(), true);
                     break;
                 case SPELLFAMILY_ROGUE:
-                    //  Tricks of the trade
+                {
                     switch(GetId())
                     {
-                        case 59628:
-                        case 57934:
-                            target->SetReducedThreatPercent(0,0);
-                            break;       
+                        case 59628: // Tricks of the Trade
+                            caster->SetReducedThreatPercent(0, 0);
+                            break;
+                        default:
+                            break;
                     }
+                    break;
+                }
                 default:
                     break;
             }
