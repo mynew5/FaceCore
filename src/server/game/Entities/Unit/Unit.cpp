@@ -15453,12 +15453,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
                 if (m->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                    {
                         ((InstanceMap *)m)->PermBindAllPlayers(creditedPlayer);
-                        /** World of Warcraft Armory **/
-                        creditedPlayer->WriteWowArmoryDatabaseLog(3, creature->GetCreatureInfo()->Entry);
-                        /** World of Warcraft Armory **/
-                    }
                 }
                 else
                 {
