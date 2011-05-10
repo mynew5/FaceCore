@@ -3215,6 +3215,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         properties->Id == 2081)     // Mechanical Dragonling, Arcanite Dragonling, Mithril Dragonling TODO: Research on meaning of basepoints
                         amount = 1;
 
+                    if (properties->Id == 2081 && !m_CastItem)
+                        return;
+
                     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
                     for (uint32 count = 0; count < amount; ++count)
@@ -6293,9 +6296,9 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    // Instantly interrupt non melee spells being casted
-    if (unitTarget->IsNonMeleeSpellCasted(true))
-        unitTarget->InterruptNonMeleeSpells(true);
+    if (Creature* creatureTarget = unitTarget->ToCreature())
+        if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
+            return;
 
     // Typhoon
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x01000000)
@@ -6312,6 +6315,10 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         if (m_caster->HasAura(62132))
             return;
     }
+
+    // Instantly interrupt non melee spells being casted
+    if (unitTarget->IsNonMeleeSpellCasted(true))
+        unitTarget->InterruptNonMeleeSpells(true);
 
     float ratio = m_caster->GetCombatReach() / std::max(unitTarget->GetCombatReach(), 1.0f);
     if (ratio < 1.0f)
