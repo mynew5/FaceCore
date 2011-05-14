@@ -342,6 +342,74 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     if (plMover)
         sAnticheatMgr->StartHackDetection(plMover, movementInfo, opcode);
 
+    /* ANTIHACK : START */
+    if (plMover) {
+
+        int32 cClientTimeDelta = 1500;
+        if (plMover->m_vistawow_antihack_LastClientTime != 0)
+            cClientTimeDelta = getMSTimeDiff(plMover->m_vistawow_antihack_LastClientTime, movementInfo.time);
+        plMover->m_vistawow_antihack_LastClientTime = movementInfo.time;
+
+        if (!plMover->m_taxi.GetTaxiDestination()) { // if not flying a taxi
+            UnitMoveType move_type;
+
+            if (movementInfo.flags & MOVEMENTFLAG_FLYING)
+                move_type = movementInfo.flags & MOVEMENTFLAG_BACKWARD ? MOVE_FLIGHT_BACK : MOVE_FLIGHT;
+            else if (movementInfo.flags & MOVEMENTFLAG_SWIMMING)
+                move_type = movementInfo.flags & MOVEMENTFLAG_BACKWARD ? MOVE_SWIM_BACK : MOVE_SWIM;
+            else if (movementInfo.flags & MOVEMENTFLAG_WALKING)
+                move_type = MOVE_WALK;
+            else
+                move_type = movementInfo.flags & MOVEMENTFLAG_BACKWARD ? MOVE_SWIM_BACK : MOVE_RUN;
+
+            const float current_speed = mover->GetSpeed(move_type);
+
+            const float delta_x = plMover->GetTransport() ? 0.0f : plMover->GetPositionX() - movementInfo.pos.GetPositionX();
+            const float delta_y = plMover->GetTransport() ? 0.0f : plMover->GetPositionY() - movementInfo.pos.GetPositionY();
+            const float delta_z = plMover->GetTransport() ? 0.0f : plMover->GetPositionZ() - movementInfo.pos.GetPositionZ();
+            const float real_delta = plMover->GetTransport() ? 0.0f : pow(delta_x, 2) + pow(delta_y, 2);
+
+            if (current_speed < plMover->m_vistawow_antihack_LastHSpeed && plMover->m_vistawow_antihack_LastSpeedChangeTime == 0)
+                plMover->m_vistawow_antihack_LastSpeedChangeTime = movementInfo.time + uint32(floor(((plMover->m_vistawow_antihack_LastHSpeed / current_speed) * 1500)) + 100); // 100ms above for random fluctuation
+
+            if (cClientTimeDelta < 0)
+                cClientTimeDelta = 0;
+            const float time_delta = cClientTimeDelta < 1500 ? float(cClientTimeDelta)/1000.0f : 1.5f; // normalize time - 1.5 second allowed for heavy loaded server
+
+            const bool no_fly_auras = !(plMover->HasAuraType(SPELL_AURA_FLY) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS) || plMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK));
+            const bool no_swim_flags = (movementInfo.flags & MOVEMENTFLAG_SWIMMING) == 0;
+            const float tg_z = (real_delta != 0 && no_fly_auras && no_swim_flags) ? (pow(delta_z, 2) / real_delta) : -99999; // movement distance tangents
+
+            float allowed_delta = plMover->GetTransport() ? 2.0f : pow(std::max(current_speed, plMover->m_vistawow_antihack_LastHSpeed) * time_delta, 2) + (tg_z > 2.2f ? pow(delta_z, 2)/2.37f : 0.0f);
+            allowed_delta = allowed_delta * 1.08f + 2.0f; // 8% tolerance
+
+            if (movementInfo.time > plMover->m_vistawow_antihack_LastSpeedChangeTime) {
+                plMover->m_vistawow_antihack_LastHSpeed = current_speed;
+                plMover->m_vistawow_antihack_LastSpeedChangeTime = 0;
+            }
+
+            // allowed_delta = 51.0f; // debug
+            // sLog->outError("ANTIHACK: real_delta = %f, allowed_delta = %f, diff_delta = %f", real_delta, allowed_delta, allowed_delta - real_delta);
+
+            if (real_delta > allowed_delta) { // ultrapassou o limite de velocidade
+                // plMover->FallGround(2);
+                if (plMover->m_transport) {
+                    plMover->m_transport->RemovePassenger(plMover);
+                    plMover->m_transport = NULL;
+                }
+                WorldPacket data;
+                plMover->SetUnitMovementFlags(0);
+                plMover->SendTeleportAckPacket();
+                plMover->BuildHeartBeatMsg(&data);
+                plMover->SendMessageToSet(&data, true);
+                return;
+            }
+        }
+    }
+
+    /* ANTIHACK : END */
+
+
     /*----------------------*/
 
     /* process position-change */
