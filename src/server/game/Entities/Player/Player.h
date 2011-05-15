@@ -2677,15 +2677,6 @@ class Player : public Unit, public GridObject<Player>
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
-
-
-        /* ANTIHACK : START */
-        time_t m_vistawow_antihack_LastClientTime;
-        time_t m_vistawow_antihack_LastSpeedChangeTime;
-        float m_vistawow_antihack_LastHSpeed;
-        /* ANTIHACK : END */
-
-
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;
