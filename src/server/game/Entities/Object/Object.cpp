@@ -486,7 +486,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     {
         if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsDynTransport())
         {
-            if (((GameObject*)this)->ActivateToQuest(target)) // || target->isGameMaster())
+            if (((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
                 IsActivateToQuest = true;
 
             updateMask->SetBit(GAMEOBJECT_DYNAMIC);
@@ -506,7 +506,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     {
         if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsTransport())
         {
-            if (((GameObject*)this)->ActivateToQuest(target)) // || target->isGameMaster())
+            if (((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
             {
                 IsActivateToQuest = true;
             }
@@ -1722,11 +1722,11 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (!obj->m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM))
     {
         // Stop checking other things for GMs
-        // if (m_serverSideVisibilityDetect.GetValue(SERVERSIDE_VISIBILITY_GM))
-        //     return true;
+        if (m_serverSideVisibilityDetect.GetValue(SERVERSIDE_VISIBILITY_GM))
+            return true;
     }
     else
-        return (obj->ToPlayer() ? m_serverSideVisibilityDetect.GetValue(SERVERSIDE_VISIBILITY_GM) : SEC_PLAYER) >= obj->m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM);
+        return m_serverSideVisibilityDetect.GetValue(SERVERSIDE_VISIBILITY_GM) >= obj->m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM);
 
     // Ghost players, Spirit Healers, and some other NPCs
     if (!corpseVisibility && !(obj->m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GHOST) & m_serverSideVisibilityDetect.GetValue(SERVERSIDE_VISIBILITY_GHOST)))
