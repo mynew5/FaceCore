@@ -758,6 +758,13 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     rest_type=REST_TYPE_NO;
     ////////////////////Rest System/////////////////////
 
+    /* ANTIHACK : START */
+    m_vistawow_antihack_LastClientTime = 0;
+    m_vistawow_antihack_LastSpeedChangeTime = 0;
+    m_vistawow_antihack_LastHSpeed = 0.0f;
+    m_vistawow_antihack_TriggerCount = 0;
+    /* ANTIHACK : END */
+
     m_mailsLoaded = false;
     m_mailsUpdated = false;
     unReadMails = 0;
