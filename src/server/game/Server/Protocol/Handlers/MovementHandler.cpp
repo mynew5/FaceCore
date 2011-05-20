@@ -386,12 +386,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                 plMover->m_vistawow_antihack_LastSpeedChangeTime = 0;
             }
 
-            // hack é travado se:
-            // -- foi pego tentando mover-se mais do que poderia por 3 passadas consecutivas
-            // -- foi pego tentando mover-se mais de 5 vezes a distancia que poderia em uma so passada
-
             if (real_delta > allowed_delta) {
-                if ((++plMover->m_vistawow_antihack_TriggerCount >= 3) || (real_delta > (allowed_delta * 5.0f))) {
+                if ((++plMover->m_vistawow_antihack_TriggerCount >= 3) || ((real_delta > 250.0f) && (real_delta > (allowed_delta * 5.0f)))) {
                     // plMover->FallGround(2);
                     if (plMover->m_transport) {
                         plMover->m_transport->RemovePassenger(plMover);
