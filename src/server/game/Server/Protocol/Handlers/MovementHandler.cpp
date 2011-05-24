@@ -350,7 +350,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             MSTime_delta = getMSTimeDiff(plMover->m_vistawow_antihack_LastClientTime, movementInfo.time);
         plMover->m_vistawow_antihack_LastClientTime = movementInfo.time;
 
-        if (!plMover->m_taxi.GetTaxiDestination()) { // if not flying a taxi
+        if (!plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination()) { // if not flying a taxi
             UnitMoveType move_type;
 
             if (movementInfo.flags & MOVEMENTFLAG_FLYING)
@@ -364,10 +364,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 
             const float current_speed = mover->GetSpeed(move_type);
 
-            const float delta_x = plMover->GetTransport() ? 0.0f : plMover->GetPositionX() - movementInfo.pos.GetPositionX();
-            const float delta_y = plMover->GetTransport() ? 0.0f : plMover->GetPositionY() - movementInfo.pos.GetPositionY();
-            const float delta_z = plMover->GetTransport() ? 0.0f : plMover->GetPositionZ() - movementInfo.pos.GetPositionZ();
-            const float real_delta = plMover->GetTransport() ? 0.0f : pow(delta_x, 2) + pow(delta_y, 2);
+            const float delta_x    = plMover->GetPositionX() - movementInfo.pos.GetPositionX();
+            const float delta_y    = plMover->GetPositionY() - movementInfo.pos.GetPositionY();
+            const float delta_z    = plMover->GetPositionZ() - movementInfo.pos.GetPositionZ();
+            const float real_delta = pow(delta_x, 2) + pow(delta_y, 2);
 
             if (current_speed < plMover->m_vistawow_antihack_LastHSpeed && plMover->m_vistawow_antihack_LastSpeedChangeTime == 0)
                 plMover->m_vistawow_antihack_LastSpeedChangeTime = movementInfo.time + uint32(floor(((plMover->m_vistawow_antihack_LastHSpeed / current_speed) * 1500)) + 100); // 100ms above for random fluctuation
@@ -378,7 +378,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             const bool no_swim_flags = (movementInfo.flags & MOVEMENTFLAG_SWIMMING) == 0;
             const float tg_z = (real_delta != 0 && no_fly_auras && no_swim_flags) ? (pow(delta_z, 2) / real_delta) : -99999; // movement distance tangents
 
-            float allowed_delta = plMover->GetTransport() ? 2.0f : pow(std::max(current_speed, plMover->m_vistawow_antihack_LastHSpeed) * time_delta, 2) + (tg_z > 2.2f ? pow(delta_z, 2)/2.37f : 0.0f);
+            float allowed_delta = pow(std::max(current_speed, plMover->m_vistawow_antihack_LastHSpeed) * time_delta, 2) + (tg_z > 2.2f ? pow(delta_z, 2)/2.37f : 0.0f);
             allowed_delta += 2.0f; // tolerance
 
             if (movementInfo.time > plMover->m_vistawow_antihack_LastSpeedChangeTime) {
@@ -387,12 +387,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             }
 
             if (real_delta > allowed_delta) {
-                if ((++plMover->m_vistawow_antihack_TriggerCount >= 3) || ((real_delta > 250.0f) && (real_delta > (allowed_delta * 5.0f)))) {
-                    // plMover->FallGround(2);
-                    if (plMover->m_transport) {
-                        plMover->m_transport->RemovePassenger(plMover);
-                        plMover->m_transport = NULL;
-                    }
+                if ((++plMover->m_vistawow_antihack_TriggerCount >= 3) || ((real_delta > 350.0f) && (real_delta > (allowed_delta * 5.0f)))) {
                     WorldPacket data;
                     plMover->SetUnitMovementFlags(0);
                     plMover->SendTeleportAckPacket();
