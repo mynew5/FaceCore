@@ -350,7 +350,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             MSTime_delta = getMSTimeDiff(plMover->m_vistawow_antihack_LastClientTime, movementInfo.time);
         plMover->m_vistawow_antihack_LastClientTime = movementInfo.time;
 
-        if (!plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination()) { // if not flying a taxi
+        // if not in a transport
+        // if not riding a taxi
+        // if not gitched in SOTA transport ship (causing false positive)
+        if (!plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination() && !(plMover->IsFalling() && (plMover->GetMapId() == 607))) {
             UnitMoveType move_type;
 
             if (movementInfo.flags & MOVEMENTFLAG_FLYING)
