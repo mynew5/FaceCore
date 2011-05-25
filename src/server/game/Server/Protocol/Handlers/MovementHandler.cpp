@@ -352,8 +352,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 
         // if not in a transport
         // if not riding a taxi
-        // if not gitched in SOTA transport ship (causing false positive)
-        if (!plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination() && !(plMover->IsFalling() && (plMover->GetMapId() == 607))) {
+        // if not in SOTA (causing false positive)
+        if (!plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination() && (plMover->GetMapId() != 607)) {
             UnitMoveType move_type;
 
             if (movementInfo.flags & MOVEMENTFLAG_FLYING)
