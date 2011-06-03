@@ -4086,7 +4086,8 @@ void Unit::RemoveArenaAuras(bool onleave)
         if (!(aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR4_UNK21) // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                               // don't remove passive auras
             && (!(aura->GetSpellProto()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))   // not unaffected by invulnerability auras or not having that unknown flag (that seemed the most probable)
-            && (aurApp->IsPositive() ^ onleave))                   // remove positive buffs on enter, negative buffs on leave
+            && (aurApp->IsPositive() ^ onleave)                   // remove positive buffs on enter, negative buffs on leave
+            || aura->GetId() == 57724 || aura->GetId() == 57723 || aura->GetId() == 16591 || aura->GetId() == 16593 || aura->GetId() == 16595)
             RemoveAura(iter);
         else
             ++iter;
@@ -8100,7 +8101,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     if (!caster || !damage)
                         return false;
 
-                    //last charge and crit
+                    // last charge and crit
                     if (triggeredByAura->GetCharges() <= 1 && (procEx & PROC_EX_CRITICAL_HIT))
                         return true;                        // charge counting (will removed)
 
@@ -8857,8 +8858,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     // Blade Barrier
     if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85)
     {
-        Player * plr = this->ToPlayer();
-        if (this->GetTypeId() != TYPEID_PLAYER || !plr || plr->getClass() != CLASS_DEATH_KNIGHT)
+        Player* plr = ToPlayer();
+        if (!plr || plr->getClass() != CLASS_DEATH_KNIGHT)
             return false;
 
         if (!plr->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
