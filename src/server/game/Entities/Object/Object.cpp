@@ -1689,7 +1689,7 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (!obj->m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM))
     {
         // Stop checking other things for GMs
-        if (m_serverSideVisibilityDetect.GetValue(SERVERSIDE_VISIBILITY_GM) >= SEC_ADMINISTRATOR)
+        if (m_serverSideVisibilityDetect.GetValue(SERVERSIDE_VISIBILITY_GM))
             return true;
     }
     else
