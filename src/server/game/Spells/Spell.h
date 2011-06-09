@@ -239,16 +239,18 @@ class SpellCastTargets
 
 struct SpellValue
 {
-    explicit SpellValue(SpellEntry const *proto)
+    explicit SpellValue(SpellEntry const* proto)
     {
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             EffectBasePoints[i] = proto->EffectBasePoints[i];
         MaxAffectedTargets = proto->MaxAffectedTargets;
         RadiusMod = 1.0f;
+        AuraStackAmount = 1;
     }
     int32     EffectBasePoints[3];
     uint32    MaxAffectedTargets;
     float     RadiusMod;
+    uint8     AuraStackAmount;
 };
 
 enum SpellState
@@ -492,7 +494,7 @@ class Spell
         void SendResurrectRequest(Player* target);
         void SendPlaySpellVisual(uint32 SpellID);
 
-        void HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i);
+        void HandleEffects(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGOTarget, uint32 i);
         void HandleThreatSpells(uint32 spellId);
 
         const SpellEntry * const m_spellInfo;

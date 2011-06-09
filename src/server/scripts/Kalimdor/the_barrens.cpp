@@ -297,7 +297,7 @@ public:
 
         void ReceiveEmote(Player* /*pPlayer*/, uint32 emote)
         {
-            if (emote == TEXTEMOTE_SALUTE)
+            if (emote == TEXT_EMOTE_SALUTE)
             {
                 if (FlareCount >= 2)
                 {
@@ -446,7 +446,7 @@ public:
 
                 if (!EventGrate && EventInProgress)
                 {
-                    float x,y,z;
+                    float x, y, z;
                     pWarrior->GetPosition(x, y, z);
 
                     if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {

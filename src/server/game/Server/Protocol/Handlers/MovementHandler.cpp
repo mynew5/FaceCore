@@ -63,7 +63,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // get the destination map entry, not the current one, this will fix homebind and reset greeting
     MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
-    InstanceTemplate const* mInstance = ObjectMgr::GetInstanceTemplate(loc.GetMapId());
+    InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loc.GetMapId());
 
     // reset instance validity, except if going to an instance inside an instance
     if (GetPlayer()->m_InstanceValid == false && !mInstance)
@@ -147,7 +147,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     {
         if (mEntry->IsDungeon())
         {
-            GetPlayer()->ResurrectPlayer(0.5f,false);
+            GetPlayer()->ResurrectPlayer(0.5f, false);
             GetPlayer()->SpawnCorpseBones();
         }
     }
@@ -167,7 +167,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 }
             }
         }
-        allowMount = mInstance->allowMount;
+        allowMount = mInstance->AllowMount;
     }
 
     // mount allow check
@@ -184,7 +184,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 
     // in friendly area
-    else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP))
+    else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         GetPlayer()->UpdatePvP(false, false);
 
     // resummon pet
@@ -221,7 +221,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 
     WorldLocation const& dest = plMover->GetTeleportDest();
 
-    plMover->SetPosition(dest,true);
+    plMover->SetPosition(dest, true);
 
     uint32 newzone, newarea;
     plMover->GetZoneAndAreaId(newzone, newarea);
@@ -235,7 +235,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
             plMover->CastSpell(plMover, 2479, true);
 
         // in friendly area
-        else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP))
+        else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
     }
 
@@ -374,7 +374,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     sLog.outBasic("AC2-%s Transport > GUID: (low)%d - (high)%d",
         plMover->GetName(), GUID_LOPART(movementInfo.t_guid), GUID_HIPART(movementInfo.t_guid));
     #endif
- 
+
     if (plMover)
     {
         if (World::GetEnableMvAnticheat() && !plMover->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster())
@@ -426,7 +426,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                     sLog->outError("AC2-%s, mistiming exception #%d, mistiming: %dms", plMover->GetName(), plMover->m_anti_MistimingCount, sync_time);
                     #endif
                     check_passed = false;
-                }                   
+                }
                 //if (vehMover)
                 //    vehMover->Die();
                 // Tell the player "Sure, you can fly!"
@@ -444,14 +444,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                     SendPacket(&data);
                 }
                 //plMover->FallGround(2);
-                         
+
                 /* Disabled, not passive at all, and apparently causing crashes:
                 if (plMover->m_anti_MistimingCount > World::GetMistimingAlarms())
                 {
                     sWorld.SendWorldText(3, strcat("Kicking cheater: ", plMover->GetName()));
                     KickPlayer();
                     return;
-                } */ 
+                } */
             }
             // end mistiming checks
 
@@ -607,7 +607,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                 //    if (vehMover)
                 //        vehMover->Die();
                 }
- 
+
                 // Fly hack checks
                 if (no_fly_auras && !no_fly_flags)
                 {
@@ -698,7 +698,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                     plMover->m_anti_TeleToPlane_Count = 0;
             }
         }
-    }	
+    }
      /* process position-change */
     if (check_passed)
     {
@@ -756,7 +756,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             plMover->m_anti_AlarmCount = 0;
         }
         // end movement anticheat
-	}
+     }
     }
     else if (plMover)
     {
@@ -844,12 +844,12 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
         {
             sLog->outError("%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
                 move_type_name[move_type], _player->GetName(), _player->GetSpeed(move_type), newspeed);
-            _player->SetSpeed(move_type,_player->GetSpeedRate(move_type),true);
+            _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
         }
         else                                                // must be lesser - cheating
         {
             sLog->outBasic("Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
-                _player->GetName(),_player->GetSession()->GetAccountId(),_player->GetSpeed(move_type), newspeed);
+                _player->GetName(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
             _player->GetSession()->KickPlayer();
         }
     }

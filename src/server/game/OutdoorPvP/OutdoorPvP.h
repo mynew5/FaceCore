@@ -95,6 +95,8 @@ class OPvPCapturePoint
 
         OPvPCapturePoint(OutdoorPvP * pvp);
 
+        virtual ~OPvPCapturePoint() {}
+
         virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
 
         // send world state update to all players present
@@ -125,7 +127,7 @@ class OPvPCapturePoint
 
         virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
 
-        virtual bool CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso);
+        virtual bool CanTalkTo(Player* plr, Creature* c, GossipMenuItems const& gso);
 
         virtual bool HandleDropFlag(Player * plr, uint32 spellId);
 
@@ -181,10 +183,10 @@ class OPvPCapturePoint
 
         // map to store the various gameobjects and creatures spawned by the objective
         //        type , guid
-        std::map<uint32,uint64> m_Objects;
-        std::map<uint32,uint64> m_Creatures;
-        std::map<uint64,uint32> m_ObjectTypes;
-        std::map<uint64,uint32> m_CreatureTypes;
+        std::map<uint32, uint64> m_Objects;
+        std::map<uint32, uint64> m_Creatures;
+        std::map<uint64, uint32> m_ObjectTypes;
+        std::map<uint64, uint32> m_CreatureTypes;
 };
 
 // base class for specific outdoor pvp handlers
@@ -198,7 +200,7 @@ class OutdoorPvP : public ZoneScript
         OutdoorPvP();
 
         // dtor
-        ~OutdoorPvP();
+        virtual ~OutdoorPvP();
 
         // deletes all gos/creatures spawned by the pvp
         void DeleteSpawns();
@@ -245,7 +247,7 @@ class OutdoorPvP : public ZoneScript
 
         virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
 
-        virtual bool CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso);
+        virtual bool CanTalkTo(Player* plr, Creature* c, GossipMenuItems const& gso);
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 

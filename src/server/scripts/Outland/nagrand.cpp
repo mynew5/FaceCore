@@ -73,9 +73,9 @@ public:
                 float y = me->GetPositionY();
                 float z = me->GetPositionZ();
 
-                Hitter->SummonCreature(18181,x+(0.7f * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-                Hitter->SummonCreature(18181,x+(rand()%5),y-(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-                Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5f *(rand()%60)),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+                Hitter->SummonCreature(18181, x+(0.7f * (rand()%30)), y+(rand()%5), z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                Hitter->SummonCreature(18181, x+(rand()%5), y-(rand()%5), z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                Hitter->SummonCreature(18181, x-(rand()%5), y+(0.5f *(rand()%60)), z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                 me->setDeathState(CORPSE);
                 Spawn = true;
             }
@@ -208,7 +208,7 @@ public:
             if (!me->IsStandState())
                  me->SetStandState(UNIT_STAND_STATE_STAND);
 
-            DoScriptText(RAND(LUMP_SAY0,LUMP_SAY1), me);
+            DoScriptText(RAND(LUMP_SAY0, LUMP_SAY1), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -893,11 +893,12 @@ public:
     };
 };
 
-enum corki
+enum CorkiData
 {
   // first quest
   QUEST_HELP                                    = 9923,
   NPC_CORKI                                     = 18445,
+  NPC_CORKI_CREDIT_1                            = 18369,
   GO_CORKIS_PRISON                              = 182349,
   CORKI_SAY_THANKS                              = -1800071,
   // 2nd quest
@@ -908,7 +909,7 @@ enum corki
   // 3rd quest
   QUEST_CHOWAR_THE_PILLAGER                     = 9955,
   NPC_CORKI_3                                   = 18369,
-  NPC_CORKI_CREDIT                              = 18444,
+  NPC_CORKI_CREDIT_3                            = 18444,
   GO_CORKIS_PRISON_3                            = 182521,
   CORKI_SAY_LAST                                = -1800073
 };
@@ -927,7 +928,7 @@ public:
               go->SetGoState(GO_STATE_READY);
               corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
               if (player)
-                  player->KilledMonsterCredit(NPC_CORKI, 0);
+                  player->KilledMonsterCredit(NPC_CORKI_CREDIT_1, 0);
           }
       }
       if (go->GetEntry() == GO_CORKIS_PRISON_2)
@@ -947,7 +948,7 @@ public:
               go->SetGoState(GO_STATE_READY);
               corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+4, go->GetPositionY(), go->GetPositionZ());
               if (player)
-                  player->KilledMonsterCredit(NPC_CORKI_CREDIT, 0);
+                  player->KilledMonsterCredit(NPC_CORKI_CREDIT_3, 0);
           }
       }
       return true;
@@ -990,10 +991,10 @@ public:
           else
               Say_Timer -= diff;
       }
-      
+
       void MovementInform(uint32 type, uint32 id)
       {
-          if (id == 1)
+          if (type == POINT_MOTION_TYPE && id == 1)
           {
               Say_Timer = 5000;
               ReleasedFromCage = true;

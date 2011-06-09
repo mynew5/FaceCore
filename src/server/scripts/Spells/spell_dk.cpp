@@ -28,10 +28,11 @@ enum DeathKnightSpells
 {
     DK_SPELL_RUNIC_POWER_ENERGIZE               = 49088,
     DK_SPELL_ANTI_MAGIC_SHELL_TALENT            = 51052,
-    DK_SPELL_SUMMON_GARGOYLE                    = 50514,
     DK_SPELL_CORPSE_EXPLOSION_TRIGGERED         = 43999,
+    DK_SPELL_GHOUL_EXPLODE                      = 47496,
     DISPLAY_GHOUL_CORPSE                        = 25537,
     DK_SPELL_SCOURGE_STRIKE_TRIGGERED           = 70890,
+    DK_SPELL_BLOOD_BOIL_TRIGGERED               = 65658,
     DK_SPELL_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
     DK_SPELL_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
     DK_SPELL_BLOOD_TAP                          = 45529,
@@ -200,6 +201,8 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
             {
                 if (!sSpellStore.LookupEntry(DK_SPELL_CORPSE_EXPLOSION_TRIGGERED))
                     return false;
+                if (!sSpellStore.LookupEntry(DK_SPELL_GHOUL_EXPLODE))
+                    return false;
                 return true;
             }
 
@@ -208,45 +211,20 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     int32 bp = 0;
-                    bool ghoul = false;
-                    // Living ghoul as a target
-                    if (unitTarget->isAlive())
+                    if (unitTarget->isAlive())  // Living ghoul as a target
                     {
-                        ghoul = true;
                         bp = int32(unitTarget->CountPctFromMaxHealth(25));
+                        unitTarget->CastCustomSpell(unitTarget, DK_SPELL_GHOUL_EXPLODE, &bp, NULL, NULL, false);
                     }
-                    // Some corpse
-                    else
-                        bp = GetEffectValue();	
-
-                    uint32 spellid = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), 1);
-
-                    // ghoul case
-                    if (ghoul)
+                    else                        // Some corpse
                     {
-                        spellid = 47496;
-                        // ap bonus is offlike?
-                        bp += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1f;
-                        // ghoul cast on self, 1,5 seconds
-                        unitTarget->CastCustomSpell(unitTarget, spellid, &bp, NULL, NULL, false);
-                    }
-                    else 
-                        GetCaster()->CastCustomSpell(unitTarget, spellid, &bp, NULL, NULL, true);
-
-                    // ghoul is dead already by 47496
-                    if (!ghoul)
-                    {
+                        bp = GetEffectValue();
+                        GetCaster()->CastCustomSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), 1), &bp, NULL, NULL, true);
                         // Corpse Explosion (Suicide)
-                        unitTarget->CastCustomSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, &bp, NULL, NULL, true);
+                        unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
                         // Set corpse look
                         unitTarget->SetDisplayId(DISPLAY_GHOUL_CORPSE + urand(0, 3));
                     }
-
-                    // impossible to summon a new pet for a time when corpse exist, don't know how on offy
-                    /*if (ghoul)
-                    {
-                        DoSomethingToRemoveCorpse();
-                    }*/              
                 }
             }
 
@@ -259,6 +237,39 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_corpse_explosion_SpellScript();
+        }
+};
+
+// 47496 - Explode, Gnoul spell for Corpse Explosion
+class spell_dk_gnoul_explode : public SpellScriptLoader
+{
+    public:
+        spell_dk_gnoul_explode() : SpellScriptLoader("spell_dk_gnoul_explode") { }
+
+        class spell_dk_gnoul_explode_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_gnoul_explode_SpellScript);
+
+            void Suicide(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                {
+                    // Corpse Explosion (Suicide)
+                    unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
+                    // Set corpse look
+                    unitTarget->SetDisplayId(DISPLAY_GHOUL_CORPSE + urand(0, 3));
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_dk_gnoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_gnoul_explode_SpellScript();
         }
 };
 
@@ -347,47 +358,6 @@ class spell_dk_death_pact : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_death_pact_SpellScript();
-        }
-};
-
-// 50524 Runic Power Feed (keeping Gargoyle alive)
-class spell_dk_runic_power_feed : public SpellScriptLoader
-{
-    public:
-        spell_dk_runic_power_feed() : SpellScriptLoader("spell_dk_runic_power_feed") { }
-
-        class spell_dk_runic_power_feed_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_runic_power_feed_SpellScript);
-
-            bool Validate(SpellEntry const * /*spellEntry*/)
-            {
-                if (!sSpellStore.LookupEntry(DK_SPELL_SUMMON_GARGOYLE))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    // No power, dismiss Gargoyle
-                    if (caster->GetPower(POWER_RUNIC_POWER) < 30)
-                        caster->RemoveAurasDueToSpell(DK_SPELL_SUMMON_GARGOYLE, caster->GetGUID());
-                    else
-                        caster->ModifyPower(POWER_RUNIC_POWER, -30);
-                }
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_dk_runic_power_feed_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_runic_power_feed_SpellScript();
         }
 };
 
@@ -482,6 +452,52 @@ class spell_dk_spell_deflection : public SpellScriptLoader
         AuraScript *GetAuraScript() const
         {
             return new spell_dk_spell_deflection_AuraScript();
+        }
+};
+
+// 48721 Blood Boil
+class spell_dk_blood_boil : public SpellScriptLoader
+{
+    public:
+        spell_dk_blood_boil() : SpellScriptLoader("spell_dk_blood_boil") { }
+
+        class spell_dk_blood_boil_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_blood_boil_SpellScript);
+
+            bool Validate(SpellEntry const * /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(DK_SPELL_BLOOD_BOIL_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _executed = false;
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCaster()->getClass() == CLASS_DEATH_KNIGHT;
+            }
+
+            void HandleAfterHit()
+            {
+                if (_executed || !GetHitUnit())
+                    return;
+
+                _executed = true;
+                GetCaster()->CastSpell(GetCaster(), DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dk_blood_boil_SpellScript::HandleAfterHit);
+            }
+
+            bool _executed;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_blood_boil_SpellScript();
         }
 };
 
@@ -599,11 +615,12 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
     new spell_dk_corpse_explosion();
+    new spell_dk_gnoul_explode();
     new spell_dk_death_gate();
     new spell_dk_death_pact();
-    new spell_dk_runic_power_feed();
     new spell_dk_scourge_strike();
     new spell_dk_spell_deflection();
+    new spell_dk_blood_boil();
     new spell_dk_will_of_the_necropolis();
     new spell_dk_blood_tap();
 }

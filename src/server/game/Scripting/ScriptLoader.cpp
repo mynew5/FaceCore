@@ -74,9 +74,7 @@ void AddSC_wp_commandscript();
 #ifdef SCRIPTS
 //world
 void AddSC_areatrigger_scripts();
-void AddSC_boss_emeriss();
-void AddSC_boss_taerar();
-void AddSC_boss_ysondre();
+void AddSC_emerald_dragons();
 void AddSC_generic_creature();
 void AddSC_go_scripts();
 void AddSC_guards();
@@ -131,6 +129,7 @@ void AddSC_boss_mr_smite();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_gnomeregan();                     //Gnomeregan
+void AddSC_operation_gnomeregan();           //Operation Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
@@ -309,6 +308,7 @@ void AddSC_boss_amnennar_the_coldbringer();  //Razorfen Downs
 void AddSC_razorfen_downs();
 void AddSC_instance_razorfen_downs();
 void AddSC_razorfen_kraul();                 //Razorfen Kraul
+void AddSC_instance_razorfen_kraul();
 void AddSC_boss_kurinnaxx();                 //Ruins of ahn'qiraj
 void AddSC_boss_rajaxx();
 void AddSC_boss_moam();
@@ -440,6 +440,8 @@ void AddSC_boss_assembly_of_iron();
 void AddSC_boss_general_vezax();
 void AddSC_ulduar_teleporter();
 void AddSC_boss_mimiron();
+void AddSC_boss_hodir();
+void AddSC_boss_freya();
 void AddSC_instance_ulduar();
 void AddSC_boss_keleseth();              //Utgarde Keep
 void AddSC_boss_skarvald_dalronn();
@@ -492,9 +494,10 @@ void AddSC_boss_rotface();
 void AddSC_boss_professor_putricide();
 void AddSC_boss_blood_prince_council();
 void AddSC_boss_blood_queen_lana_thel();
-void AddSC_boss_sindragosa();
-void AddSC_boss_valithria();
+void AddSC_boss_valithria_dreamwalker();
 void AddSC_boss_lichking();
+void AddSC_boss_sindragosa();
+void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
 void AddSC_icecrown_citadel();
 
@@ -679,9 +682,7 @@ void AddWorldScripts()
 {
 #ifdef SCRIPTS
     AddSC_areatrigger_scripts();
-    AddSC_boss_emeriss();
-    AddSC_boss_taerar();
-    AddSC_boss_ysondre();
+    AddSC_emerald_dragons();
     AddSC_generic_creature();
     AddSC_go_scripts();
     AddSC_guards();
@@ -741,6 +742,7 @@ void AddEasternKingdomsScripts()
     AddSC_deadmines();                      //Deadmines
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
+    AddSC_operation_gnomeregan();           //Operation Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
@@ -923,6 +925,7 @@ void AddKalimdorScripts()
     AddSC_razorfen_downs();
     AddSC_instance_razorfen_downs();
     AddSC_razorfen_kraul();                 //Razorfen Kraul
+    AddSC_instance_razorfen_kraul();
     AddSC_boss_kurinnaxx();                 //Ruins of ahn'qiraj
     AddSC_boss_rajaxx();
     AddSC_boss_moam();
@@ -1144,6 +1147,8 @@ void AddNorthrendScripts()
     AddSC_boss_kologarn();
     AddSC_ulduar_teleporter();
     AddSC_boss_mimiron();
+    AddSC_boss_hodir();
+    AddSC_boss_freya();
     AddSC_instance_ulduar();
     AddSC_boss_keleseth();              //Utgarde Keep
     AddSC_boss_skarvald_dalronn();
@@ -1196,9 +1201,10 @@ void AddNorthrendScripts()
     AddSC_boss_professor_putricide();
     AddSC_boss_blood_prince_council();
     AddSC_boss_blood_queen_lana_thel();
-    AddSC_boss_sindragosa();
-    AddSC_boss_valithria();
+    AddSC_boss_valithria_dreamwalker();
     AddSC_boss_lichking();
+    AddSC_boss_sindragosa();
+    AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
     AddSC_icecrown_citadel();
 

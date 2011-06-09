@@ -134,7 +134,7 @@ public:
                 sLog->outErrorDb("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
             else
             {
-                CreatureInfo const* spawnedTemplate = ObjectMgr::GetCreatureTemplate(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+                CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
 
                 if (!spawnedTemplate)
                 {
@@ -353,7 +353,7 @@ public:
         {
             switch(emote)
             {
-                case TEXTEMOTE_CHICKEN:
+                case TEXT_EMOTE_CHICKEN:
                     if (pPlayer->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand()%30 == 1)
                     {
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -361,7 +361,7 @@ public:
                         DoScriptText(EMOTE_HELLO, me);
                     }
                     break;
-                case TEXTEMOTE_CHEER:
+                case TEXT_EMOTE_CHEER:
                     if (pPlayer->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
                     {
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -422,13 +422,13 @@ public:
             DoCast(me, SPELL_BRAZIER, true);
             DoCast(me, SPELL_FIERY_AURA, false);
             float x, y, z;
-            me->GetPosition(x,y,z);
-            me->Relocate(x,y,z + 0.94f);
+            me->GetPosition(x, y, z);
+            me->Relocate(x, y, z + 0.94f);
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
             WorldPacket data;                       //send update position to client
             me->BuildHeartBeatMsg(&data);
-            me->SendMessageToSet(&data,true);
+            me->SendMessageToSet(&data, true);
         }
 
         void UpdateAI(const uint32 diff)
@@ -448,21 +448,21 @@ public:
 
         void ReceiveEmote(Player* pPlayer, uint32 emote)
         {
-            if (me->IsWithinLOS(pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ()) && me->IsWithinDistInMap(pPlayer,30.0f))
+            if (me->IsWithinLOS(pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ()) && me->IsWithinDistInMap(pPlayer, 30.0f))
             {
                 me->SetInFront(pPlayer);
                 active = false;
 
                 WorldPacket data;
                 me->BuildHeartBeatMsg(&data);
-                me->SendMessageToSet(&data,true);
+                me->SendMessageToSet(&data, true);
                 switch(emote)
                 {
-                    case TEXTEMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_SHY); break;
-                    case TEXTEMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-                    case TEXTEMOTE_BOW:     me->HandleEmoteCommand(EMOTE_ONESHOT_BOW); break;
-                    case TEXTEMOTE_JOKE:    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
-                    case TEXTEMOTE_DANCE:
+                    case TEXT_EMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_SHY); break;
+                    case TEXT_EMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
+                    case TEXT_EMOTE_BOW:     me->HandleEmoteCommand(EMOTE_ONESHOT_BOW); break;
+                    case TEXT_EMOTE_JOKE:    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
+                    case TEXT_EMOTE_DANCE:
                     {
                         if (!pPlayer->HasAura(SPELL_SEDUCTION))
                             DoCast(pPlayer, SPELL_SEDUCTION, true);
@@ -756,7 +756,7 @@ public:
                 //stand up
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
 
-                DoScriptText(RAND(SAY_DOC1,SAY_DOC2,SAY_DOC3), me);
+                DoScriptText(RAND(SAY_DOC1, SAY_DOC2, SAY_DOC3), me);
 
                 uint32 mobId = me->GetEntry();
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -879,7 +879,7 @@ enum eGarments
     ENTRY_KORJA             = 12430,
     ENTRY_DG_KEL            = 12428,
 
-    //used by 12429,12423,12427,12430,12428, but signed for 12429
+    //used by 12429, 12423, 12427, 12430, 12428, but signed for 12429
     SAY_COMMON_HEALED       = -1000164,
     SAY_DG_KEL_THANKS       = -1000165,
     SAY_DG_KEL_GOODBYE      = -1000166,
@@ -946,14 +946,14 @@ public:
                             {
                                 if (bIsHealed && !bCanRun && Spell->Id == SPELL_FORTITUDE_R1)
                                 {
-                                    DoScriptText(SAY_SHAYA_THANKS,me,pCaster);
+                                    DoScriptText(SAY_SHAYA_THANKS, me, pCaster);
                                     bCanRun = true;
                                 }
                                 else if (!bIsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
                                 {
                                     caster = pCaster->GetGUID();
                                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    DoScriptText(SAY_COMMON_HEALED,me,pCaster);
+                                    DoScriptText(SAY_COMMON_HEALED, me, pCaster);
                                     bIsHealed = true;
                                 }
                             }
@@ -963,14 +963,14 @@ public:
                             {
                                 if (bIsHealed && !bCanRun && Spell->Id == SPELL_FORTITUDE_R1)
                                 {
-                                    DoScriptText(SAY_ROBERTS_THANKS,me,pCaster);
+                                    DoScriptText(SAY_ROBERTS_THANKS, me, pCaster);
                                     bCanRun = true;
                                 }
                                 else if (!bIsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
                                 {
                                     caster = pCaster->GetGUID();
                                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    DoScriptText(SAY_COMMON_HEALED,me,pCaster);
+                                    DoScriptText(SAY_COMMON_HEALED, me, pCaster);
                                     bIsHealed = true;
                                 }
                             }
@@ -980,14 +980,14 @@ public:
                             {
                                 if (bIsHealed && !bCanRun && Spell->Id == SPELL_FORTITUDE_R1)
                                 {
-                                    DoScriptText(SAY_DOLF_THANKS,me,pCaster);
+                                    DoScriptText(SAY_DOLF_THANKS, me, pCaster);
                                     bCanRun = true;
                                 }
                                 else if (!bIsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
                                 {
                                     caster = pCaster->GetGUID();
                                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    DoScriptText(SAY_COMMON_HEALED,me,pCaster);
+                                    DoScriptText(SAY_COMMON_HEALED, me, pCaster);
                                     bIsHealed = true;
                                 }
                             }
@@ -997,14 +997,14 @@ public:
                             {
                                 if (bIsHealed && !bCanRun && Spell->Id == SPELL_FORTITUDE_R1)
                                 {
-                                    DoScriptText(SAY_KORJA_THANKS,me,pCaster);
+                                    DoScriptText(SAY_KORJA_THANKS, me, pCaster);
                                     bCanRun = true;
                                 }
                                 else if (!bIsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
                                 {
                                     caster = pCaster->GetGUID();
                                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    DoScriptText(SAY_COMMON_HEALED,me,pCaster);
+                                    DoScriptText(SAY_COMMON_HEALED, me, pCaster);
                                     bIsHealed = true;
                                 }
                             }
@@ -1014,14 +1014,14 @@ public:
                             {
                                 if (bIsHealed && !bCanRun && Spell->Id == SPELL_FORTITUDE_R1)
                                 {
-                                    DoScriptText(SAY_DG_KEL_THANKS,me,pCaster);
+                                    DoScriptText(SAY_DG_KEL_THANKS, me, pCaster);
                                     bCanRun = true;
                                 }
                                 else if (!bIsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
                                 {
                                     caster = pCaster->GetGUID();
                                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    DoScriptText(SAY_COMMON_HEALED,me,pCaster);
+                                    DoScriptText(SAY_COMMON_HEALED, me, pCaster);
                                     bIsHealed = true;
                                 }
                             }
@@ -1030,7 +1030,7 @@ public:
 
                     //give quest credit, not expect any special quest objectives
                     if (bCanRun)
-                        CAST_PLR(pCaster)->TalkedToCreature(me->GetEntry(),me->GetGUID());
+                        CAST_PLR(pCaster)->TalkedToCreature(me->GetEntry(), me->GetGUID());
                 }
             }
         }
@@ -1045,18 +1045,18 @@ public:
             {
                 if (RunAwayTimer <= diff)
                 {
-                    if (Unit *pUnit = Unit::GetUnit(*me,caster))
+                    if (Unit *pUnit = Unit::GetUnit(*me, caster))
                     {
                         switch(me->GetEntry())
                         {
-                            case ENTRY_SHAYA: DoScriptText(SAY_SHAYA_GOODBYE,me,pUnit); break;
-                            case ENTRY_ROBERTS: DoScriptText(SAY_ROBERTS_GOODBYE,me,pUnit); break;
-                            case ENTRY_DOLF: DoScriptText(SAY_DOLF_GOODBYE,me,pUnit); break;
-                            case ENTRY_KORJA: DoScriptText(SAY_KORJA_GOODBYE,me,pUnit); break;
-                            case ENTRY_DG_KEL: DoScriptText(SAY_DG_KEL_GOODBYE,me,pUnit); break;
+                            case ENTRY_SHAYA: DoScriptText(SAY_SHAYA_GOODBYE, me, pUnit); break;
+                            case ENTRY_ROBERTS: DoScriptText(SAY_ROBERTS_GOODBYE, me, pUnit); break;
+                            case ENTRY_DOLF: DoScriptText(SAY_DOLF_GOODBYE, me, pUnit); break;
+                            case ENTRY_KORJA: DoScriptText(SAY_KORJA_GOODBYE, me, pUnit); break;
+                            case ENTRY_DG_KEL: DoScriptText(SAY_DG_KEL_GOODBYE, me, pUnit); break;
                         }
 
-                        Start(false,true,true);
+                        Start(false, true, true);
                     }
                     else
                         EnterEvadeMode();                       //something went wrong
@@ -1142,7 +1142,7 @@ public:
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-        if (pPlayer->HasItemCount(ITEM_KT_SIGNET,1) && (!pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_A) ||
+        if (pPlayer->HasItemCount(ITEM_KT_SIGNET, 1) && (!pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_A) ||
             !pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_H) || !pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_N)))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT_TO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
@@ -1156,7 +1156,7 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,SPELL_TELEPORT_DALARAN,false);
+            pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_DALARAN, false);
         }
         return true;
     }
@@ -1251,7 +1251,7 @@ public:
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
@@ -1284,7 +1284,7 @@ public:
         if (pPlayer->GetSpecsCount() == 1 && pCreature->isCanTrainingAndResetTalentsOf(pPlayer) && pPlayer->getLevel() >= sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE3, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_LEARNDUALSPEC);
 
-        if (pPlayer->getClass() == CLASS_ROGUE && pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126,1) && !pPlayer->GetQuestRewardStatus(6681))
+        if (pPlayer->getClass() == CLASS_ROGUE && pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126, 1) && !pPlayer->GetQuestRewardStatus(6681))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ROGUE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             pPlayer->SEND_GOSSIP_MENU(5996, pCreature->GetGUID());
@@ -1301,10 +1301,10 @@ public:
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->CastSpell(pPlayer,21100,false);
+                pPlayer->CastSpell(pPlayer, 21100, false);
                 break;
             case GOSSIP_ACTION_TRAIN:
-                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendTrainerList(pCreature->GetGUID());
                 break;
             case GOSSIP_OPTION_UNLEARNTALENTS:
                 pPlayer->CLOSE_GOSSIP_MENU();
@@ -1316,7 +1316,7 @@ public:
                     if (!pPlayer->HasEnoughMoney(10000000))
                     {
                         pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-                        pPlayer->PlayerTalkClass->CloseGossip();
+                        pPlayer->PlayerTalkClass->SendCloseGossip();
                         break;
                     }
                     else
@@ -1325,11 +1325,11 @@ public:
 
                         // Cast spells that teach dual spec
                         // Both are also ImplicitTarget self and must be cast by player
-                        pPlayer->CastSpell(pPlayer,63680,true,NULL,NULL,pPlayer->GetGUID());
-                        pPlayer->CastSpell(pPlayer,63624,true,NULL,NULL,pPlayer->GetGUID());
+                        pPlayer->CastSpell(pPlayer, 63680, true, NULL, NULL, pPlayer->GetGUID());
+                        pPlayer->CastSpell(pPlayer, 63624, true, NULL, NULL, pPlayer->GetGUID());
 
                         // Should show another Gossip text with "Congratulations..."
-                        pPlayer->PlayerTalkClass->CloseGossip();
+                        pPlayer->PlayerTalkClass->SendCloseGossip();
                     }
                 }
                 break;
@@ -1455,42 +1455,42 @@ public:
                 break;
             case GOSSIP_SENDER_MAIN+1:
                 pCreature->CastSpell(pPlayer, SPELL_DMG, false);
-                pPlayer->AddSpellCooldown(SPELL_DMG,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_DMG, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
             case GOSSIP_SENDER_MAIN+2:
                 pCreature->CastSpell(pPlayer, SPELL_RES, false);
-                pPlayer->AddSpellCooldown(SPELL_RES,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_RES, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
             case GOSSIP_SENDER_MAIN+3:
                 pCreature->CastSpell(pPlayer, SPELL_ARM, false);
-                pPlayer->AddSpellCooldown(SPELL_ARM,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_ARM, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
             case GOSSIP_SENDER_MAIN+4:
                 pCreature->CastSpell(pPlayer, SPELL_SPI, false);
-                pPlayer->AddSpellCooldown(SPELL_SPI,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_SPI, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
             case GOSSIP_SENDER_MAIN+5:
                 pCreature->CastSpell(pPlayer, SPELL_INT, false);
-                pPlayer->AddSpellCooldown(SPELL_INT,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_INT, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
             case GOSSIP_SENDER_MAIN+6:
                 pCreature->CastSpell(pPlayer, SPELL_STM, false);
-                pPlayer->AddSpellCooldown(SPELL_STM,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_STM, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
             case GOSSIP_SENDER_MAIN+7:
                 pCreature->CastSpell(pPlayer, SPELL_STR, false);
-                pPlayer->AddSpellCooldown(SPELL_STR,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_STR, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
             case GOSSIP_SENDER_MAIN+8:
                 pCreature->CastSpell(pPlayer, SPELL_AGI, false);
-                pPlayer->AddSpellCooldown(SPELL_AGI,0,time(NULL) + 7200);
+                pPlayer->AddSpellCooldown(SPELL_AGI, 0, time(NULL) + 7200);
                 SendAction(pPlayer, pCreature, uiAction);
                 break;
         }
@@ -1591,7 +1591,7 @@ public:
             if (!IsHolidayActive(HOLIDAY_BREWFEST))
                 return;
 
-            if (emote == TEXTEMOTE_DANCE)
+            if (emote == TEXT_EMOTE_DANCE)
                 me->CastSpell(pPlayer, 41586, false);
         }
     };
@@ -1622,11 +1622,11 @@ public:
             if (pPlayer->HasAura(26218))
                 return;
 
-            if (emote == TEXTEMOTE_KISS)
+            if (emote == TEXT_EMOTE_KISS)
             {
                 me->CastSpell(me, 26218, false);
                 pPlayer->CastSpell(pPlayer, 26218, false);
-                switch (urand(0,2))
+                switch (urand(0, 2))
                 {
                     case 0: me->CastSpell(pPlayer, 26207, false); break;
                     case 1: me->CastSpell(pPlayer, 26206, false); break;
@@ -1675,7 +1675,7 @@ public:
         {
             SpellTimer = 0;
 
-            CreatureInfo const *Info = me->GetCreatureInfo();
+            CreatureTemplate const *Info = me->GetCreatureInfo();
 
             if (Info->Entry == C_VIPER)
                 IsViper = true;
@@ -1690,7 +1690,7 @@ public:
 
             // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
             if (!me->getVictim() && me->isSummon())
-                if (Unit * Owner = CAST_SUM(me)->GetSummoner())
+                if (Unit * Owner = me->ToTempSummon()->GetSummoner())
                     if (Owner->getAttackerForHelper())
                         AttackStart(Owner->getAttackerForHelper());
         }
@@ -1725,10 +1725,10 @@ public:
             {
                 if (IsViper) //Viper
                 {
-                    if (urand(0,2) == 0) //33% chance to cast
+                    if (urand(0, 2) == 0) //33% chance to cast
                     {
                         uint32 spell;
-                        if (urand(0,1) == 0)
+                        if (urand(0, 1) == 0)
                             spell = SPELL_MIND_NUMBING_POISON;
                         else
                             spell = SPELL_CRIPPLING_POISON;
@@ -1740,7 +1740,7 @@ public:
                 }
                 else //Venomous Snake
                 {
-                    if (urand(0,2) == 0) //33% chance to cast
+                    if (urand(0, 2) == 0) //33% chance to cast
                         DoCast(me->getVictim(), SPELL_DEADLY_POISON);
                     SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() %5)*100;
                 }
@@ -1780,7 +1780,7 @@ public:
             victimGUID = 0;
             hearts = 15000;
             if (Unit* own = me->GetOwner())
-                me->GetMotionMaster()->MoveFollow(own,0,0);
+                me->GetMotionMaster()->MoveFollow(own, 0, 0);
         }
         void EnterCombat(Unit * /*who*/){}
         void UpdateAI(const uint32 diff)
@@ -1800,7 +1800,7 @@ public:
             Unit* own = me->GetOwner();
             if (!own || own->GetTypeId() != TYPEID_PLAYER || CAST_PLR(own)->GetTeam() != pPlayer->GetTeam())
                 return;
-            if (emote == TEXTEMOTE_KISS)
+            if (emote == TEXT_EMOTE_KISS)
             {
                 std::string whisp = "";
                 switch (rand()%8)
@@ -1818,17 +1818,17 @@ public:
                         break;
                     case 7:whisp.append(SAY_RANDOM_MOJO7);break;
                 }
-                me->MonsterWhisper(whisp.c_str(),pPlayer->GetGUID());
+                me->MonsterWhisper(whisp.c_str(), pPlayer->GetGUID());
                 if (victimGUID)
                 {
                     Player* victim = Unit::GetPlayer(*me, victimGUID);
                     if (victim)
                         victim->RemoveAura(43906);//remove polymorph frog thing
                 }
-                me->AddAura(43906,pPlayer);//add polymorph frog thing
+                me->AddAura(43906, pPlayer);//add polymorph frog thing
                 victimGUID = pPlayer->GetGUID();
                 DoCast(me, 20372, true);//tag.hearts
-                me->GetMotionMaster()->MoveFollow(pPlayer,0,0);
+                me->GetMotionMaster()->MoveFollow(pPlayer, 0, 0);
                 hearts = 15000;
             }
         }
@@ -1837,6 +1837,78 @@ public:
     CreatureAI *GetAI(Creature *creature) const
     {
         return new mob_mojoAI(creature);
+    }
+};
+
+//UPDATE `creature_template` SET `ScriptName` = 'npc_spring_rabbit' WHERE `entry` = 32791;
+enum eSpringRabbit
+{
+    NPC_SPRING_RABBIT           = 32791,
+    NPC_SPRING_RABBIT_BABBY     = 32793,
+    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
+    SPELL_SPRING_RABBIT_JUMP    = 61724,
+    SPELL_SPRING_RABBIT_FLING   = 61875,
+};
+
+class npc_spring_rabbit : public CreatureScript
+{
+public:
+    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
+
+    struct npc_spring_rabbitAI : public ScriptedAI
+    {
+        npc_spring_rabbitAI(Creature *c) : ScriptedAI(c) {Reset();}
+        bool m_bIsLove;
+        uint32 uiCheckTimer;
+
+        void Reset()
+        {
+            uiCheckTimer = 5000;
+            m_bIsLove = false;
+
+            if (Unit* own = me->GetOwner())
+                me->GetMotionMaster()->MoveFollow(own,0,0);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (uiCheckTimer <= diff)
+            {
+                if (!m_bIsLove)
+                {
+                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 7, true))
+                    {
+                        if (rabbit->GetGUID() == me->GetGUID())
+                            return;
+                            
+                        if (!rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
+                        {
+                            me->CastSpell(me, SPELL_SPRING_RABBIT_IN_LOVE, true);
+                            rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_IN_LOVE, true);
+
+                            if (Unit* owner = me->GetOwner())
+                                owner->CastSpell(owner, SPELL_SPRING_RABBIT_FLING, true);
+
+                            if (Unit* owner = rabbit->GetOwner())
+                                owner->CastSpell(owner, SPELL_SPRING_RABBIT_FLING, true);
+
+                            m_bIsLove = true;
+                        }
+                    }
+                }
+  
+                DoCast(me, SPELL_SPRING_RABBIT_JUMP);
+
+                uiCheckTimer = urand(5000, 8000);
+            }
+            else
+                uiCheckTimer -= diff;
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_spring_rabbitAI(creature);
     }
 };
 
@@ -1911,9 +1983,9 @@ public:
             Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
             me->VisitNearbyObject(30, searcher);
             for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                if ((*iter)->GetAura(49206,owner->GetGUID()))
+                if ((*iter)->GetAura(49206, owner->GetGUID()))
                 {
-                    me->Attack((*iter),false);
+                    me->Attack((*iter), false);
                     break;
                 }
         }
@@ -2016,7 +2088,7 @@ public:
 
         void Reset()
         {
-            me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
+            me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
             uiResetTimer = 5000;
@@ -2049,7 +2121,7 @@ public:
                 return;
 
             if (!me->HasUnitState(UNIT_STAT_STUNNED))
-                me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
+                me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
 
             if (uiEntry != NPC_ADVANCED_TARGET_DUMMY && uiEntry != NPC_TARGET_DUMMY)
             {
@@ -2097,11 +2169,11 @@ public:
         void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
         {
             if (me->isSummon())
-                if (Unit* pOwner = CAST_SUM(me)->GetSummoner())
+                if (Unit* pOwner = me->ToTempSummon()->GetSummoner())
                 {
                     if (pOwner->HasAura(GLYPH_OF_SHADOWFIEND))
                         if (damage >= me->GetHealth())
-                            pOwner->CastSpell(pOwner,GLYPH_OF_SHADOWFIEND_MANA,true);
+                            pOwner->CastSpell(pOwner, GLYPH_OF_SHADOWFIEND_MANA, true);
                 }
         }
 
@@ -2146,7 +2218,7 @@ public:
     {
         if (pCreature->isSummon())
         {
-            if (pPlayer == CAST_SUM(pCreature)->GetSummoner())
+            if (pPlayer == pCreature->ToTempSummon()->GetSummoner())
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -2163,7 +2235,7 @@ public:
     bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
-        bool roll = urand(0,1);
+        bool roll = urand(0, 1);
 
         switch(uiAction)
         {
@@ -2488,7 +2560,7 @@ public:
             pPlayer->SEND_GOSSIP_MENU(13583, pCreature->GetGUID());
         }
         else
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
 
         return true;
     }
@@ -2499,7 +2571,7 @@ public:
         switch(uiAction)
         {
             case GOSSIP_ACTION_TRADE:
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
                 pPlayer->CLOSE_GOSSIP_MENU();
@@ -2592,7 +2664,7 @@ public:
                 pPlayer->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
         }
-        pPlayer->PlayerTalkClass->CloseGossip();
+        pPlayer->PlayerTalkClass->SendCloseGossip();
         return true;
     }
 };
@@ -2717,7 +2789,7 @@ public:
                 break;
             case GOSSIP_ACTION_TRADE:
                 pCreature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                pPlayer->GetSession()->SendListInventory(pCreature->GetGUID());
                 if (!pCreature->HasAura(SPELL_SQUIRE_SHOP))
                     pCreature->AddAura(SPELL_SQUIRE_SHOP, pCreature);
                 if (!pPlayer->HasAura(SPELL_CHECK_TIRED))
@@ -2745,7 +2817,7 @@ public:
                 pCreature->AI()->SetData(1, uiAction);
                 break;
         }
-        pPlayer->PlayerTalkClass->CloseGossip();
+        pPlayer->PlayerTalkClass->SendCloseGossip();
         return true;
     }
 
@@ -2826,6 +2898,7 @@ void AddSC_npcs_special()
     new npc_mirror_image;
     new npc_ebon_gargoyle;
     new npc_lightwell;
+    new npc_spring_rabbit();
     new mob_mojo;
     new npc_training_dummy;
     new npc_shadowfiend;
