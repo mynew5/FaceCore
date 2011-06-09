@@ -34,7 +34,7 @@
 
 // Movement anticheat defines
 //#define ANTICHEAT_DEBUG
-#define ANTICHEAT_EXCEPTION_INFO
+//#define ANTICHEAT_EXCEPTION_INFO
 // End Movement anticheat defines
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
