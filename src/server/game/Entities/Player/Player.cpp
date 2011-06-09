@@ -769,6 +769,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_anti_Last_HSpeed =  7.0f;          // horizontal speed, default RUN speed
     m_anti_Last_VSpeed = -2.3f;          // vertical speed, default max jump height
 
+    m_vistawow_antihack_TriggerCount = 0;
+
     m_anti_TeleToPlane_Count = 0;        // Teleport To Plane alarm counter
 
     m_anti_AlarmCount = 0;               // alarm counter

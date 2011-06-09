@@ -2688,6 +2688,8 @@ class Player : public Unit, public GridObject<Player>
         float m_anti_Last_HSpeed;               // horizontal speed, default RUN speed
         float m_anti_Last_VSpeed;               // vertical speed, default max jump height
 
+        uint32 m_vistawow_antihack_TriggerCount;
+
         uint32 m_anti_TeleToPlane_Count;        // Teleport To Plane alarm counter
 
         uint64 m_anti_AlarmCount;               // alarm counter
