@@ -468,7 +468,7 @@ void Log::outCrash(const char * err, ...)
 
 void Log::outError(const char * err, ...)
 {
-    // return; // disable this function
+    return; // disable this function
     if (!err)
         return;
 
