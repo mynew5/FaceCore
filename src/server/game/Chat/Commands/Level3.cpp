@@ -103,7 +103,7 @@ bool ChatHandler::HandleSetSkillCommand(const char *args)
 
     int32 level = atol (level_p);
 
-    Player * target = getSelectedPlayer();
+    Player* target = getSelectedPlayer();
     if (!target)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -614,7 +614,7 @@ bool ChatHandler::HandleListObjectCommand(const char *args)
         return false;
     }
 
-    GameObjectTemplate const * gInfo = sObjectMgr->GetGameObjectTemplate(go_id);
+    GameObjectTemplate const* gInfo = sObjectMgr->GetGameObjectTemplate(go_id);
     if (!gInfo)
     {
         PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, go_id);
@@ -728,7 +728,7 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
             float z = fields[3].GetFloat();
             int mapid = fields[4].GetUInt16();
 
-            if  (m_session)
+            if (m_session)
                 PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name.c_str(), x, y, z, mapid);
             else
                 PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name.c_str(), x, y, z, mapid);
@@ -1676,7 +1676,7 @@ bool ChatHandler::HandleGuildCreateCommand(const char *args)
         return true;
     }
 
-    Guild *guild = new Guild;
+    Guild* guild = new Guild;
     if (!guild->Create (target, guildname))
     {
         delete guild;
@@ -1944,7 +1944,7 @@ bool ChatHandler::HandleReviveCommand(const char *args)
 
 bool ChatHandler::HandleAuraCommand(const char *args)
 {
-    Unit *target = getSelectedUnit();
+    Unit* target = getSelectedUnit();
     if (!target)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
@@ -1956,14 +1956,14 @@ bool ChatHandler::HandleAuraCommand(const char *args)
     uint32 spellID = extractSpellIdFromLink((char*)args);
 
     if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID))
-        Aura::TryCreate(spellInfo, target, target);
+        Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
 
     return true;
 }
 
 bool ChatHandler::HandleUnAuraCommand(const char *args)
 {
-    Unit *target = getSelectedUnit();
+    Unit* target = getSelectedUnit();
     if (!target)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
@@ -2367,7 +2367,7 @@ bool ChatHandler::HandleChangeWeather(const char *args)
     uint32 type = (uint32)atoi(px);                         //0 to 3, 0: fine, 1: rain, 2: snow, 3: sand
     float grade = (float)atof(py);                          //0 to 1, sending -1 is instand good weather
 
-    Player *player = m_session->GetPlayer();
+    Player* player = m_session->GetPlayer();
     uint32 zoneid = player->GetZoneId();
 
     Weather* wth = sWeatherMgr->FindWeather(zoneid);
@@ -2405,8 +2405,8 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
     {
         bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
 
-        AuraApplication const * aurApp = itr->second;
-        Aura const * aura = aurApp->GetBase();
+        AuraApplication const* aurApp = itr->second;
+        Aura const* aura = aurApp->GetBase();
         char const* name = aura->GetSpellProto()->SpellName[GetSessionDbcLocale()];
 
         if (m_session)
@@ -2529,12 +2529,12 @@ bool ChatHandler::HandleResetLevelCommand(const char * args)
     if (!HandleResetStatsOrLevelHelper(target))
         return false;
 
+    uint8 oldLevel = target->getLevel();
+
     // set starting level
     uint32 start_level = target->getClass() != CLASS_DEATH_KNIGHT
         ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
         : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
-
-    sScriptMgr->OnPlayerLevelChanged(target, start_level);
 
     target->_ApplyAllLevelScaleItemMods(false);
     target->SetLevel(start_level);
@@ -2550,6 +2550,8 @@ bool ChatHandler::HandleResetLevelCommand(const char * args)
     // reset level for pet
     if (Pet* pet = target->GetPet())
         pet->SynchronizeLevelWithOwner();
+
+    sScriptMgr->OnPlayerLevelChanged(target, oldLevel);
 
     return true;
 }
@@ -2608,15 +2610,15 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
         Creature* creature = getSelectedCreature();
         if (!*args && creature && creature->isPet())
         {
-            Unit *owner = creature->GetOwner();
-            if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet *)creature)->IsPermanentPetFor(owner->ToPlayer()))
+            Unit* owner = creature->GetOwner();
+            if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
             {
-                ((Pet *)creature)->resetTalents(true);
+                creature->ToPet()->resetTalents();
                 owner->ToPlayer()->SendTalentsInfoData(true);
 
                 ChatHandler(owner->ToPlayer()).SendSysMessage(LANG_RESET_PET_TALENTS);
                 if (!m_session || m_session->GetPlayer() != owner->ToPlayer())
-          PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, GetNameLink(owner->ToPlayer()).c_str());
+                    PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, GetNameLink(owner->ToPlayer()).c_str());
             }
             return true;
         }
@@ -3141,6 +3143,25 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleBanInfoAccountByCharCommand(const char *args)
+{
+    Player* target;
+    uint64 target_guid;
+    if (!extractPlayerTarget((char*)args, &target, &target_guid))
+        return false;
+
+    uint32 accountid = target ? target->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(target_guid);
+
+    std::string accountname;
+    if (!sAccountMgr->GetName(accountid,accountname))
+    {
+        PSendSysMessage(LANG_BANINFO_NOCHARACTER);
+        return true;
+    }
+
+    return HandleBanInfoHelper(accountid, accountname.c_str());
+}
+
 bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC", accountid);
@@ -3310,6 +3331,26 @@ bool ChatHandler::HandleBanListAccountCommand(const char *args)
     if (!result)
     {
         PSendSysMessage(LANG_BANLIST_NOACCOUNT);
+        return true;
+    }
+
+    return HandleBanListHelper(result);
+}
+
+bool ChatHandler::HandleBanListPlayerAccountCommand(const char *args)
+{
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
+
+    char* cFilter = strtok((char*)args, " ");
+    if(!cFilter)
+        return false;
+
+    std::string filter = cFilter;
+    LoginDatabase.escape_string(filter);
+    QueryResult result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
+    if (!result)
+    {
+        PSendSysMessage(LANG_BANLIST_NOCHARACTER);
         return true;
     }
 
@@ -4067,7 +4108,7 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
     }
     PSendSysMessage("player binds: %d", counter);
     counter = 0;
-    Group *group = player->GetGroup();
+    Group* group = player->GetGroup();
     if (group)
     {
         for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
@@ -4111,13 +4152,13 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
             return false;
     }
 
-    for(uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
         Player::BoundInstancesMap &binds = player->GetBoundInstances(Difficulty(i));
-        for(Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
+        for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
         {
             InstanceSave *save = itr->second.save;
-            if(itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
+            if (itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
             {
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
                 PSendSysMessage("unbinding map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
@@ -4404,7 +4445,7 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
     if (!channel || !argstr)
         return false;
 
-    Player *player = m_session->GetPlayer();
+    Player* player = m_session->GetPlayer();
     Channel *chn = NULL;
 
     if (ChannelMgr* cMgr = channelMgr(player->GetTeam()))
@@ -4412,7 +4453,7 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
 
     if (strcmp(argstr, "on") == 0)
     {
-        if(chn)
+        if (chn)
             chn->SetOwnership(true);
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL_OWNERSHIP);
         stmt->setUInt8 (0, 1);
@@ -4422,7 +4463,7 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
     }
     else if (strcmp(argstr, "off") == 0)
     {
-        if(chn)
+        if (chn)
             chn->SetOwnership(false);
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL_OWNERSHIP);
         stmt->setUInt8 (0, 0);
@@ -4465,7 +4506,7 @@ bool ChatHandler::HandlePlayAllCommand(const char *args)
 bool ChatHandler::HandleFreezeCommand(const char *args)
 {
     std::string name;
-    Player *player;
+    Player* player;
     char *TargetName = strtok((char*)args, " "); //get entered name
     if (!TargetName) //if no name entered use target
     {
@@ -4521,7 +4562,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
 
         //m_session->GetPlayer()->CastSpell(player, spellID, false);
         if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(9454))
-            Aura::TryCreate(spellInfo, player, player);
+            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
         //save player
         player->SaveToDB();
@@ -4532,7 +4573,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
 bool ChatHandler::HandleUnFreezeCommand(const char *args)
 {
     std::string name;
-    Player *player;
+    Player* player;
     char *TargetName = strtok((char*)args, " "); //get entered name
     if (!TargetName) //if no name entered use target
     {

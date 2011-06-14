@@ -76,9 +76,7 @@ void AddSC_wp_commandscript();
 #ifdef SCRIPTS
 //world
 void AddSC_areatrigger_scripts();
-void AddSC_boss_emeriss();
-void AddSC_boss_taerar();
-void AddSC_boss_ysondre();
+void AddSC_emerald_dragons();
 void AddSC_generic_creature();
 void AddSC_go_scripts();
 void AddSC_guards();
@@ -133,6 +131,7 @@ void AddSC_boss_mr_smite();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_gnomeregan();                     //Gnomeregan
+void AddSC_operation_gnomeregan();           //Operation Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
@@ -687,9 +686,7 @@ void AddWorldScripts()
 {
 #ifdef SCRIPTS
     AddSC_areatrigger_scripts();
-    AddSC_boss_emeriss();
-    AddSC_boss_taerar();
-    AddSC_boss_ysondre();
+    AddSC_emerald_dragons();
     AddSC_generic_creature();
     AddSC_go_scripts();
     AddSC_guards();
@@ -749,6 +746,7 @@ void AddEasternKingdomsScripts()
     AddSC_deadmines();                      //Deadmines
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
+    AddSC_operation_gnomeregan();           //Operation Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();

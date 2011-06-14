@@ -390,7 +390,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             }
 
             if (real_delta > allowed_delta) {
-                if ((++plMover->m_vistawow_antihack_TriggerCount >= 3) || ((real_delta > 350.0f) && (real_delta > (allowed_delta * 5.0f)))) {
+                if ((++plMover->m_vistawow_antihack_TriggerCount >= 5) || ((real_delta > 400.0f) && (real_delta > (allowed_delta * 10.0f)))) {
                     WorldPacket data;
                     plMover->SetUnitMovementFlags(0);
                     plMover->SendTeleportAckPacket();

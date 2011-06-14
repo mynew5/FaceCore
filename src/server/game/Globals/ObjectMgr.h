@@ -348,7 +348,7 @@ struct SpellClickInfo
     SpellClickUserTypes userType;
 
     // helpers
-    bool IsFitToRequirements(Unit const* clicker, Unit const * clickee) const;
+    bool IsFitToRequirements(Unit const* clicker, Unit const* clickee) const;
 };
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoMap;
@@ -475,19 +475,19 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
-    uint32          menu_id;
-    uint32          id;
-    uint8           option_icon;
-    std::string     option_text;
-    uint32          option_id;
-    uint32          npc_option_npcflag;
-    uint32          action_menu_id;
-    uint32          action_poi_id;
-    uint32          action_script_id;
-    bool            box_coded;
-    uint32          box_money;
-    std::string     box_text;
-    ConditionList   conditions;
+    uint32          MenuId;
+    uint32          OptionIndex;
+    uint8           OptionIcon;
+    std::string     OptionText;
+    uint32          OptionType;
+    uint32          OptionNpcflag;
+    uint32          ActionMenuId;
+    uint32          ActionPoiId;
+    uint32          ActionScriptId;
+    bool            BoxCoded;
+    uint32          BoxMoney;
+    std::string     BoxText;
+    ConditionList   Conditions;
 };
 
 struct GossipMenus
@@ -648,7 +648,7 @@ class ObjectMgr
         ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId)
         {
             ItemSetNameMap::iterator itr = mItemSetNameMap.find(itemId);
-            if(itr != mItemSetNameMap.end())
+            if (itr != mItemSetNameMap.end())
                 return &itr->second;
             return NULL;
         }
