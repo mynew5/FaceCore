@@ -584,7 +584,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 
                 // speed and teleport hack checks
                 if (real_delta > allowed_delta)
-                    if ((++plMover->m_vistawow_antihack_TriggerCount >= 5) || ((real_delta > 400.0f) && (real_delta > (allowed_delta * 8.0f))))
+                    if ((++plMover->m_vistawow_antihack_TriggerCount >= 8) || ((real_delta > 500.0f) && (real_delta > (allowed_delta * 13.0f))))
                 {
                     #ifdef ANTICHEAT_EXCEPTION_INFO
                     if (real_delta < 4900.0f)
