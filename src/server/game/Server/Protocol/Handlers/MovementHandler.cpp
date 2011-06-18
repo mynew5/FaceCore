@@ -342,6 +342,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     if (plMover)
         sAnticheatMgr->StartHackDetection(plMover, movementInfo, opcode);
 
+    // VISTAWOW ANTICHEAT
+    if (plMover)
+        if (plMover->GetAntiCheat()->BlockMovementOperation(&movementInfo, opcode))
+            return;
+
     /*----------------------*/
 
     /* process position-change */

@@ -12560,6 +12560,10 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     //if (this->ToPlayer())
     //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
 
+    // VISTAWOW ANTICHEAT
+    if (GetTypeId() == TYPEID_PLAYER)
+        this->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
@@ -16565,6 +16569,10 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
     //if (this->ToPlayer())
     //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
+
+    // VISTAWOW ANTICHEAT
+    if (GetTypeId() == TYPEID_PLAYER)
+        this->ToPlayer()->GetAntiCheat()->SetSleep(4000);
 
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)

@@ -3298,6 +3298,14 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                     target->SetPower(POWER_RAGE, Rage_val);
                 break;
             }
+            case FORM_FLIGHT_EPIC:
+            case FORM_FLIGHT:
+            {
+                // VISTAWOW ANTICHEAT
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+                break;
+            }
             default:
                 break;
         }

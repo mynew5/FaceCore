@@ -6242,6 +6242,10 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     //if (m_caster->ToPlayer())
     //   sAnticheatMgr->DisableAnticheatDetection(m_caster->ToPlayer());
 
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
+
     float x, y, z;
     target->GetContactPoint(m_caster, x, y, z);
     m_caster->GetMotionMaster()->MoveCharge(x, y, z);
@@ -6257,6 +6261,10 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
     {
         //if (m_caster->ToPlayer())
         //    sAnticheatMgr->DisableAnticheatDetection(m_caster->ToPlayer());
+
+        // VISTAWOW ANTICHEAT
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
 
         float x, y, z;
         m_targets.m_dstPos.GetPosition(x, y, z);
@@ -6323,6 +6331,10 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 {
     //if (m_caster->ToPlayer())
     //    sAnticheatMgr->DisableAnticheatDetection(m_caster->ToPlayer());
+
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(4000);
 
     float speedxy = float(m_spellInfo->EffectMiscValue[effIndex])/10;
     float speedz = float(damage/10);

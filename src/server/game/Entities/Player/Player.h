@@ -884,6 +884,27 @@ enum CurrencyItems
     ITEM_ARENA_POINTS_ID    = 43307
 };
 
+// VISTAWOW ANTICHEAT
+class AntiCheat
+{
+    private:
+        Player* plMover;
+        time_t WakeUpTime;
+        time_t LastClientTime;
+        uint32 TriggerCount;
+    public:
+        AntiCheat(Player *player) {
+            plMover = player;
+            WakeUpTime = LastClientTime = 0;
+            TriggerCount = 0;
+        };
+        ~AntiCheat() { };
+        void SetSleep(uint32 delta) {
+            WakeUpTime = getMSTime() + delta;
+        };
+        bool BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode);
+};
+
 class PlayerTaxi
 {
     public:
@@ -1074,6 +1095,9 @@ class Player : public Unit, public GridObject<Player>
         {
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
+
+        // VISTAWOW ANTICHEAT
+        AntiCheat* GetAntiCheat() { return m_anticheat; };
 
         bool TeleportToBGEntryPoint();
 
@@ -2740,6 +2764,9 @@ class Player : public Unit, public GridObject<Player>
             if (operation < DELAYED_END)
                 m_DelayedOperations |= operation;
         }
+
+        // VISTAWOW ANTICHEAT
+        AntiCheat* m_anticheat;
 
         MapReference m_mapRef;
 
