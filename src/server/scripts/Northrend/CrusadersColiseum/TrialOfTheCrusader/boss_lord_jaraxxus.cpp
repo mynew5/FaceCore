@@ -317,7 +317,7 @@ public:
 
         void Reset()
         {
-            me->SetReactState(REACT_PASSIVE);
+            me->AddUnitState(UNIT_STAT_ROOT);
             m_Count = 0;
             if (!IsHeroic())
             {
@@ -447,7 +447,7 @@ public:
 
         void Reset()
         {
-            me->SetReactState(REACT_PASSIVE);
+            me->AddUnitState(UNIT_STAT_ROOT);
             m_Timer = 10*IN_MILLISECONDS;
             m_Count = 0;
             if (!IsHeroic())
