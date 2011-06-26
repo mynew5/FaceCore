@@ -1957,6 +1957,10 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (m_caster->isInFlight())
         return;
 
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+
     float x, y, z;
     if (m_targets.getUnitTarget())
         m_targets.getUnitTarget()->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
@@ -1977,6 +1981,10 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 {
     if (m_caster->isInFlight())
         return;
+
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(1500);
 
     // Init dest coordinates
     float x, y, z;
@@ -6395,6 +6403,10 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
 {
     if (!unitTarget)
         return;
+
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(1500);
 
     float speedZ = (float)(SpellMgr::CalculateSpellEffectAmount(m_spellInfo, effIndex) / 10);
     float speedXY = (float)(m_spellInfo->EffectMiscValue[effIndex]/10);
