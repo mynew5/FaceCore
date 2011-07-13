@@ -63,7 +63,7 @@ enum VmapDisableTypes
     VMAP_DISABLE_LIQUIDSTATUS   = 0x8,
 };
 
-#define MAX_DISABLE_TYPES 7
+#define MAX_DISABLE_TYPES 8
 
 struct DisableData
 {

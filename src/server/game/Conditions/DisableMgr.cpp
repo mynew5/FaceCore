@@ -369,21 +369,21 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
         case DISABLE_TYPE_ENVIRONMENTALDAMAGE:
         {
             uint8 flags = itr->second.flags;
-            if (pUnit)
+            if (unit)
             {
                 if (flags & ENVIRONMENTALDAMAGE_DISABLE_WORLD)
                     return true;
                 if (flags & ENVIRONMENTALDAMAGE_DISABLE_MAP)
                 {
                     std::set<uint32> const& mapIds = itr->second.params[0];
-                    if (mapIds.find(pUnit->GetMapId()) != mapIds.end())
+                    if (mapIds.find(unit->GetMapId()) != mapIds.end())
                         return true;
                 }
 
                 if (flags & ENVIRONMENTALDAMAGE_DISABLE_AREA)
                 {
                     std::set<uint32> const& areaIds = itr->second.params[1];
-                    if (areaIds.find(pUnit->GetAreaId()) != areaIds.end())
+                    if (areaIds.find(unit->GetAreaId()) != areaIds.end())
                         return true;
                 }
                 return false;
