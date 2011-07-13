@@ -1254,9 +1254,6 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     if (!isAlive() || isGameMaster())
         return 0;
 
-    if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_ENVIRONMENTALDAMAGE, type, this))
-        return 0;
-
     // Absorb, resist some environmental damage type
     uint32 absorb = 0;
     uint32 resist = 0;
