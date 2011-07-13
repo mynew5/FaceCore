@@ -32,6 +32,7 @@ enum DisableType
     DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4,
     DISABLE_TYPE_OUTDOORPVP             = 5,
     DISABLE_TYPE_ENVIRONMENTALDAMAGE    = 6,
+    DISABLE_TYPE_VMAP                   = 7,
 };
 
 enum SpellDisableTypes
@@ -54,6 +55,14 @@ enum EnvironmentalDamageDisableTypes
     MAX_ENVIRONMENTALDAMAGE_DISABLE_TYPE = ( ENVIRONMENTALDAMAGE_DISABLE_WORLD | ENVIRONMENTALDAMAGE_DISABLE_MAP | ENVIRONMENTALDAMAGE_DISABLE_AREA),
 };
 
+enum VmapDisableTypes
+{
+    VMAP_DISABLE_AREAFLAG       = 0x1,
+    VMAP_DISABLE_HEIGHT         = 0x2,
+    VMAP_DISABLE_LOS            = 0x4,
+    VMAP_DISABLE_LIQUIDSTATUS   = 0x8,
+};
+
 #define MAX_DISABLE_TYPES 7
 
 struct DisableData
@@ -74,7 +83,7 @@ class DisableMgr
     public:
 
         void LoadDisables();
-        bool IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit);
+        bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
         void CheckQuestDisables();
 
     protected:
