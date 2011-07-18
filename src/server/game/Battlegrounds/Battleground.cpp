@@ -1366,7 +1366,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // If the assert is called, means that m_BgObjects must be resized!
     ASSERT(type < m_BgObjects.size());
 
-    Map *map = GetBgMap();
+    Map *map = GetBgMap(false);
     if (!map)
         return false;
     // Must be created this way, adding to godatamap would add it to the base map of the instance
