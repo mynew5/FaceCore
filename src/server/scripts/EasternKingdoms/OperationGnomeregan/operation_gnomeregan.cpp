@@ -1340,8 +1340,7 @@ class npc_og_mekkatorque : public CreatureScript
 
             void EnterCombat(Unit* pWho)
             {
-                if (pWho->ToCreature())
-                    SquadAssist(pWho->ToCreature());
+                SquadAssist(pWho->ToCreature());
             }
 
             void PartyCast(uint32 spell)
