@@ -291,9 +291,8 @@ class boss_blood_council_controller : public CreatureScript
 
                     if (Creature* prince = ObjectAccessor::GetCreature(*me, _invocationOrder[_invocationStage].guid))
                     {
-                        // make sure looting is allowed
-                        if (me->IsDamageEnoughForLootingAndReward())
-                            prince->LowerPlayerDamageReq(prince->GetMaxHealth());
+                        // should check something before opening loot
+                        prince->LowerPlayerDamageReq(prince->GetMaxHealth());
                         killer->Kill(prince);
                     }
                 }
