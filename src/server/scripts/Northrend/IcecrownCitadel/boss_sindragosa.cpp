@@ -346,12 +346,7 @@ class boss_sindragosa : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
-                if (!_firstAirPhaseDone && !HealthAbovePct(85))
-                {
-                    events.ScheduleEvent(EVENT_AIR_PHASE, 1000);
-                    _firstAirPhaseDone = true;
-                }
-                else if (!_isThirdPhase && !HealthAbovePct(35))
+                if (!_isThirdPhase && !HealthAbovePct(35))
                 {
                     //Do not start third phase while flying
                     if (me->IsFlying())
