@@ -464,13 +464,9 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
     return true;
 }
 
-void OutdoorPvPWG::ProcessEvent(WorldObject *w_obj, uint32 eventId)
+void OutdoorPvPWG::ProcessEvent(WorldObject* object, uint32 eventId)
 {
-    if (!w_obj)
-        return;
-
-    GameObject* obj = w_obj->ToGameObject();
-
+    GameObject* obj = object->ToGameObject();
     if (!obj)
         return;
 

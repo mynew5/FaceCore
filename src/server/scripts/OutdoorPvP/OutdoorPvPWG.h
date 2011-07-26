@@ -78,7 +78,7 @@ enum OutdoorPvP_WG_Sounds
     OutdoorPvP_WG_SOUND_NEAR_VICTORY            = 8456,
     OutdoorPvP_WG_SOUND_HORDE_WINS              = 8454,
     OutdoorPvP_WG_SOUND_ALLIANCE_WINS           = 8455,
-    OutdoorPvP_WG_SOUND_WORKSHOP_Horde          = 6205,
+    OutdoorPvP_WG_SOUND_WORKSHOP_HORDE          = 6205,
     OutdoorPvP_WG_SOUND_WORKSHOP_ALLIANCE       = 6298,
     OutdoorPvP_WG_HORDE_CAPTAIN                 = 8333,
     OutdoorPvP_WG_ALLIANCE_CAPTAIN              = 8232,
@@ -233,7 +233,7 @@ class OutdoorPvPWG : public OutdoorPvP
         void OnGameObjectCreate(GameObject *go);
         void OnCreatureRemove(Creature *creature);
         void OnGameObjectRemove(GameObject *go);
-        void ProcessEvent(WorldObject *w_obj, uint32 eventId);
+        void ProcessEvent(WorldObject* object, uint32 eventId);
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
         void HandlePlayerResurrects(Player * plr, uint32 zone);
