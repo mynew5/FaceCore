@@ -817,7 +817,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
     }
 }
 
-void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
+void BattlegroundIC::DestroyGate(Player* pl, GameObject* go, uint32 /*destroyedEvent*/)
 {
     GateStatus[GetGateIDFromEntry(go->GetEntry())] = BG_IC_GATE_DESTROYED;
     uint32 uws_open = GetWorldStateFromGateEntry(go->GetEntry(), true);
@@ -827,58 +827,30 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
         UpdateWorldState(uws_close, 0);
         UpdateWorldState(uws_open, 1);
     }
-    DoorOpen((player->GetTeamId() == TEAM_ALLIANCE ? BG_IC_GO_HORDE_KEEP_PORTCULLIS : BG_IC_GO_DOODAD_PORTCULLISACTIVE02));
+    DoorOpen((pl->GetTeamId() == TEAM_ALLIANCE ? BG_IC_GO_HORDE_KEEP_PORTCULLIS : BG_IC_GO_DOODAD_PORTCULLISACTIVE02));
 
     uint32 lang_entry = 0;
 
     switch(go->GetEntry())
     {
         case GO_HORDE_GATE_1:
-           ActivateBoss(TEAM_ALLIANCE);
-           lang_entry = LANG_BG_IC_NORTH_GATE_DESTROYED;
-           break;
+            lang_entry = LANG_BG_IC_NORTH_GATE_DESTROYED;
         case GO_HORDE_GATE_2:
-           ActivateBoss(TEAM_ALLIANCE);
-           lang_entry = LANG_BG_IC_WEST_GATE_DESTROYED;
-           break;
         case GO_ALLIANCE_GATE_1:
-           ActivateBoss(TEAM_HORDE);
-           lang_entry = LANG_BG_IC_WEST_GATE_DESTROYED;
-           break;
+            lang_entry = LANG_BG_IC_WEST_GATE_DESTROYED;
+            break;
         case GO_HORDE_GATE_3:
-           ActivateBoss(TEAM_ALLIANCE);
-           lang_entry = LANG_BG_IC_EAST_GATE_DESTROYED;
-           break;
         case GO_ALLIANCE_GATE_2:
-           ActivateBoss(TEAM_HORDE);
-           lang_entry = LANG_BG_IC_EAST_GATE_DESTROYED;
-           break;
+            lang_entry = LANG_BG_IC_EAST_GATE_DESTROYED;
+            break;
         case GO_ALLIANCE_GATE_3:
-           ActivateBoss(TEAM_HORDE);
-           lang_entry = LANG_BG_IC_SOUTH_GATE_DESTROYED;
-           break;
+            lang_entry = LANG_BG_IC_SOUTH_GATE_DESTROYED;
+            break;
     default:
         break;
     }
 
-    SendMessage2ToAll(lang_entry, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, (player->GetTeamId() == TEAM_ALLIANCE ? LANG_BG_IC_HORDE_KEEP : LANG_BG_IC_ALLIANCE_KEEP));
-}
-
-void BattlegroundIC::ActivateBoss(uint8 faction)
-{
-    Creature* icBoss;
-    if (faction == TEAM_ALLIANCE)
-    {
-        icBoss = GetBGCreature(BG_IC_NPC_OVERLORD_AGMAR);
-        if (icBoss)
-            icBoss->setFaction(83);
-    }
-    else
-    {
-        icBoss = GetBGCreature(BG_IC_NPC_HIGH_COMMANDER_HALFORD_WYRMBANE);
-        if (icBoss)
-            icBoss->setFaction(84);
-    }
+    SendMessage2ToAll(lang_entry, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, (pl->GetTeamId() == TEAM_ALLIANCE ? LANG_BG_IC_HORDE_KEEP : LANG_BG_IC_ALLIANCE_KEEP));
 }
 
 void BattlegroundIC::EventPlayerDamagedGO(Player* /*plr*/, GameObject* /*go*/, uint32 /*eventType*/)
