@@ -309,13 +309,8 @@ public:
 
         void Reset()
         {
-<<<<<<< HEAD
-            me->AddUnitState(UNIT_STAT_ROOT);
-            m_Count = 0;
-=======
             me->SetReactState(REACT_PASSIVE);
 
->>>>>>> ef57bc34393397ba99da2d70d5d756668852b050
             if (!IsHeroic())
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             else
@@ -423,14 +418,8 @@ public:
 
         void Reset()
         {
-<<<<<<< HEAD
-            me->AddUnitState(UNIT_STAT_ROOT);
-            m_Timer = 10*IN_MILLISECONDS;
-            m_Count = 0;
-=======
             me->SetReactState(REACT_PASSIVE);
 
->>>>>>> ef57bc34393397ba99da2d70d5d756668852b050
             if (!IsHeroic())
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             else
