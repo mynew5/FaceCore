@@ -52,20 +52,7 @@ public:
 
         Player* pTarget = NULL;
 
-        std::string strCommand;
-
-        char* command = strtok((char*)args, " ");
-
-        if (command)
-        {
-            strCommand = command;
-            normalizePlayerName(strCommand);
-
-            pTarget = sObjectMgr->GetPlayer(strCommand.c_str()); //get player by name
-        }else
-            pTarget = handler->getSelectedPlayer();
-
-        if (!pTarget)
+        if (!handler->extractPlayerTarget((char*)args, &pTarget))
             return false;
 
         WorldPacket data;
@@ -90,21 +77,7 @@ public:
             return false;
 
         Player* pTarget = NULL;
-
-        std::string strCommand;
-
-        char* command = strtok((char*)args, " ");
-
-        if (command)
-        {
-            strCommand = command;
-            normalizePlayerName(strCommand);
-
-            pTarget = sObjectMgr->GetPlayer(strCommand.c_str()); //get player by name
-        }else
-            pTarget = handler->getSelectedPlayer();
-
-        if (!pTarget)
+        if (!handler->extractPlayerTarget((char*)args, &pTarget))
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
             handler->SetSentErrorMessage(true);
@@ -152,8 +125,9 @@ public:
         else
         {
             normalizePlayerName(strCommand);
-            Player* player = sObjectMgr->GetPlayer(strCommand.c_str()); //get player by name
-            if (!player)
+            Player* player;
+            
+            if (!handler->extractPlayerTarget((char*)args, &player))
                 handler->PSendSysMessage("Player doesn't exist");
             else
                 sAnticheatMgr->AnticheatDeleteCommand(player->GetGUIDLow());
@@ -167,30 +141,9 @@ public:
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
             return false;
 
-        std::string strCommand;
-
-        char* command = strtok((char*)args, " ");
-
-        uint32 guid = 0;
-        Player* player = NULL;
-
-        if (command)
-        {
-            strCommand = command;
-
-            normalizePlayerName(strCommand);
-            player = sObjectMgr->GetPlayer(strCommand.c_str()); //get player by name
-
-            if (player)
-                guid = player->GetGUIDLow();
-        }else
-        {
-            player = handler->getSelectedPlayer();
-            if (player)
-                guid = player->GetGUIDLow();
-        }
-
-        if (!guid)
+        Player* player;
+        uint64 guid;
+        if (!handler->extractPlayerTarget((char*)args, &player, &guid))
         {
             handler->PSendSysMessage("There is no player.");
             return true;

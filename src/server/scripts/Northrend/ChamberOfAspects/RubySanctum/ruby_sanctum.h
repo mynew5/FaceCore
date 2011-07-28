@@ -69,4 +69,14 @@ enum uiWorldStates
     UPDATE_STATE_UI_SHOW			= 5051,
 };
 
-#endif
+template<class AI>
+CreatureAI* GetRubySanctumAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
+                return new AI(creature);
+    return NULL;
+}
+
+#endif // RUBY_SANCTUM_H_

@@ -432,7 +432,7 @@ public:
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SANITY);
                 // Reset Keepers
-                for (uint8 data = NPC_YS_FREYA; data <= NPC_YS_HODIR; ++data)
+                for (uint32 data = NPC_YS_FREYA; data <= NPC_YS_HODIR; ++data)
                 {
                     if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
                     {
@@ -444,7 +444,7 @@ public:
                     }
                 }
                 // Reset Yogg-Saron
-                for (uint8 data = NPC_YOGGSARON_BRAIN; data <= NPC_YOGGSARON; ++data)
+                for (uint32 data = NPC_YOGGSARON_BRAIN; data <= NPC_YOGGSARON; ++data)
                 {
                     if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
                         pCreature->AI()->EnterEvadeMode();
@@ -505,7 +505,7 @@ public:
             // Keepers activation
             if (instance)
             {
-                for (uint8 data = NPC_YS_FREYA; data <= NPC_YS_HODIR; ++data)
+                for (uint32 data = NPC_YS_FREYA; data <= NPC_YS_HODIR; ++data)
                 {
                     if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
                     {

@@ -659,7 +659,7 @@ public:
             DoCast(me, SPELL_ICE_BLOCK, true);
         }
 
-        void DoAction(const int32 /*param*/)
+        void SpellHit(Unit* hitter, const SpellInfo* spell)
         {
             me->Kill(me);
             me->Respawn();
