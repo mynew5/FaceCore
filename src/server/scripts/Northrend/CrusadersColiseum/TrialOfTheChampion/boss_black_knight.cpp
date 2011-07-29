@@ -67,8 +67,8 @@ enum eSpells
 
 enum eModels
 {
-     MODEL_SKELETON = 29846,
-     MODEL_GHOST    = 21300
+    MODEL_SKELETON = 29846,
+    MODEL_GHOST    = 21300
 };
 
 enum eEqip
@@ -445,7 +445,7 @@ public:
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
                     if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget,SPELL_LEAP);
+                    DoCast(pTarget, SPELL_LEAP);
                 }
                 uiAttackTimer = 3500;
             } else uiAttackTimer -= uiDiff;
