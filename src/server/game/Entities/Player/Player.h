@@ -908,6 +908,24 @@ class AntiCheat
         bool BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode);
 };
 
+enum ReferAFriendError
+{
+    ERR_REFER_A_FRIEND_NONE                          = 0x00,
+    ERR_REFER_A_FRIEND_NOT_REFERRED_BY               = 0x01,
+    ERR_REFER_A_FRIEND_TARGET_TOO_HIGH               = 0x02,
+    ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS = 0x03,
+    ERR_REFER_A_FRIEND_TOO_FAR                       = 0x04,
+    ERR_REFER_A_FRIEND_DIFFERENT_FACTION             = 0x05,
+    ERR_REFER_A_FRIEND_NOT_NOW                       = 0x06,
+    ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I             = 0x07,
+    ERR_REFER_A_FRIEND_NO_TARGET                     = 0x08,
+    ERR_REFER_A_FRIEND_NOT_IN_GROUP                  = 0x09,
+    ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I            = 0x0A,
+    ERR_REFER_A_FRIEND_SUMMON_COOLDOWN               = 0x0B,
+    ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL               = 0x0C,
+    ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
+};
+
 class PlayerTaxi
 {
     public:
@@ -1584,13 +1602,13 @@ class Player : public Unit, public GridObject<Player>
             return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
         }
 
-        const uint64& GetSelection() const { return m_curSelection; }
+        const uint64 GetSelection() const { return m_curSelection; }
         Unit *GetSelectedUnit() const;
         Player *GetSelectedPlayer() const;
-        void SetSelection(const uint64 &guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(const uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() { return m_comboPoints; }
-        const uint64& GetComboTarget() const { return m_comboTarget; }
+        const uint64 GetComboTarget() const { return m_comboTarget; }
 
         void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
         void GainSpellComboPoints(int8 count);
@@ -1921,8 +1939,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateManaRegen();
         void UpdateRuneRegen(RuneType rune);
 
-        const uint64& GetLootGUID() const { return m_lootGuid; }
-        void SetLootGUID(const uint64 &guid) { m_lootGuid = guid; }
+        const uint64 GetLootGUID() const { return m_lootGuid; }
+        void SetLootGUID(const uint64 guid) { m_lootGuid = guid; }
 
         void RemovedInsignia(Player* looterPlr);
 
@@ -2036,7 +2054,8 @@ class Player : public Unit, public GridObject<Player>
         bool isHonorOrXPTarget(Unit* pVictim);
 
         bool GetsRecruitAFriendBonus(bool forXP);
-        uint8 GetGrantableLevels() { return GetByteValue(PLAYER_FIELD_BYTES, 1); }
+        uint8 GetGrantableLevels() { return m_grantableLevels; }
+        void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
         ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
         ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
@@ -2426,7 +2445,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetSubGroup() const { return m_group.getSubGroup(); }
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
-        const uint64& GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
+        const uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup() const;
@@ -2742,6 +2761,9 @@ class Player : public Unit, public GridObject<Player>
         bool canSeeAlways(WorldObject const* obj) const;
 
         bool isAlwaysDetectableFor(WorldObject const* seer) const;
+
+        uint8 m_grantableLevels;
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult _CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const *pProto, uint32& count, bool swap, Item *pSrcItem) const;
