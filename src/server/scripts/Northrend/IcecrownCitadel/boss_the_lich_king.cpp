@@ -24,6 +24,7 @@
 #include "icecrown_citadel.h"
 #include "Group.h"
 #include "MapManager.h"
+#include "Vehicle.h"
 
 #define GOSSIP_MENU 10600
 //#define GOSSIP_MENU "Long have I waited for this day, hero. Are you and your allies prepared to bring the Lich King to justice? We charge on your command!"
