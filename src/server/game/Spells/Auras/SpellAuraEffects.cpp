@@ -36,6 +36,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "ScriptMgr.h"
+#include "Vehicle.h"
 
 class Aura;
 //
