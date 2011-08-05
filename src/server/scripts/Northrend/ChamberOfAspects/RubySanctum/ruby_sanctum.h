@@ -5,6 +5,8 @@
 #ifndef DEF_RUBY_SANCTUM_H
 #define DEF_RUBY_SANCTUM_H
 
+#define RSScriptName "instance_ruby_sanctum"
+
 enum
 {
     MAX_ENCOUNTERS		= 6,
