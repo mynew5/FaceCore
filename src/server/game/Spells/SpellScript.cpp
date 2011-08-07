@@ -465,6 +465,11 @@ int32 SpellScript::GetTrueDamage()
     return m_spell->m_true_damage;
 }
 
+SpellInfo const* SpellScript::GetTriggeringSpell()
+{
+    return m_spell->m_triggeredByAuraSpell;
+}
+
 void SpellScript::FinishCast(SpellCastResult result)
 {
     m_spell->SendCastResult(result);

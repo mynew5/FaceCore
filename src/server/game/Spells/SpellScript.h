@@ -325,6 +325,9 @@ class SpellScript : public _SpellScript
         // returns total damage of a spell
         int32 GetTrueDamage();
 
+        // Returns SpellInfo from the spell that triggered the current one
+        SpellInfo const* GetTriggeringSpell();
+
         // finishes spellcast prematurely with selected error message
         void FinishCast(SpellCastResult result);
 
