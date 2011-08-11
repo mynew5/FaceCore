@@ -3409,7 +3409,7 @@ void SpellMgr::LoadDbcDataCorrections()
         case 75545: case 75536: // Explosion (prevent error message in console)
         case 75553:             // Emergency Recall [Camera trigger]
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
-            break
+            break;
         //Lich King custom script spells
         case 72762:
             spellInfo->DurationIndex = 3;
