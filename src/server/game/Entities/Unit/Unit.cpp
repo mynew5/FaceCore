@@ -9222,14 +9222,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
-        case 45176: // Master Poisoner Proc Trigger (SERVERSIDE)
-        {
-            if (!procSpell)
-                return false;
-
-            basepoints0 = procSpell->Id;
-            break;
-        }
         default:
             break;
     }

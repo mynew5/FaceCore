@@ -373,61 +373,6 @@ class boss_the_lich_king : public CreatureScript
 
                 if(me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                     me->GetMotionMaster()->MovementExpired();
-
-                /* move to SpellMgr
-                if(SpellInfo* spellDefile = sSpellMgr->GetSpellInfo(SPELL_SUMMON_DEFILE))
-                    spellDefile->DurationIndex = 3;
-
-                if(SpellInfo* lock = sSpellMgr->GetSpellInfo(SPELL_ICEBLOCK_TRIGGER))
-                    lock->Targets = 6; //target chain damage
-
-                if(SpellInfo* reaper = sSpellMgr->GetSpellInfo(SPELL_SOUL_REAPER_HASTE_AURA))
-                    reaper->Targets = 1;
-
-                if(SpellInfo* plague = sSpellMgr->GetSpellInfo(SPELL_PLAGUE_SIPHON)) //hack
-                    plague->Targets = 18;
-
-                if (SpellInfo* shadowEffect = sSpellMgr->GetSpellInfo(SPELL_SHADOW_TRAP_EFFECT))
-                    shadowEffect->EffectRadiusIndex[1] = 13;
-
-                if(SpellInfo* raging = sSpellMgr->GetSpellInfo(SPELL_SUMMON_RAGING_SPIRIT))
-                {
-                    raging->DurationIndex = 28;
-                    raging->Effect[0] = 6;
-                }
-                if (SpellInfo* furyOfFrostmourne = sSpellMgr->GetSpellInfo(SPELL_FURY_OF_FROSTMOURNE))
-                {
-                    furyOfFrostmourne->Effect[1] = SPELL_EFFECT_INSTAKILL;
-                    furyOfFrostmourne->EffectRadiusIndex[0] = 22;
-                    furyOfFrostmourne->EffectRadiusIndex[1] = 22;
-                    furyOfFrostmourne->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
-                    furyOfFrostmourne->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
-                    furyOfFrostmourne->EffectAmplitude[0] = 50000;
-                }
-                if (SpellInfo* furyOfFrostmournenores = sSpellMgr->GetSpellInfo(SPELL_FURY_OF_FROSTMOURNE_NORES))
-                {
-                    furyOfFrostmournenores->EffectRadiusIndex[0] = 22;
-                }
-                if (SpellInfo* massResurrection = sSpellMgr->GetSpellInfo(SPELL_REVIVE))
-                {
-                    massResurrection->EffectRadiusIndex[0] = 4;
-                    massResurrection->AttributesEx3 |= SPELL_ATTR3_REQUIRE_DEAD_TARGET;
-                }
-                if (SpellInfo* defileDamage = sSpellMgr->GetSpellInfo(SPELL_DEFILE_DAMAGE))
-                {
-                    defileDamage->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-                    defileDamage->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
-                }
-                if (SpellInfo* remorselessWinter = sSpellMgr->GetSpellInfo(SPELL_REMORSELESS_WINTER))
-                {
-                    remorselessWinter->Effect[2] = 0;
-                }
-                if(SpellInfo* spellPlayMovie = sSpellMgr->GetSpellInfo(SPELL_PLAY_MOVIE))
-                {
-                    spellPlayMovie->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
-                    spellPlayMovie->EffectRadiusIndex[0] = 22;
-                }
-                */
             }
 
             void EnterEvadeMode()
@@ -1982,8 +1927,8 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
                 Unit *newTarget = NULL;
                 Trinity::UnitLastSearcher<AnyAliveCreatureOrPlayerInObjectRangeCheck> searcher(target, newTarget, checker);
 
-                TypeContainerVisitor<Trinity::UnitLastSearcher<AnyAliveCreatureOrPlayerInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                TypeContainerVisitor<Trinity::UnitLastSearcher<AnyAliveCreatureOrPlayerInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+                TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
                 cell.Visit(p, world_unit_searcher, *target->GetMap(), *target, dist);
                 cell.Visit(p, grid_unit_searcher, *target->GetMap(), *target, dist);
