@@ -1071,6 +1071,26 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
             break;
         }
+        case 58730: // No fly Zone - Wintergrasp
+            {
+                if (!player)
+                    return false;
+
+                if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+                {
+                    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                    if ((pvpWG->isWarTime()==false) || player->isDead() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)) || player->HasAura(45472) || player->HasAura(44795) || player->GetPositionZ() > 619.2f || player->isInFlight())
+                        return false;
+                }
+                break;
+            }
+        case 58045: // Essence of Wintergrasp - Wintergrasp
+        case 57940: // Essence of Wintergrasp - Northrend
+            {
+                if (!player || player->GetTeamId() != sWorld->getWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
+                    return false;
+                break;
+            }
         case 68719: // Oil Refinery - Isle of Conquest.
         case 68720: // Quarry - Isle of Conquest.
         {
@@ -2928,14 +2948,14 @@ void SpellMgr::LoadDbcDataCorrections()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
             spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
             break;
-        // Chains of Ice
-        case 45524:
-            // this will fix self-damage caused by Glyph of Chains of Ice
-            spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
-            break;
         case 8494: // Mana Shield (rank 2)
             // because of bug in dbc
             spellInfo->procChance = 0;
+            break;
+        case 45524: // Chains of Ice
+            // this will fix self-damage caused by Glyph of Chains of Ice
+            spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
+            //++count;
             break;
         case 32182: // Heroism
             spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
@@ -3121,6 +3141,9 @@ void SpellMgr::LoadDbcDataCorrections()
             spellInfo->EffectBasePoints[2] += 30000;
             break;
         // some dummy spell only has dest, should push caster in this case
+        case 62324: // Throw Passenger
+            spellInfo->Targets |= TARGET_FLAG_UNIT_ALLY;
+            break;
         case 66665: // Burning Breath
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
             break;
@@ -3164,6 +3187,10 @@ void SpellMgr::LoadDbcDataCorrections()
             break;
         case 42650: // Army of the Dead - now we can interrupt this
             spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
+            break;
+        case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
+            spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
+            spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
             break;
         case 20224: // Seals of the Pure (Rank 1)
         case 20225: // Seals of the Pure (Rank 2)
@@ -3485,8 +3512,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 // Divine Providence should affect at Prayer of Mending
                 else if (spellInfo->SpellIconID == 2845 && spellInfo->Id != 64844)
                     spellInfo->EffectSpellClassMask[0][1] |= 0x20;
-                else
-                    break;
                 break;
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness

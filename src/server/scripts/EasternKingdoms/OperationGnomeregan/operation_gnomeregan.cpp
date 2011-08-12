@@ -848,7 +848,7 @@ class npc_og_mekkatorque : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                DoRefreshWorldStates();
+                //DoRefreshWorldStates();
 
                 npc_escortAI::UpdateAI(diff);
 
@@ -1340,7 +1340,8 @@ class npc_og_mekkatorque : public CreatureScript
 
             void EnterCombat(Unit* pWho)
             {
-                SquadAssist(pWho->ToCreature());
+                if (pWho && pWho->ToCreature())
+                    SquadAssist(pWho->ToCreature());
             }
 
             void PartyCast(uint32 spell)
@@ -1513,7 +1514,7 @@ class npc_og_mekkatorque : public CreatureScript
                 }
             }
 
-            void DoRefreshWorldStates()
+            /*void DoRefreshWorldStates()
             {
                 Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
 
@@ -1526,10 +1527,10 @@ class npc_og_mekkatorque : public CreatureScript
                     {
                         if (pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_NONE || pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_REWARDED|| pPlayer->GetQuestStatus(QUEST_OPERATION_GNOMEREGAN) == QUEST_STATUS_FAILED)
                             for (int8 n = 0; n < 15; ++n)
-                                pPlayer->SendUpdateWorldState(Worldstates[n], 0);
+                                pPlayer->SendUpdateWorldState(WorldStates[n], 0);
                     }
                 }
-            }
+            }*/
 
             bool ValidateEscortState()
             {
@@ -1584,7 +1585,7 @@ class npc_og_mekkatorque : public CreatureScript
                     pCogspin->DisappearAndDie();
                 if (Creature* pFastblast = me->FindNearestCreature(NPC_FASTBLAST, 100.0f))
                     pFastblast->DisappearAndDie();
-                DoRefreshWorldStates();
+                //DoRefreshWorldStates();
             }
         };
 

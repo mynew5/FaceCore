@@ -271,6 +271,35 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
+    // Demonic Sacrifice
+    if (m_spellInfo->Id == 18788 && unitTarget->GetTypeId() == TYPEID_UNIT)
+    {
+        uint32 entry = unitTarget->GetEntry();
+        uint32 spellID;
+        switch (entry)
+        {
+            case   416: spellID = 18789; break;               //imp
+            case   417: spellID = 18792; break;               //fellhunter
+            case  1860: spellID = 18790; break;               //void
+            case  1863: spellID = 18791; break;               //succubus
+            case 17252: spellID = 35701; break;               //fellguard
+            default:
+                sLog->outError("EffectInstaKill: Unhandled creature entry (%u) case.", entry);
+                return;
+        }
+
+        m_caster->CastSpell(m_caster, spellID, true);
+    }
+    //Death pact should affect only his ghoul
+    if (m_spellInfo->Id == 48743)
+    {
+        if (unitTarget->GetTypeId() != TYPEID_UNIT || unitTarget->GetEntry() != 26125)
+            return;
+        //Do not harm other ghouls
+        if (unitTarget->GetOwnerGUID() != m_caster->GetGUID())
+            return;
+    }
+
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
@@ -1310,6 +1339,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     rageUsed += aurEff->GetAmount() * 10;
 
                 bp = damage + int32(rageUsed * m_spellInfo->Effects[effIndex].DamageMultiplier + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
+
+                // Item - Warrior T10 Melee 4P Bonus
+                if (Aura * aura = m_caster->GetAura(52437))
+                    aura->DropCharge();
                 break;
             }
             // Concussion Blow
@@ -6187,9 +6220,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     if (!target)
         return;
 
-    //if (m_caster->ToPlayer())
-    //   sAnticheatMgr->DisableAnticheatDetection(m_caster->ToPlayer());
-
     // VISTAWOW ANTICHEAT
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
@@ -6207,9 +6237,6 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
 {
     if (m_targets.HasDst())
     {
-        //if (m_caster->ToPlayer())
-        //    sAnticheatMgr->DisableAnticheatDetection(m_caster->ToPlayer());
-
         // VISTAWOW ANTICHEAT
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);

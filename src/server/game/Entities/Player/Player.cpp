@@ -1505,8 +1505,6 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
-    //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
-
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
@@ -2077,8 +2075,6 @@ void Player::TeleportOutOfMap(Map *oldMap)
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
-    //sAnticheatMgr->DisableAnticheatDetection(this,true);
-
     // VISTAWOW ANTICHEAT
     GetAntiCheat()->SetSleep(7000);
 
@@ -2962,10 +2958,6 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     uint8 level = getLevel();
 
     sScriptMgr->OnGivePlayerXP(this, xp, victim);
-
-    if(level < 66 && GetMapId() == 571)
-        return;
-
 
     // Favored experience increase START
     uint32 zone = GetZoneId();
@@ -7474,15 +7466,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
     }
-     // Prevent players from accessing GM Island
-    if (sWorld->getBoolConfig(CONFIG_PREVENT_PLAYERS_ACCESS_TO_GMISLAND))
-    {
-        if (newZone == 876 && GetSession()->GetSecurity() == SEC_PLAYER)
-        {
-            sLog->outError("Player (GUID: %u) tried to access GM Island.", GetGUIDLow());
-            TeleportTo(13,1.118799f,0.477914f,-144.708650f,3.133046f);
-        }
-    }
 
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
@@ -8130,9 +8113,6 @@ void Player::_ApplyWeaponDependentAuraMods(Item *item, WeaponAttackType attackTy
             mod += (*itr)->GetAmount();
 
     SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, mod/100.0f);
-    UpdateDamagePhysical(BASE_ATTACK);
-    UpdateDamagePhysical(OFF_ATTACK);
-    UpdateDamagePhysical(RANGED_ATTACK);
 }
 
 void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
@@ -14772,15 +14752,6 @@ bool Player::CanRewardQuest(Quest const *pQuest, bool msg)
     // rewarded and not repeatable quest (only cheating case, then ignore without message)
     if (GetQuestRewardStatus(pQuest->GetQuestId()))
         return false;
-
-    // anti wpe
-    if (!isGameMaster() && 
-          (!SatisfyQuestExclusiveGroup(pQuest, true)   || !SatisfyQuestRace(pQuest, true)
-        || !SatisfyQuestSkillOrClass(pQuest, true)  || !SatisfyQuestReputation(pQuest, true)
-        || !SatisfyQuestPreviousQuest(pQuest, true) /*|| !SatisfyQuestTimed(pQuest, true)*/
-        || !SatisfyQuestNextChain(pQuest, true)     || !SatisfyQuestPrevChain(pQuest, true)
-        || !SatisfyQuestConditions(pQuest, true)    || !SatisfyQuestLevel(pQuest, true)))
-            return false;
 
     // prevent receive reward with quest items in bank
     if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_DELIVER))
@@ -24341,7 +24312,7 @@ void Player::UpdateSpecCount(uint8 count)
     {
         _SaveActions(trans); // make sure the button list is cleaned up
         for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
-            trans->PAppend("REPLACE INTO character_action (guid, button, action, type, spec) VALUES ('%u', '%u', '%u', '%u', '%u')",
+            trans->PAppend("INSERT INTO character_action (guid, button, action, type, spec) VALUES ('%u', '%u', '%u', '%u', '%u')",
             GetGUIDLow(), uint32(itr->first), uint32(itr->second.GetAction()), uint32(itr->second.GetType()), 1);
 
     }

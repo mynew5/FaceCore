@@ -455,6 +455,7 @@ void GameObject::Update(uint32 diff)
                         // some traps do not have spell but should be triggered
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
+
                         // allow to use scripts
                         if (ok->GetTypeId() == TYPEID_PLAYER)
                             if (sScriptMgr->OnGossipHello(ok->ToPlayer(), this))
@@ -1804,6 +1805,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
+            //Temporary hack for Fortress towers when it cannot be damaged after been half damaged
+            if (m_goInfo->entry != 190378 && m_goInfo->entry != 190377 && m_goInfo->entry != 190373 && m_goInfo->entry != 190221)
             SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
 
             if (setHealth)

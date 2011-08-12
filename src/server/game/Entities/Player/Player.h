@@ -1106,8 +1106,6 @@ class Player : public Unit, public GridObject<Player>
         explicit Player (WorldSession *session);
         ~Player ();
 
-        //AnticheatData anticheatData;
-
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
         static UpdateMask updateVisualBits;
@@ -2734,7 +2732,6 @@ class Player : public Unit, public GridObject<Player>
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
-
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;

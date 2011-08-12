@@ -1549,14 +1549,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
                 AuraApplication * aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID());
                 if (aurApp)
                     positive = aurApp->IsPositive();
-                else
-                    for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-                        if (effectMask & (1 << effIndex))
-                            if (!aurSpellInfo->IsPositiveEffect(effIndex))
-                            {
-                                positive = false;
-                                break;
-                            }
+
                 duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive);
 
                 // Haste modifies duration of channeled spells
@@ -2829,18 +2822,6 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         unitList.sort(Trinity::PowerPctOrderPred((Powers)power));
                         unitList.resize(maxSize);
                     }
-                    // Replenishment: refresh existing auras
-                    if (m_spellInfo->Id == 57669)
-                        for (std::list<Unit *>::iterator itr = unitList.begin(); itr != unitList.end();)
-                            if (AuraEffect * aurEff = (*itr)->GetAuraEffect(SPELL_AURA_PERIODIC_ENERGIZE, SPELLFAMILY_GENERIC, 3184, EFFECT_0))
-                            {
-                                aurEff->SetAmount((*itr)->GetMaxPower(POWER_MANA) * 25 / 10000);
-                                aurEff->GetBase()->RefreshDuration();
-
-                                itr = unitList.erase(itr);
-                            }
-                            else
-                                ++itr;
                 }
             }
 
@@ -5591,7 +5572,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                         // Wintergrasp Antifly check
                         if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
                         {
-                            if (m_originalCaster->GetZoneId() == 4197 && pvpWG && pvpWG != 0  && pvpWG->isWarTime()==true)
+                            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                            if (m_originalCaster->GetZoneId() == 4197 && pvpWG && pvpWG != 0  && pvpWG->isWarTime())
                                 return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                         }
                     }

@@ -744,6 +744,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         Player* killer = ToPlayer();
 
         // in bg, count dmg if victim is also a player
+
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
             if (Battleground *bg = killer->GetBattleground())
@@ -4997,7 +4998,6 @@ bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 33735:
                 {
                     target = SelectNearbyTarget();
-
                     if (!target || target == victim)
                         return false;
                     basepoints0 = damage;
@@ -7659,6 +7659,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Mark of Blood
             if (dummySpell->Id == 49005)
             {
+                if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
                 // TODO: need more info (cooldowns/PPM)
                 triggered_spell_id = 61607;
                 break;
@@ -8033,17 +8036,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
         case SPELLFAMILY_GENERIC:
             switch (dummySpell->Id)
             {
-                //Blood Reserve
-                case 64568:
-                {
-                    if (this->GetHealth() <= ((this->GetMaxHealth()) * 0.35))
-                    {
-                        int32 bp0 = (triggeredByAura->GetStackAmount()) * (dummySpell->Effects[EFFECT_0].BasePoints);
-                        CastCustomSpell(this, 64569, &bp0, NULL, NULL, true);
-                        *handled = true;
-                    }
-                    break;
-                }
                 // Nevermelting Ice Crystal
                 case 71564:
                     RemoveAuraFromStack(71564);
@@ -11328,6 +11320,10 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
             crit_bonus += damage / 2;                       // for spells is 50%
             break;
     }
+    // all these spells should have only 50% bonus damage on crit like a magic spells
+    if (spellProto->Id == 55078 || spellProto->Id == 61840 ||
+       (spellProto->SpellFamilyName == SPELLFAMILY_HUNTER && spellProto->SpellFamilyFlags[0] & 0x4000))
+        crit_bonus /= 2;
 
     crit_mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, spellProto->GetSchoolMask()) - 1.0f) * 100;
 
@@ -11964,7 +11960,7 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
                 Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 
                 if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellInfo()))
-                        AddPctN(DoneTotalMod, (*i)->GetAmount());
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
             }
             else if (player->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                 AddPctN(DoneTotalMod, (*i)->GetAmount());
@@ -12657,9 +12653,6 @@ void Unit::SetVisible(bool x)
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
-    //if (this->ToPlayer())
-    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
-
     // VISTAWOW ANTICHEAT
     if (GetTypeId() == TYPEID_PLAYER)
         this->ToPlayer()->GetAntiCheat()->SetSleep(1500);
@@ -16731,9 +16724,6 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
-    //if (this->ToPlayer())
-    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
-
     // VISTAWOW ANTICHEAT
     if (GetTypeId() == TYPEID_PLAYER)
         this->ToPlayer()->GetAntiCheat()->SetSleep(4000);

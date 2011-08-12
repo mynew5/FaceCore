@@ -26,8 +26,8 @@
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Transport.h"
-#include "Vehicle.h"
 #include "sc_npc_teleport.h"
+#include "Vehicle.h"
 
 // This is the global static registry of scripts.
 template<class TScript>

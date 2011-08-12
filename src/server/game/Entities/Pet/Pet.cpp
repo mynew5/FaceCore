@@ -993,8 +993,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                                 case 49636:
                                 case 49638:
                                 {
-                                    if (const SpellInfo *spellInfo = sSpellMgr->GetSpellInfo(itr->first))
-                                        AddFlatPctN(impurityMod, spellInfo->Effects[EFFECT_0].CalcValue());
+                                    if (const SpellInfo *proto = sSpellMgr->GetSpellInfo(itr->first))
+                                        AddFlatPctN(impurityMod, proto->Effects[0].CalcValue());
                                 }
                                 break;
                             }
