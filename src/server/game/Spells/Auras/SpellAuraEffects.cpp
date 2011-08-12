@@ -1064,7 +1064,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
             for (Unit::AuraApplicationMap::iterator iter = auras.begin(); iter != auras.end(); ++iter)
             {
                 Aura* aura = iter->second->GetBase();
-                // only passive auras-active auras should have amount set on spellcast and not be affected
+                // only passive and permament auras-active auras should have amount set on spellcast and not be affected
                 // if aura is casted by others, it will not be affected
                 if ((aura->IsPassive() || aura->IsPermanent()) && aura->GetCasterGUID() == guid && aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
                 {
