@@ -936,7 +936,7 @@ class spell_putricide_slime_puddle_aura : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_putricide_slime_puddle_aura_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_putricide_slime_puddle_aura_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
