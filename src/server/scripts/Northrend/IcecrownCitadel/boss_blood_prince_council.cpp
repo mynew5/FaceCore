@@ -184,6 +184,7 @@ class boss_blood_council_controller : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 events.Reset();
                 me->SetReactState(REACT_PASSIVE);
                 _invocationStage = 0;
@@ -390,6 +391,7 @@ class boss_prince_keleseth_icc : public CreatureScript
             {
                 _isEmpowered = false;
                 _spawnHealth = creature->GetMaxHealth();
+                DoCast(me, SPELL_FEIGN_DEATH);
             }
 
             void InitializeAI()
@@ -398,14 +400,12 @@ class boss_prince_keleseth_icc : public CreatureScript
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
-                if (!me->isDead())
-                    JustRespawned();
-
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset()
             {
+                _Reset();
                 events.Reset();
                 summons.DespawnAll();
 
@@ -446,11 +446,6 @@ class boss_prince_keleseth_icc : public CreatureScript
                 }
             }
 
-            void JustRespawned()
-            {
-                DoCast(me, SPELL_FEIGN_DEATH);
-                me->SetHealth(_spawnHealth);
-            }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
@@ -607,6 +602,7 @@ class boss_prince_taldaram_icc : public CreatureScript
             {
                 _isEmpowered = false;
                 _spawnHealth = creature->GetMaxHealth();
+                DoCast(me, SPELL_FEIGN_DEATH);
             }
 
             void InitializeAI()
@@ -615,14 +611,12 @@ class boss_prince_taldaram_icc : public CreatureScript
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
-                if (!me->isDead())
-                    JustRespawned();
-
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset()
             {
+                _Reset();
                 events.Reset();
                 summons.DespawnAll();
 
@@ -665,12 +659,6 @@ class boss_prince_taldaram_icc : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     controller->AI()->SetData(0, 1);
                 }
-            }
-
-            void JustRespawned()
-            {
-                DoCast(me, SPELL_FEIGN_DEATH);
-                me->SetHealth(_spawnHealth);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -827,6 +815,7 @@ class boss_prince_valanar_icc : public CreatureScript
             {
                 _isEmpowered = false;
                 _spawnHealth = creature->GetMaxHealth();
+                DoCast(me, SPELL_FEIGN_DEATH);
             }
 
             void InitializeAI()
@@ -835,14 +824,12 @@ class boss_prince_valanar_icc : public CreatureScript
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
-                if (!me->isDead())
-                    JustRespawned();
-
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset()
             {
+                _Reset();
                 events.Reset();
                 summons.DespawnAll();
 
@@ -885,12 +872,6 @@ class boss_prince_valanar_icc : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     controller->AI()->SetData(0, 1);
                 }
-            }
-
-            void JustRespawned()
-            {
-                DoCast(me, SPELL_FEIGN_DEATH);
-                me->SetHealth(_spawnHealth);
             }
 
             void JustSummoned(Creature* summon)
