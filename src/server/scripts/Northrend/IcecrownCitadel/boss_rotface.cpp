@@ -289,8 +289,6 @@ class npc_big_ooze : public CreatureScript
                 DoCast(me, SPELL_LARGE_OOZE_COMBINE, true);
                 DoCast(me, SPELL_LARGE_OOZE_BUFF_COMBINE, true);
                 DoCast(me, SPELL_RADIATING_OOZE, true);
-                DoCast(me, SPELL_UNSTABLE_OOZE, true);
-                DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
                 // register in Rotface's summons - not summoned with Rotface as owner
                 if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
@@ -490,13 +488,11 @@ class spell_rotface_little_ooze_combine : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!(GetHitCreature() && GetHitUnit()->isAlive()))
+                if (!GetCaster() || !GetHitCreature() || !GetHitCreature()->isAlive())
                     return;
 
-                GetCaster()->RemoveAurasDueToSpell(SPELL_LITTLE_OOZE_COMBINE);
-                GetHitCreature()->RemoveAurasDueToSpell(SPELL_LITTLE_OOZE_COMBINE);
-                GetHitCreature()->CastSpell(GetCaster(), SPELL_OOZE_MERGE, true);
                 GetHitCreature()->DespawnOrUnsummon();
+                GetCaster()->CastSpell(GetCaster(), SPELL_OOZE_MERGE, true);
             }
 
             void Register()
@@ -522,22 +518,26 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!(GetHitCreature() && GetHitCreature()->isAlive()))
+                if (!GetCaster() || !GetHitCreature() || !GetHitCreature()->isAlive())
                     return;
 
-                if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
+                Aura* unstable = NULL;
+
+                if (!GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
+                {
+                    GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE, true);
+                    if (unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
+                        if (Aura* targetAura = GetHitCreature()->GetAura(SPELL_UNSTABLE_OOZE))
+                            unstable->ModStackAmount(targetAura->GetStackAmount());
+                }
+                else if (unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
                     if (Aura* targetAura = GetHitCreature()->GetAura(SPELL_UNSTABLE_OOZE))
                         unstable->ModStackAmount(targetAura->GetStackAmount());
                     else
                         unstable->ModStackAmount(1);
-
-                    // no idea why, but this does not trigger explosion on retail (only small+large do)
                 }
 
-                // just for safety
-                GetHitCreature()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
-                GetHitCreature()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
                 GetHitCreature()->DespawnOrUnsummon();
             }
 
@@ -564,16 +564,15 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!(GetHitCreature() && GetHitCreature()->isAlive()))
+                if (!GetCaster() || !GetHitCreature() || !GetHitCreature()->isAlive())
                     return;
 
                 if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
-                    uint8 newStack = uint8(unstable->GetStackAmount()+1);
-                    unstable->SetStackAmount(newStack);
+                    unstable->ModStackAmount(1);
 
                     // explode!
-                    if (newStack >= 5)
+                    if (unstable->GetStackAmount() >= 5)
                     {
                         GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
                         GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
@@ -592,6 +591,8 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
                             instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
                     }
                 }
+                else
+                    GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE, true);
 
                 GetHitCreature()->DespawnOrUnsummon();
             }
