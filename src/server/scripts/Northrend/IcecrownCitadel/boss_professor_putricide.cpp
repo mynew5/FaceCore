@@ -928,7 +928,7 @@ class spell_putricide_slime_puddle_aura : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_slime_puddle_aura_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void ReplaceAura()
             {
                 if (Unit* target = GetHitUnit())
                     GetCaster()->AddAura((GetCaster()->GetMap()->GetSpawnMode() & 1) ? 72456 : 70346, target);
@@ -936,7 +936,7 @@ class spell_putricide_slime_puddle_aura : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_putricide_slime_puddle_aura_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnHit += SpellHitFn(spell_putricide_slime_puddle_aura_SpellScript::ReplaceAura);
             }
         };
 

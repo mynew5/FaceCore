@@ -308,7 +308,8 @@ void PetAI::AttackStart(Unit* target)
     targetHasCC = _CheckTargetCC(target);
 
     if (Unit* owner = me->GetOwner())
-        owner->SetInCombatWith(target);
+        if (owner->isAlive())
+            owner->SetInCombatWith(target);
 
     DoAttack(target, true);
 }

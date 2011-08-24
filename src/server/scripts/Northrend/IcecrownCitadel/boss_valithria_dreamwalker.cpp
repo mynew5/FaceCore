@@ -447,7 +447,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                             Talk(SAY_VALITHRIA_BERSERK);
                             break;
                         case EVENT_DREAM_PORTAL:
-                                Talk(SAY_VALITHRIA_DREAM_PORTAL);
+                            Talk(SAY_VALITHRIA_DREAM_PORTAL);
                             for (uint32 i = 0; i < _portalCount; ++i)
                                 DoCast(me, SUMMON_PORTAL);
                             _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));

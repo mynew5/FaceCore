@@ -115,7 +115,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SindragosaGUID = 0;
                 SpinestalkerGUID = 0;
                 RimefangGUID = 0;
-                uiDreamwalkerCache = 0;
+                DreamwalkersCacheGUID = 0;
                 TheLichKingGUID = 0;
                 uiTirion = 0;
                 uiTerenasFighter = 0;
@@ -461,10 +461,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_DREAMWALKER_CACHE_25_N:
                     case GO_DREAMWALKER_CACHE_10_H:
                     case GO_DREAMWALKER_CACHE_25_H:
-                    {
-                        uiDreamwalkerCache = go->GetGUID();
+                        DreamwalkersCacheGUID = go->GetGUID();
                         break;
-                    }
                     //Lich King
                     case GO_LAVAMAN:
                         uilavaman = go->GetGUID();
@@ -749,10 +747,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             instance->SummonCreature(NPC_VALITHRIA_DREAMWALKER_QUEST, ValithriaSpawnPos);
 
                         if (state == DONE)
-                        {
-                            if (GameObject* pChest = instance->GetGameObject(uiDreamwalkerCache))
-                                pChest->SetRespawnTime(pChest->GetRespawnDelay());
-                        }
+                            DoRespawnGameObject(DreamwalkersCacheGUID, 7*DAY);
                         break;
                     case DATA_SINDRAGOSA:
                         HandleGameObject(FrostwingSigilGUID, state != DONE);
@@ -866,13 +861,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                         switch (data)
                         {
                             case 0:
-                                if (SpinestalkerTrashCount)
-                                {
-                                    --SpinestalkerTrashCount;
-                                    if (!SpinestalkerTrashCount)
+                                // if (SpinestalkerTrashCount)
+                                // {
+                                //     --SpinestalkerTrashCount;
+                                //     if (!SpinestalkerTrashCount)
                                         if (Creature* spinestalk = instance->GetCreature(SpinestalkerGUID))
                                             spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
-                                }
+                                // }
                                 break;
                             case 1:
                                 ++SpinestalkerTrashCount;
@@ -891,13 +886,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                         switch (data)
                         {
                             case 0:
-                                if (RimefangTrashCount)
-                                {
-                                    --RimefangTrashCount;
-                                    if (!RimefangTrashCount)
+                                // if (RimefangTrashCount)
+                                // {
+                                //     --RimefangTrashCount;
+                                //     if (!RimefangTrashCount)
                                         if (Creature* rime = instance->GetCreature(RimefangGUID))
                                             rime->AI()->DoAction(ACTION_START_FROSTWYRM);
-                                }
+                                // }
                                 break;
                             case 1:
                                 ++RimefangTrashCount;
@@ -1250,7 +1245,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 SindragosaGUID;
             uint64 SpinestalkerGUID;
             uint64 RimefangGUID;
-            uint64 uiDreamwalkerCache;
+            uint64 DreamwalkersCacheGUID;
             uint64 TheLichKingGUID;
             uint64 uiTirion;
             uint64 uiTerenasFighter;
