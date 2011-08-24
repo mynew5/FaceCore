@@ -4607,7 +4607,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 	OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
     // check death state
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && !m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
+    if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
         return SPELL_FAILED_CASTER_DEAD;
 
     // check cooldowns to prevent cheating
@@ -4748,10 +4748,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             && (vehicleSeat->m_flags & checkMask) != checkMask)
             return SPELL_FAILED_DONT_REPORT;
     }
-
-    //! Client checks this already
-    if (m_spellInfo->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && !m_caster->GetCharmerOrOwnerGUID())
-        return SPELL_FAILED_DONT_REPORT;
 
     Unit* target = m_targets.GetUnitTarget();
     // In pure self-cast spells, the client won't send any unit target
@@ -5501,13 +5497,8 @@ SpellCastResult Spell::CheckCast(bool strict)
 
 SpellCastResult Spell::CheckPetCast(Unit* target)
 {
-    if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
-        return SPELL_FAILED_CASTER_DEAD;
-
     if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))              //prevent spellcast interruption by another spellcast
         return SPELL_FAILED_SPELL_IN_PROGRESS;
-    if (m_caster->isInCombat() && !m_spellInfo->CanBeUsedInCombat())
-        return SPELL_FAILED_AFFECTING_COMBAT;
 
     // dead owner (pets still alive when owners ressed?)
     if (Unit *owner = m_caster->GetCharmerOrOwner())
@@ -5534,9 +5525,6 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     // for target dead/target not valid
     if (_target)
     {
-        if (!_target->isAlive())
-            return SPELL_FAILED_BAD_TARGETS;
-
         if (!IsValidSingleTargetSpell(_target))
             return SPELL_FAILED_BAD_TARGETS;
     }
@@ -6419,7 +6407,7 @@ void Spell::UpdatePointers()
     m_targets.Update(m_caster);
 }
 
-CurrentSpellTypes Spell::GetCurrentContainer()
+CurrentSpellTypes Spell::GetCurrentContainer() const
 {
     if (IsNextMeleeSwingSpell())
         return(CURRENT_MELEE_SPELL);
@@ -6445,7 +6433,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
                 return false;
             if (target->GetCharmerGUID())
                 return false;
-            if (int32 damage = m_spellInfo->Effects[eff].CalcValue())
+            if (int32 damage = CalculateDamage(eff, target))
                 if ((int32)target->getLevel() > damage)
                     return false;
             break;
@@ -7273,7 +7261,7 @@ enum GCDLimits
     MAX_GCD = 1500
 };
 
-bool Spell::HasGlobalCooldown()
+bool Spell::HasGlobalCooldown() const
 {
     // Only player or controlled units have global cooldown
     if (m_caster->GetCharmInfo())

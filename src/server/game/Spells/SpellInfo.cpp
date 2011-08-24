@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Spell.h"
@@ -1155,8 +1156,16 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG;
 }
 
+bool SpellInfo::IsAffectedBySpellMods() const
+{
+    return !(AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS);
+}
+
 bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
 {
+    if (!IsAffectedBySpellMods())
+        return false;
+
     SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId);
     // False if affect_spell == NULL or spellFamily not equal
     if (!affectSpell || affectSpell->SpellFamilyName != SpellFamilyName)
@@ -1504,7 +1513,8 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS && !(!target->isAlive() && target->HasAuraType(SPELL_AURA_GHOST)))
        return SPELL_FAILED_TARGET_NOT_GHOST;
 
-    if (AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED && !target->CanFreeMove())
+    // check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
+    if (implicit && AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED && !target->CanFreeMove())
        return SPELL_FAILED_BAD_TARGETS;
 
     // check visibility - ignore stealth for implicit (area) targets
@@ -1513,7 +1523,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
 
     if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
         return SPELL_FAILED_BAD_TARGETS;
-    
+
     //if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS)
 
     if (!CheckTargetCreatureType(target))
@@ -1528,7 +1538,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     if (target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
     {
         // any unattackable target skipped
-        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE))
+        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return SPELL_FAILED_BAD_TARGETS;
     }
 
@@ -1590,6 +1600,11 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
             }
         }
     }
+
+    if (target->HasAuraType(SPELL_AURA_PREVENT_RESSURECTION))
+        if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
+            return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+
     return SPELL_CAST_OK;
 }
 
