@@ -123,6 +123,7 @@ class boss_rotface : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MUTATED_INFECTION);
                 summons.DespawnAll();
                 _JustDied();
                 Talk(SAY_DEATH);
