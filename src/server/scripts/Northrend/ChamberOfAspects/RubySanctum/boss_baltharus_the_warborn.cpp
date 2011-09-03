@@ -299,22 +299,22 @@ public:
 
 
 /*######
-## mob_baltharus_clone
+## npc_baltharus_the_warborn_clone
 ######*/
 
-class mob_baltharus_clone : public CreatureScript
+class npc_baltharus_the_warborn_clone : public CreatureScript
 {
 public:
-    mob_baltharus_clone() : CreatureScript("mob_baltharus_clone") { }
+    npc_baltharus_the_warborn_clone() : CreatureScript("npc_baltharus_the_warborn_clone") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_baltharus_cloneAI(pCreature);
+        return new npc_baltharus_the_warborn_cloneAI(pCreature);
     }
 
-    struct mob_baltharus_cloneAI : public ScriptedAI
+    struct npc_baltharus_the_warborn_cloneAI : public ScriptedAI
     {
-        mob_baltharus_cloneAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_baltharus_the_warborn_cloneAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             Reset();
@@ -400,7 +400,7 @@ public:
 
 
 /*######
-## mob_xerestrasza
+## npc_xerestrasza
 ######*/
 
 static Locations SpawnLocXer[]=
@@ -411,19 +411,19 @@ static Locations SpawnLocXer[]=
     {3154.99f, 535.637f, 72.8887f}, // 3 - Halion spawn point
 };
 
-class mob_xerestrasza : public CreatureScript
+class npc_xerestrasza : public CreatureScript
 {
 public:
-    mob_xerestrasza() : CreatureScript("mob_xerestrasza") { }
+    npc_xerestrasza() : CreatureScript("npc_xerestrasza") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_xerestraszaAI(pCreature);
+        return new npc_xerestraszaAI(pCreature);
     }
 
-    struct mob_xerestraszaAI : public ScriptedAI
+    struct npc_xerestraszaAI : public ScriptedAI
     {
-        mob_xerestraszaAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_xerestraszaAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             Reset();
@@ -603,6 +603,6 @@ public:
 void AddSC_boss_baltharus_the_warborn()
 {
     new boss_baltharus_the_warborn();
-    new mob_baltharus_clone();
-    new mob_xerestrasza();
+    new npc_baltharus_the_warborn_clone();
+    new npc_xerestrasza();
 }
