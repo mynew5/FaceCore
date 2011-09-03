@@ -42,19 +42,19 @@ static Locations SpawnLoc[]=
 #define TARGETS_10 2
 #define TARGETS_25 5
 
-class boss_ragefire : public CreatureScript
+class boss_saviana_ragefire : public CreatureScript
 {
 public:
-    boss_ragefire() : CreatureScript("boss_ragefire") { }
+    boss_saviana_ragefire() : CreatureScript("boss_saviana_ragefire") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_ragefireAI(pCreature);
+        return new boss_saviana_ragefireAI(pCreature);
     }
 
-    struct boss_ragefireAI : public ScriptedAI
+    struct boss_saviana_ragefireAI : public ScriptedAI
     {
-        boss_ragefireAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_saviana_ragefireAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             Reset();
@@ -396,7 +396,7 @@ public:
     };
 };
 
-void AddSC_boss_ragefire()
+void AddSC_boss_saviana_ragefire()
 {
-    new boss_ragefire();
+    new boss_saviana_ragefire();
 }

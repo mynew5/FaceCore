@@ -50,19 +50,19 @@ static Locations SpawnLoc[]=
 };
 
 
-class boss_zarithrian : public CreatureScript
+class boss_general_zarithrian : public CreatureScript
 {
 public:
-    boss_zarithrian() : CreatureScript("boss_zarithrian") { }
+    boss_general_zarithrian() : CreatureScript("boss_general_zarithrian") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_zarithrianAI(pCreature);
+        return new boss_general_zarithrianAI(pCreature);
     }
 
-    struct boss_zarithrianAI : public ScriptedAI
+    struct boss_general_zarithrianAI : public ScriptedAI
     {
-        boss_zarithrianAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_general_zarithrianAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             Reset();
@@ -240,8 +240,8 @@ public:
     };
 };
 
-void AddSC_boss_zarithrian()
+void AddSC_boss_general_zarithrian()
 {
-    new boss_zarithrian();
+    new boss_general_zarithrian();
     new mob_flamecaller_ruby();
 }

@@ -52,19 +52,19 @@ enum BossSpells
 ## boss_baltharus
 ######*/
 
-class boss_baltharus : public CreatureScript
+class boss_baltharus_the_warborn : public CreatureScript
 {
 public:
-    boss_baltharus() : CreatureScript("boss_baltharus") { }
+    boss_baltharus_the_warborn() : CreatureScript("boss_baltharus_the_warborn") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_baltharusAI(pCreature);
+        return new boss_baltharus_the_warbornAI(pCreature);
     }
 
-    struct boss_baltharusAI : public ScriptedAI
+    struct boss_baltharus_the_warbornAI : public ScriptedAI
     {
-        boss_baltharusAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_baltharus_the_warbornAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             Reset();
@@ -600,9 +600,9 @@ public:
 };
 
 
-void AddSC_boss_baltharus()
+void AddSC_boss_baltharus_the_warborn()
 {
-    new boss_baltharus();
+    new boss_baltharus_the_warborn();
     new mob_baltharus_clone();
     new mob_xerestrasza();
 }
