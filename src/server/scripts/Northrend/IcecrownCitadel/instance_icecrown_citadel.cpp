@@ -273,8 +273,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_SINDRAGOSA:
                         SindragosaGUID = creature->GetGUID();
-                        if (GetData(DATA_RIMEFANG) == 255 && GetData(DATA_SPINESTALKER) == 255 && GetBossState(DATA_SINDRAGOSA) != DONE)
-                            creature->AI()->DoAction(ACTION_START_FROSTWYRM);
                         break;
                     case NPC_SPINESTALKER:
                         SpinestalkerGUID = creature->GetGUID();
