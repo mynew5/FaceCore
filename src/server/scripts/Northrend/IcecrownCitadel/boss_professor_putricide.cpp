@@ -247,6 +247,13 @@ class boss_professor_putricide : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
+                // prevent delayed summons from spawning when they are not supposed to exist anymore
+                if (!me->isAlive() || (_phase == PHASE_COMBAT_3 && (summon->GetEntry() == NPC_GAS_CLOUD || summon->GetEntry() == NPC_VOLATILE_OOZE)))
+                {
+                    summon->DespawnOrUnsummon(1);
+                    return;
+                }
+
                 summons.Summon(summon);
                 switch (summon->GetEntry())
                 {
@@ -781,10 +788,9 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
                 std::list<Unit*>::iterator itr = targetList.begin();
                 std::advance(itr, urand(0, targetList.size() - 1));
-                Unit* target = *itr;
+                _target = *itr;
                 targetList.clear();
-                targetList.push_back(target);
-                _target = target;
+                targetList.push_back(_target);
             }
 
             void SetTarget(std::list<Unit*>& targetList)
@@ -831,12 +837,12 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    int32 radiusMod = 4;
+                    int32 radiusMod = 400;
                     if (Aura* size = caster->GetAura(70347))
-                        radiusMod += size->GetStackAmount();
+                        radiusMod += size->GetStackAmount() * 50;
 
                     uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod * 100, caster, true);
+                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod, caster, true);
                 }
             }
 

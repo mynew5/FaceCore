@@ -8981,6 +8981,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             break;                                   // continue normal case
         }
         // Finish movies that add combo
+        case 70802: // Mayhem (Rogue T10 4P Set Bonus)
         case 14189: // Seal Fate (Netherblade set)
         case 14157: // Ruthlessness
         {

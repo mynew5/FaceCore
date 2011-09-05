@@ -327,7 +327,7 @@ class boss_sindragosa : public CreatureScript
                         me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, true);
                         _bombsLanded = 0;
                         me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
-                        events.ScheduleEvent(EVENT_FROST_BOMB, 10000);
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 12000);
                         break;
                     case POINT_LAND:
                         DoCast(me, SPELL_FROST_AURA);
@@ -1254,7 +1254,7 @@ class FrostBombTargetSelector
                 return true;
 
             for (std::list<Creature*>::const_iterator itr = _collisionList.begin(); itr != _collisionList.end(); ++itr)
-                if ((*itr)->IsInBetween(_caster, unit))
+                if ((*itr)->IsInBetween(_caster, unit, 16.0f))
                     return true;
 
             return false;
