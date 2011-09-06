@@ -3408,6 +3408,7 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
         unitTarget->SetOrientation(angle);
         unitTarget->StopMoving();
         unitTarget->GetMotionMaster()->MoveDistract(damage * IN_MILLISECONDS);
+        unitTarget->SendMovementFlagUpdate();
     }
 }
 
@@ -6093,7 +6094,7 @@ void Spell::EffectReputation(SpellEffIndex effIndex)
     {
         rep_change = int32((float)rep_change * repData->spell_rate);
     }
-    
+
     // Bonus from spells that increase reputation gain
     float bonus = rep_change * _player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN) / 100.0f; // 10%
     rep_change += (int32)bonus;
@@ -7223,7 +7224,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!ab || ab->GetType() != ACTION_BUTTON_SPELL)
             continue;
 
-        //! Action button data is unverified when it's set so it can be "hacked" 
+        //! Action button data is unverified when it's set so it can be "hacked"
         //! to contain invalid spells, so filter here.
         uint32 spell_id = ab->GetAction();
         if (!spell_id)
@@ -7238,7 +7239,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
 
         if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_PLAYER_TOTEM))
             continue;
-        
+
         uint32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
         if (m_caster->GetPower(POWER_MANA) < cost)
             continue;
