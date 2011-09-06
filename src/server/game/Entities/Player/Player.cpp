@@ -24878,7 +24878,8 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
     // if not in a transport
     // if not riding a taxi
     // if not in SOTA (causing false positive)
-    if (!plMover->GetVehicle() && !plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination() && (plMover->GetMapId() != 607)) {
+    // if not in Stormwind-Ironforge Subway (causing false positive)
+    if (!plMover->GetVehicle() && !plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination() && (plMover->GetMapId() != 607) && (plMover->GetMapId() != 369)) {
         UnitMoveType move_type;
 
         if (movementInfo->flags & MOVEMENTFLAG_FLYING)
