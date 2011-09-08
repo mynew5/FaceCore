@@ -63,6 +63,7 @@
 #include "Vehicle.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#include "AccountMgr.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -767,6 +768,14 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                         damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.035f);
                     }
                 }
+                break;
+            }
+            case SPELLFAMILY_MAGE:
+            {
+                // Deep Freeze should deal damage to permanently stun-immune targets.
+                if (m_spellInfo->Id == 71757)
+                    if (unitTarget->GetTypeId() != TYPEID_UNIT || !(unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(44572), 0)))
+                        return;
                 break;
             }
         }
@@ -2855,17 +2864,17 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     if (gameObjTarget)
     {
         GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
-        // Arathi Basin banner opening !
+        // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
             if (Battleground *bg = player->GetBattleground())
-          {
-        bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-        return;
-          }
+            {
+                bg->EventPlayerClickedOnFlag(player, gameObjTarget);
+                return;
+            }
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
@@ -3566,7 +3575,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         if (!item_owner)
             return;
 
-        if (item_owner != p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+        if (item_owner != p_caster && !AccountMgr::IsPlayerAccount(p_caster->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
         {
             sLog->outCommand(p_caster->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
                 p_caster->GetName(), p_caster->GetSession()->GetAccountId(),
@@ -3627,7 +3636,7 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     if (!item_owner)
         return;
 
-    if (item_owner != p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+    if (item_owner != p_caster && !AccountMgr::IsPlayerAccount(p_caster->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(p_caster->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
             p_caster->GetName(), p_caster->GetSession()->GetAccountId(),
@@ -3757,7 +3766,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     if (!item_owner)
         return;
 
-    if (item_owner != p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+    if (item_owner != p_caster && !AccountMgr::IsPlayerAccount(p_caster->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(p_caster->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(temp): %s (Entry: %d) for player: %s (Account: %u)",
             p_caster->GetName(), p_caster->GetSession()->GetAccountId(),

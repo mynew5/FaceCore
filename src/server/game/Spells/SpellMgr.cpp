@@ -3025,6 +3025,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_DEST_NEARBY_ENTRY;
                 break;
+            case 19465: // Improved Stings, only rank 2 of this spell has target for effect 2 = TARGET_DST_DB
+                spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_CASTER;
+                break;
             case 59725: // Improved Spell Reflection - aoe aura
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER_AREA_PARTY;
@@ -3342,6 +3345,11 @@ void SpellMgr::LoadDbcDataCorrections()
                 // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
                 // that will be clear if we get more spells with problem like this
                 spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+                break;
+            case 62584: // Lifebinder's Gift
+            case 64185: // Lifebinder's Gift
+                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_NEARBY_ENTRY;
+                spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_NEARBY_ENTRY;
                 break;
             // ENDOF ULDUAR SPELLS
             //
