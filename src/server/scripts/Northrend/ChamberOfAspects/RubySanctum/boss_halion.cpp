@@ -249,6 +249,8 @@ public:
             DoScriptText(-1666104,me);
 			if (Creature* pclone = me->GetMap()->GetCreature(pInstance->GetData64(NPC_HALION_TWILIGHT)))
 			{
+                if (pclone->IsDamageEnoughForLootingAndReward())
+                    me->LowerPlayerDamageReq(me->GetMaxHealth());
 				if (pclone->isAlive())
 				{
 					pclone->SetHealth(1);
