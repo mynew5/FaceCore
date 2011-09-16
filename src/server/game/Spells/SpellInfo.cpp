@@ -1715,7 +1715,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     }
 
     if (target->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
-        if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
+        if (HasEffect(SPELL_EFFECT_SELF_RESURRECT))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     return SPELL_CAST_OK;

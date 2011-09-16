@@ -409,7 +409,7 @@ class boss_the_lich_king : public CreatureScript
                 //About 5 seconds after the encounter starts properly Lich King will cast his first Infest
                 //http://www.youtube.com/watch?v=hseFPNkaqjE
                 events.ScheduleEvent(EVENT_INFEST, 5000, 0, PHASE_1);
-                events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 20000, 0, PHASE_1);
+                events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 30000, 0, PHASE_1);
                 events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 35000, 0, PHASE_1);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 10000, 0, PHASE_1);
@@ -710,13 +710,13 @@ class boss_the_lich_king : public CreatureScript
                                 case EVENT_SUMMON_SHAMBLING_HORROR:
                                 {
                                     DoCast(SPELL_SUMMON_SHAMBLING_HORROR);
-                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 35000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 80000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_SUMMON_DRUDGE_GHOULS:
                                 {
                                     DoCast(SPELL_SUMMON_DRUDGE_GHOULS);
-                                    events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOULS, 30000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOULS, 40000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_INFEST:
@@ -912,12 +912,13 @@ class boss_the_lich_king : public CreatureScript
                             {
                                 DoCast(me, SPELL_FURY_OF_FROSTMOURNE_NORES);
                                 DoCast(me, SPELL_FURY_OF_FROSTMOURNE);
-                                uiEndingTimer = 11000;
+                                uiEndingTimer = 2000;
+                                break;
                             }
                             case 3:
                             {
                                 DoScriptText(SAY_ENDING_1_KING, me);
-                                uiEndingTimer = 24000;
+                                uiEndingTimer = 30000;
                                 break;
                             }
                             case 4:
@@ -1054,7 +1055,7 @@ class boss_the_lich_king : public CreatureScript
                                     DoScriptText(SAY_ENDING_11_FATHER, father);
                                     father->SetFacingToObject(me);
                                     father->CastSpell(father, SPELL_MENETHIL_VISUAL, true);
-                                    father->CastSpell(father, SPELL_REVIVE, true);
+                                    father->CastSpell(father, SPELL_REVIVE, false);
 
                                 }
                                 uiEndingTimer = 6000;
@@ -1209,7 +1210,7 @@ class npc_tirion_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellEntry * spell)
+            void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
             {
                 if(spell->Id == SPELL_LIGHTS_BLESSING)
                     me->RemoveAurasDueToSpell(SPELL_ICEBLOCK_TRIGGER);
@@ -1295,7 +1296,7 @@ class npc_tirion_icc : public CreatureScript
                         case 9:
                         {
                             if(Creature* lich = Unit::GetCreature(*me, uiLichKingGUID))
-                                lich->CastSpell(me, SPELL_ICEBLOCK_TRIGGER, true);
+                                lich->CastSpell(lich, SPELL_ICEBLOCK_TRIGGER, true);
                             uiIntroTimer = 2000;
                             break;
                         }
@@ -2802,30 +2803,22 @@ class spell_lich_king_tirion_mass_resurrection : public SpellScriptLoader
         {
             PrepareSpellScript(spell_lich_king_tirion_mass_resurrection_SpellScript)
 
-            //void MassResurrect(SpellEffIndex effIndex)
-            //{
-            //    PreventHitDefaultEffect(effIndex);
-            //    InstanceScript *instance = GetCaster()->GetInstanceScript();
-            //    if (!instance)
-            //        return;
-            //    instance->DoCastSpellOnPlayers(SPELL_REVIVE_EFFECT);
-            //}
-
-            void FilterTargets(std::list<Unit*>& unitList)
+            void MassResurrect(SpellEffIndex effIndex)
             {
-                unitList.clear();
-                const Map::PlayerList &PlayerList = GetCaster()->GetMap()->GetPlayers();
-
-                if (!PlayerList.isEmpty())
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        if (Player* player = i->getSource())
-                            unitList.push_back(player);
+                PreventHitDefaultEffect(effIndex);
+                if (Unit* caster = GetCaster())
+                {
+                    const Map::PlayerList &PlayerList = caster->GetMap()->GetPlayers();
+                    if (!PlayerList.isEmpty())
+                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                            if (Player* player = i->getSource())
+                                caster->CastSpell(player, SPELL_REVIVE_EFFECT, true);
+                }
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_lich_king_tirion_mass_resurrection_SpellScript::FilterTargets, EFFECT_0, TARGET_SRC_CASTER);
-                //OnEffect += SpellEffectFn(spell_lich_king_tirion_mass_resurrection_SpellScript::MassResurrect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffect += SpellEffectFn(spell_lich_king_tirion_mass_resurrection_SpellScript::MassResurrect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

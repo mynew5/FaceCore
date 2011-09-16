@@ -3486,6 +3486,12 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
                 break;
             //Lich King custom script spells
+            case 70337:
+            case 73912:
+            case 73913:
+            case 73914:
+                spellInfo->StackAmount = 100;
+                break;
             case 72762:
                 spellInfo->DurationIndex = 3;
                 break;
@@ -3517,8 +3523,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectRadiusIndex[0] = 22;
                 break;
             case 72429:
-                spellInfo->EffectRadiusIndex[0] = 4;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_GHOSTS;
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = 0;
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
             case 72754:
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
