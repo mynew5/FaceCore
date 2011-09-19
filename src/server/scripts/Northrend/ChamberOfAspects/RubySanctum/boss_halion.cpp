@@ -249,13 +249,12 @@ public:
             DoScriptText(-1666104,me);
 			if (Creature* pclone = me->GetMap()->GetCreature(pInstance->GetData64(NPC_HALION_TWILIGHT)))
 			{
-                if (pclone->IsDamageEnoughForLootingAndReward())
-                    me->LowerPlayerDamageReq(me->GetMaxHealth());
 				if (pclone->isAlive())
 				{
 					pclone->SetHealth(1);
 				}
 			}
+            me->LowerPlayerDamageReq(me->GetMaxHealth() / 4);
 			pInstance->SetData(TYPE_HALION, DONE);
             me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             pInstance->SetData(TYPE_COUNTER, COUNTER_OFF);
