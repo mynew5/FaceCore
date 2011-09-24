@@ -254,7 +254,7 @@ public:
         {
             ScriptedAI::MoveInLineOfSight(who);
 
-            if (!Intro && me->IsWithinLOSInMap(who)&& me->IsWithinDistInMap(who, 100) && me->IsValidAttackTarget(who))
+            if (!Intro && me->IsWithinLOSInMap(who)&& me->IsWithinDistInMap(who, 100) && me->IsHostileTo(who))
             {
                 DoScriptText(SAY_INTRO, me);
                 Intro = true;

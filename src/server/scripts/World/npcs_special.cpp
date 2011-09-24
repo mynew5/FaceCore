@@ -180,7 +180,7 @@ public:
             if (!SpawnAssoc)
                 return;
 
-            if (me->IsValidAttackTarget(who))
+            if (who->isTargetableForAttack() && me->IsHostileTo(who))
             {
                 Player* playerTarget = who->ToPlayer();
 
@@ -1719,7 +1719,7 @@ public:
         //Redefined for random target selection:
         void MoveInLineOfSight(Unit* who)
         {
-            if (!me->getVictim() && me->canCreatureAttack(who))
+            if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
             {
                 if (me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                     return;

@@ -40,7 +40,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (!_player->IsValidAttackTarget(pEnemy))
+    if (!_player->canAttack(pEnemy))
     {
         // stop attack state at client
         SendAttackStop(pEnemy);

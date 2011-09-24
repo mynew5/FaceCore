@@ -269,7 +269,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!me->IsValidAttackTarget(who))
+            if (!who->isTargetableForAttack() || !me->IsHostileTo(who))
                 return;
             if (pInstance && Intro)
                 pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);

@@ -58,7 +58,7 @@ bool PetAI::_needToStop()
     if (_CheckTargetCC(me->getVictim()) && !targetHasCC)
         return true;
 
-    return !me->IsValidAttackTarget(me->getVictim());
+    return !me->canAttack(me->getVictim());
 }
 
 void PetAI::_stopAttack()

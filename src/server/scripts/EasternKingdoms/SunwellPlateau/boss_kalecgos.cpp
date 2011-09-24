@@ -331,7 +331,7 @@ public:
             if (bJustReset)//boss is invisible, don't attack
                 return;
 
-            if (!me->getVictim() && me->IsValidAttackTarget(who))
+            if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius))

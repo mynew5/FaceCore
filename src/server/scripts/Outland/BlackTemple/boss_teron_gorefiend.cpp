@@ -267,7 +267,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && me->canCreatureAttack(who))
+            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && who->isTargetableForAttack() && me->IsHostileTo(who) && who->isInAccessiblePlaceFor(me))
             {
                 if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {

@@ -1437,7 +1437,7 @@ public:
             if (!who || me->getVictim())
                 return;
 
-            if (me->IsValidAttackTarget(who))
+            if (who->isTargetableForAttack() && me->IsHostileTo(who))
             {
                 //float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, 30))

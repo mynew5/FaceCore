@@ -1462,7 +1462,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     // remove invalid attackers
                     for (Unit::AttackerSet::iterator aItr = attackers.begin(); aItr != attackers.end();)
-                        if (!(*aItr)->IsValidAttackTarget(m_caster))
+                        if (!(*aItr)->canAttack(m_caster))
                             attackers.erase(aItr++);
                         else
                             ++aItr;

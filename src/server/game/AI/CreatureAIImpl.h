@@ -528,7 +528,7 @@ AISpellInfoType* GetAISpellInfo(uint32 i);
 
 inline void CreatureAI::SetGazeOn(Unit* target)
 {
-    if (me->IsValidAttackTarget(target))
+    if (me->canAttack(target))
     {
         AttackStart(target);
         me->SetReactState(REACT_PASSIVE);
