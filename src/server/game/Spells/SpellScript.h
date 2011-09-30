@@ -332,9 +332,6 @@ class SpellScript : public _SpellScript
 
         // Creates item. Calls Spell::DoCreateItem method.
         void CreateItem(uint32 effIndex, uint32 itemId);
-              
-        // returns total damage of a spell
-        int32 GetTrueDamage();
 
         // Returns SpellInfo from the spell that triggered the current one
         SpellInfo const* GetTriggeringSpell();
