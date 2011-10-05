@@ -1281,16 +1281,6 @@ void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
-float WorldObject::GetObjectSize() const 
-{ 
-   if (GetTypeId() == TYPEID_UNIT) 
-   { 
-       if (this->ToCreature()->isHunterPet()) 
-           return DEFAULT_WORLD_OBJECT_SIZE; 
-   } 
-   return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE; 
-}
-
 uint32 WorldObject::GetZoneId() const
 {
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
@@ -2362,7 +2352,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, const Position &pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime) const
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
 {
     if (!IsInWorld())
         return NULL;
@@ -2375,7 +2365,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, const Position &pos, flo
     }
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;
@@ -2425,15 +2415,6 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
     VisitNearbyGridObject(range, searcher);
     return go;
-}
-
-Player* WorldObject::FindNearestPlayer(float range, bool alive)
-{
-  Player* player = NULL;
-  Trinity::AnyPlayerInObjectRangeCheck check(this, GetVisibilityRange());
-  Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
-  VisitNearbyWorldObject(range, searcher);
-  return player;
 }
 
 void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const

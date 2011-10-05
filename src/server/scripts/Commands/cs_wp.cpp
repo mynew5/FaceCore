@@ -198,7 +198,6 @@ public:
         sWaypointMgr->ReloadPath(id);
         return true;
     }
-    
     static bool HandleWpUnLoadCommand(ChatHandler* handler, const char* /*args*/)
     {
 

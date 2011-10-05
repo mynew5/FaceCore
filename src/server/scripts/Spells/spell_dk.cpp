@@ -246,7 +246,7 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         }
 };
 
-// 47496 - Explode, GHoul spell for Corpse Explosion
+// 47496 - Explode, Ghoul spell for Corpse Explosion
 class spell_dk_ghoul_explode : public SpellScriptLoader
 {
     public:
@@ -700,7 +700,7 @@ public:
         return new spell_dk_improved_unholy_presence_AuraScript();
     }
 };
-      
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();

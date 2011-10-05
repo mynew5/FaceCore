@@ -964,7 +964,7 @@ class npc_og_mekkatorque : public CreatureScript
                                 Cannon[n] = me->SummonCreature(NPC_CANNON, CannonSpawn[n], TEMPSUMMON_MANUAL_DESPAWN);
                                 Cannon[n]->CastSpell(Cannon[n], SPELL_TRIGGER, true);
                             }
-                            me->SummonGameObject(GO_RAD_CONTROL, RadControlSpawn, 0 ,0 ,0 ,0, 0);
+                            me->SummonGameObject(GO_RAD_CONTROL, RadControlSpawn.GetPositionX(), RadControlSpawn.GetPositionY(), RadControlSpawn.GetPositionZ(), 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);
                             for (int8 n = 0; n < 3; ++n)
                                 BattleSuit[n] = me->SummonCreature(NPC_BATTLE_SUIT, BattleSuitSpawn[n], TEMPSUMMON_MANUAL_DESPAWN);
                             if (Creature* iTank = me->SummonCreature(NPC_I_TANK, iTankSpawn[3], TEMPSUMMON_MANUAL_DESPAWN))

@@ -172,7 +172,7 @@ class boss_lord_marrowgar : public CreatureScript
                                 DoCastAOE(SPELL_COLDFLAME_NORMAL);
                             else
                                 DoCast(me, SPELL_COLDFLAME_BONE_STORM);
-                            events.ScheduleEvent(EVENT_COLDFLAME, 6000, EVENT_GROUP_SPECIAL);
+                            events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_WARN_BONE_STORM:
                             _boneSlice = false;
@@ -304,7 +304,7 @@ class npc_coldflame : public CreatureScript
                         float ang = me->GetAngle(ownerPos) - static_cast<float>(M_PI);
                         MapManager::NormalizeOrientation(ang);
                         me->SetOrientation(ang);
-                        owner->GetNearPosition(pos, owner->GetObjectSize() / 2.0f, 0.0f);
+                        owner->GetNearPosition(pos, 2.5f, 0.0f);
                     }
                 }
                 else
@@ -331,7 +331,7 @@ class npc_coldflame : public CreatureScript
                 if (_events.ExecuteEvent() == EVENT_COLDFLAME_TRIGGER)
                 {
                     Position newPos;
-                    me->GetNearPosition(newPos, 5.0f, 0.0f);
+                    me->GetNearPosition(newPos, 5.5f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
                     _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1000);

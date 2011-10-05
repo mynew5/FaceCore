@@ -184,7 +184,6 @@ class boss_blood_council_controller : public CreatureScript
 
             void Reset()
             {
-                _Reset();
                 events.Reset();
                 me->SetReactState(REACT_PASSIVE);
                 _invocationStage = 0;
@@ -242,11 +241,6 @@ class boss_blood_council_controller : public CreatureScript
                 }
 
                 if (IsHeroic())
-                    me->AddAura(SPELL_SHADOW_PRISON_DUMMY, me);
-
-                /* Causes bug! This aura is applied automaticaly when enemy casts SPELL_SHADOW_PRISON => this code is useless
-                Dummy dissapears when enemy dies or will be removed in JustDied, but if enemy alive, spell will be on player even outside instance.
-                if (IsHeroic())
                 {
                     Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
                     if (PlList.isEmpty())
@@ -263,7 +257,7 @@ class boss_blood_council_controller : public CreatureScript
                                 player->AddAura(SPELL_SHADOW_PRISON_DUMMY, player);
                         }
                     }
-                }*/
+                }
             }
 
             void SetData(uint32 /*type*/, uint32 data)
@@ -391,7 +385,6 @@ class boss_prince_keleseth_icc : public CreatureScript
             {
                 _isEmpowered = false;
                 _spawnHealth = creature->GetMaxHealth();
-                DoCast(me, SPELL_FEIGN_DEATH);
             }
 
             void InitializeAI()
@@ -400,12 +393,14 @@ class boss_prince_keleseth_icc : public CreatureScript
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
+                if (!me->isDead())
+                    JustRespawned();
+
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset()
             {
-                _Reset();
                 events.Reset();
                 summons.DespawnAll();
 
@@ -424,23 +419,8 @@ class boss_prince_keleseth_icc : public CreatureScript
                     DoZoneInCombat(controller);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
-                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, 1000);
+                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_SHADOW_LANCE, 2000);
-            }
-
-            void AttackStart(Unit* who)
-            {
-                if (!who)
-                    return;
-        
-                if (me->Attack(who, true))
-                {
-                    me->SetInCombatWith(who);
-                    who->SetInCombatWith(me);
-        
-                    DoStartMovement(who, 20.0f);
-                    SetCombatMovement(true);
-                }
             }
 
             void JustDied(Unit* /*killer*/)
@@ -464,6 +444,11 @@ class boss_prince_keleseth_icc : public CreatureScript
                 }
             }
 
+            void JustRespawned()
+            {
+                DoCast(me, SPELL_FEIGN_DEATH);
+                me->SetHealth(_spawnHealth);
+            }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
@@ -581,7 +566,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                         case EVENT_SHADOW_RESONANCE:
                             Talk(SAY_KELESETH_SPECIAL);
                             DoCast(me, SPELL_SHADOW_RESONANCE);
-                            events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(9000, 11000));
+                            events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
                             break;
                         case EVENT_SHADOW_LANCE:
                             if (_isEmpowered)
@@ -620,7 +605,6 @@ class boss_prince_taldaram_icc : public CreatureScript
             {
                 _isEmpowered = false;
                 _spawnHealth = creature->GetMaxHealth();
-                DoCast(me, SPELL_FEIGN_DEATH);
             }
 
             void InitializeAI()
@@ -629,12 +613,14 @@ class boss_prince_taldaram_icc : public CreatureScript
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
+                if (!me->isDead())
+                    JustRespawned();
+
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset()
             {
-                _Reset();
                 events.Reset();
                 summons.DespawnAll();
 
@@ -680,6 +666,12 @@ class boss_prince_taldaram_icc : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     controller->AI()->SetData(0, 1);
                 }
+            }
+
+            void JustRespawned()
+            {
+                DoCast(me, SPELL_FEIGN_DEATH);
+                me->SetHealth(_spawnHealth);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -836,7 +828,6 @@ class boss_prince_valanar_icc : public CreatureScript
             {
                 _isEmpowered = false;
                 _spawnHealth = creature->GetMaxHealth();
-                DoCast(me, SPELL_FEIGN_DEATH);
             }
 
             void InitializeAI()
@@ -845,12 +836,14 @@ class boss_prince_valanar_icc : public CreatureScript
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
+                if (!me->isDead())
+                    JustRespawned();
+
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset()
             {
-                _Reset();
                 events.Reset();
                 summons.DespawnAll();
 
@@ -896,6 +889,12 @@ class boss_prince_valanar_icc : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     controller->AI()->SetData(0, 1);
                 }
+            }
+
+            void JustRespawned()
+            {
+                DoCast(me, SPELL_FEIGN_DEATH);
+                me->SetHealth(_spawnHealth);
             }
 
             void JustSummoned(Creature* summon)

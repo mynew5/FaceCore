@@ -2825,6 +2825,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 43140: // Flame Breath
             case 43215: // Flame Breath
             case 70461: // Coldflame Trap
+            case 72133: // Pain and Suffering
+            case 73788: // Pain and Suffering
+            case 73789: // Pain and Suffering
+            case 73790: // Pain and Suffering
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
                 break;
             case 24340: // Meteor
@@ -2945,20 +2949,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 30657: // Quake
                 spellInfo->EffectTriggerSpell[0] = 30571;
                 break;
-            case 12289: // Improved Hamstring (Rank 1)
-            case 12668: // Improved Hamstring (Rank 2)
-            case 23695: // Improved Hamstring (Rank 3)
-            case 48532: // Improved Mangle (Rank 1)
-            case 48489: // Improved Mangle (Rank 2)
-            case 48491: // Improved Mangle (Rank 3)
-            case 14156: // Ruthlessness (Rank 1)
-            case 14160: // Ruthlessness (Rank 2)
-            // case 14161: // Ruthlessness (Rank 3) -- already ok
-            case 15257: // Shadow Weaving (Rank 1)
-            case 15331: // Shadow Weaving (Rank 2)
-            case 15332: // Shadow Weaving (Rank 3)
-                spellInfo->EffectImplicitTargetA[EFFECT_0] = TARGET_UNIT_CASTER;
-                break;
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetB[0] = 0;
@@ -2995,16 +2985,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 // because of bug in dbc
                 spellInfo->procChance = 0;
                 break;
-            case 45524: // Chains of Ice
-                // this will fix self-damage caused by Glyph of Chains of Ice
-                spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
-                //++count;
-                break;
-            // Fiery Payback hack
-            case 44440:
-            case 44441:
-                spellInfo->CasterAuraStateNot = AURA_STATE_NONE;
-                break;
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
@@ -3016,22 +2996,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER_AREA_PARTY;
                 spellInfo->EffectRadiusIndex[0] = 45;
-                break;
-            case 63944:                             // Renewed Hope hack
-                spellInfo->EffectApplyAuraName[0] = 87;
-                spellInfo->EffectMiscValue[0] = 127;
-                break;
-            case 71189: // Dreamwalker's Rage
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->EffectRadiusIndex[0] = 12;
-                break;
-            case 70127: // Mystic Buffet
-            case 72528:
-            case 72529:
-            case 72530:
-                spellInfo->EffectImplicitTargetA[1] = TARGET_SRC_CASTER;
-                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
             case 44978: case 45001: case 45002: // Wild Magic
             case 45004: case 45006: case 45010: // Wild Magic
@@ -3202,27 +3166,15 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
             case 12051: // Evocation - now we can interrupt this
-                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
-                break;
             case 42650: // Army of the Dead - now we can interrupt this
-                spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
                 spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
                 break;
-            case 20224: // Seals of the Pure (Rank 1)
-            case 20225: // Seals of the Pure (Rank 2)
-            case 20330: // Seals of the Pure (Rank 3)
-            case 20331: // Seals of the Pure (Rank 4)
-            case 20332: // Seals of the Pure (Rank 5)
-                spellInfo->EffectSpellClassMask[EFFECT_0][1] = 0x20400800;
-                break;
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                break;
-            case 56278: // Read Pronouncement, missing EffectApplyAuraName
-                spellInfo->Effect[0] = SPELL_EFFECT_DUMMY;
                 break;
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
@@ -3439,7 +3391,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_CASTER;
                 break;
             case 69846: // Frost Bomb
-                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
                 spellInfo->speed = 10;
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_TARGET_ANY;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
@@ -3455,69 +3406,96 @@ void SpellMgr::LoadDbcDataCorrections()
                 for (int8 i = 0; i < 3; ++i)
                     spellInfo->EffectImplicitTargetB[i] = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 75545: case 75536: // Explosion (prevent error message in console)
-            case 75553:             // Emergency Recall [Camera trigger]
+            case 75545: // Explosion (prevent error message in console)
+			case 75536:
+            case 75553: // Emergency Recall [Camera trigger]
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
                 break;
-            //Lich King custom script spells
-            case 70337:
-            case 73912:
-            case 73913:
-            case 73914:
-                spellInfo->StackAmount = 100;
+            case 71614: // Ice Lock
+                spellInfo->Mechanic = MECHANIC_STUN;
                 break;
-            case 72762:
-                spellInfo->DurationIndex = 3;
+            case 72762: // Defile
+                spellInfo->DurationIndex = 559; // 53 seconds
                 break;
-            case 71614:
-                spellInfo->Targets = 6;
+            case 72743: // Defile
+                spellInfo->DurationIndex = 22; // 45 seconds
                 break;
-            case 69410:
-                spellInfo->Targets = 1;
+            case 72754: // Defile
+            case 73708: // Defile
+            case 73709: // Defile
+            case 73710: // Defile
+                spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
+                spellInfo->EffectRadiusIndex[1] = 22;   // 200yd
                 break;
-            case 74074:
-                spellInfo->Targets = 18;
+            case 69030: // Val'kyr Target Search
+                spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
+                spellInfo->EffectRadiusIndex[1] = 22;   // 200yd
                 break;
-            case 73529:
-                spellInfo->EffectRadiusIndex[1] = 13;
+            case 69198: // Raging Spirit Visual
+                spellInfo->rangeIndex = 13;             // 50000yd
                 break;
-            case 69200:
-                spellInfo->DurationIndex = 28;
-                spellInfo->Effect[0] = 6;
+            case 73654: // Harvest Souls
+            case 74295: // Harvest Souls
+            case 74296: // Harvest Souls
+            case 74297: // Harvest Souls
+                spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
+                spellInfo->EffectRadiusIndex[1] = 28;   // 50000yd
+                spellInfo->EffectRadiusIndex[2] = 28;   // 50000yd
                 break;
-            case 72350:
-                spellInfo->Effect[1] = SPELL_EFFECT_INSTAKILL;
-                spellInfo->EffectRadiusIndex[0] = 22;
-                spellInfo->EffectRadiusIndex[1] = 22;
-                spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
-                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->EffectAmplitude[0] = 50000;
+            case 73655: // Harvest Soul
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
-            case 72351:
-                spellInfo->EffectRadiusIndex[0] = 22;
+            case 73540: // Summon Shadow Trap
+                spellInfo->DurationIndex = 23;          // 90 seconds
                 break;
-            case 72429:
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-                spellInfo->EffectImplicitTargetB[0] = 0;
-                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+            case 73530: // Shadow Trap (visual)
+                spellInfo->DurationIndex = 28;          // 5 seconds
                 break;
-            case 72754:
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
+            case 73529: // Shadow Trap
+                spellInfo->EffectRadiusIndex[1] = 13;   // 10yd
                 break;
-            case 68981:
-                spellInfo->Effect[2] = 0;
+            case 74282: // Shadow Trap (searcher)
+                spellInfo->EffectRadiusIndex[0] = 15;   // 3yd
                 break;
-            case 73159:
-                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->EffectRadiusIndex[0] = 22;
+            case 72595: // Restore Soul
+            case 73650: // Restore Soul
+                spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
                 break;
-            case 72376:
-                spellInfo->EffectRadiusIndex[0] = 22;
+            case 74086: // Destroy Soul
+                spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
                 break;
-            case 74276:
-                spellInfo->AttributesEx3 = SPELL_ATTR3_DEATH_PERSISTENT;
-            // End Lich King spells
+            case 74302: // Summon Spirit Bomb
+            case 74342: // Summon Spirit Bomb
+                spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 74341: // Summon Spirit Bomb
+            case 74343: // Summon Spirit Bomb
+                spellInfo->EffectRadiusIndex[0] = 22;   // 200yd
+                spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 73579: // Summon Spirit Bomb
+                spellInfo->EffectRadiusIndex[0] = 20;   // 25yd
+                break;
+            case 72350: // Fury of Frostmourne
+                spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
+                spellInfo->EffectRadiusIndex[1] = 28;   // 50000yd
+                break;
+            case 75127: // Kill Frostmourne Players
+            case 72351: // Fury of Frostmourne
+            case 72429: // Mass Resurrection
+            case 73159: // Play Movie
+            case 73582: // Trigger Vile Spirit (Inside, Heroic)
+                spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
+                break;
+            case 72376: // Raise Dead
+                spellInfo->MaxAffectedTargets = 3;
+                spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
+                break;
+            case 71809: // Jump
+                spellInfo->rangeIndex = 3;              // 20yd
+                spellInfo->EffectRadiusIndex[0] = 20;   // 25yd
+                break;
             default:
                 break;
         }

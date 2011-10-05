@@ -1212,8 +1212,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             if (GameObject* obj = target->GetGameObject(48018))
                             {
-                                target->ToPlayer()->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
-                                target->ToPlayer()->RemoveMovementImpairingAuras();
+                                target->NearTeleportTo(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation());
+                                target->RemoveMovementImpairingAuras();
                             }
                         break;
                 }
@@ -1425,7 +1425,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
                             caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
                     }
-                    break;
                 }
                 // Improved Fear
                 else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
@@ -1555,25 +1554,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
                 break;
             case SPELLFAMILY_PALADIN:
-                switch (GetId())
-                {                   
-                    case 25771: // Remove the immunity shield marker on Forbearance removal if AW marker is not present
-                        if (target->HasAura(61988) && !target->HasAura(61987))
-                            target->RemoveAura(61988);
-                        break;
-                    case 199997: // Divine Storm Helper (SERVERSIDE)
-                    {
-                        int32 damage = aurApp->GetBase()->GetEffect(EFFECT_0)->GetAmount();
-
-                        if (!damage)
-                            break;
-
-                        caster->CastCustomSpell(target, 54171, &damage, NULL, NULL, true);
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                // Remove the immunity shield marker on Forbearance removal if AW marker is not present
+                if (GetId() == 25771 && target->HasAura(61988) && !target->HasAura(61987))
+                    target->RemoveAura(61988);
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
                 // Blood of the North
@@ -1593,24 +1576,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             case SPELLFAMILY_HUNTER:
-                // Wyvern Sting
-                // If implemented through spell_linked_spell it can't proc from breaking by damage
-                if (removeMode != AURA_REMOVE_BY_DEATH &&
-                    GetSpellInfo()->SpellFamilyFlags[1] & 0x1000 && caster)
-                {
-                    uint32 spell_id = 0;
-                    switch(GetId())
-                    {
-                        case 19386: spell_id = 24131; break;
-                        case 24132: spell_id = 24134; break;
-                        case 24133: spell_id = 24135; break;
-                        case 27068: spell_id = 27069; break;
-                        case 49011: spell_id = 49009; break;
-                        case 49012: spell_id = 49010; break;
-                    }
-                    caster->CastSpell(target, spell_id, true);
-                }
-                break;
                 // Glyph of Freezing Trap
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000008)
                     if (caster && caster->HasAura(56845))

@@ -265,6 +265,7 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellInfo const* spellInfo)
 }
 
 ////////////////////////////////////////////////////////////
+// Methods of class Unit
 Unit::~Unit()
 {
     // set current spells as deletable
@@ -744,10 +745,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         Player* killer = ToPlayer();
 
         // in bg, count dmg if victim is also a player
-
         if (victim->GetTypeId() == TYPEID_PLAYER)
             if (Battleground* bg = killer->GetBattleground())
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
+
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, victim);
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
     }
@@ -1634,10 +1635,6 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             if ((*j)->GetMiscValue() & schoolMask)
                 AddPctN(damageResisted, -(*j)->GetAmount());
 
-        // Chaos Bolt should not be resisted
-        if (spellInfo && spellInfo->SpellIconID == 3178)
-            damageResisted = 0;
-
         dmgInfo.ResistDamage(uint32(damageResisted));
     }
 
@@ -2189,21 +2186,11 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
         }
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        min_damage /= GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT);
-        max_damage /= GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT);
-    }
-
     if (min_damage > max_damage)
         std::swap(min_damage, max_damage);
 
     if (max_damage == 0.0f)
         max_damage = 5.0f;
-
-    // Rounding
-    min_damage += 0.5f;
-    max_damage += 0.5f;
 
     return urand((uint32)min_damage, (uint32)max_damage);
 }
@@ -2550,18 +2537,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
             }
         }
 
-        // Direct Damage spells should not be fully resisted
-        bool bDirectDamage = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (spell->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE || spell->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
-            {
-                bDirectDamage = true;
-                break;
-            }
-        }
-
-        if (bNegativeAura && !bDirectDamage)
+        if (bNegativeAura)
         {
             tmp += victim->GetMaxPositiveAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
             tmp += victim->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
@@ -4415,7 +4391,7 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
     return multiplier;
 }
 
-int32 Unit::GetMaxPositiveAuraModifier(AuraType auratype) const
+int32 Unit::GetMaxPositiveAuraModifier(AuraType auratype)
 {
     int32 modifier = 0;
 
@@ -6242,7 +6218,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // Dispel Magic shares spellfamilyflag with abolish disease
                     if (procSpell->SpellIconID != 74)
                         return false;
-                    if (!target || !target->IsFriendlyTo(this) || target->GetTypeId() != TYPEID_PLAYER)
+                    if (!target || !target->IsFriendlyTo(this))
                         return false;
 
                     basepoints0 = int32(target->CountPctFromMaxHealth(triggerAmount));
@@ -6546,17 +6522,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 32747;
                     break;
                 }
-                case 57934: // Tricks of the Trade
-                {
-                    if (Unit * unitTarget = GetMisdirectionTarget())
-                    {
-                        RemoveAura(dummySpell->Id, GetGUID(), 0, AURA_REMOVE_BY_DEFAULT);
-                        CastSpell(this, 59628, true);
-                        CastSpell(unitTarget, 57933, true);
-                        return true;
-                    }
-                    return false;
-                }
             }
 
             switch (dummySpell->SpellIconID)
@@ -6669,12 +6634,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     target = this;
                     break;
                 }
-            }
-            // Misdirection
-            if(dummySpell->Id == 34477)
-            {
-                triggered_spell_id = 35079;
-                target = this;
             }
 
             switch (dummySpell->Id)
@@ -7011,14 +6970,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             triggered_spell_id = 71434;
                     target = victim;
                     break;
-                }
-                case 199997: // Divine Storm Helper (SERVERSIDE)
-                {
-                    if (victim == this)
-                        return false;
-
-                    triggeredByAura->SetAmount(triggeredByAura->GetAmount() + damage);
-                    return true;
                 }
                 // Item - Icecrown 25 Normal Dagger Proc
                 case 71880:
@@ -7635,9 +7586,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Mark of Blood
             if (dummySpell->Id == 49005)
             {
-                if (!target || target->GetTypeId() != TYPEID_PLAYER)
-                    return false;
-
                 // TODO: need more info (cooldowns/PPM)
                 triggered_spell_id = 61607;
                 break;
@@ -11155,10 +11103,6 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
             crit_bonus += damage / 2;                       // for spells is 50%
             break;
     }
-    // all these spells should have only 50% bonus damage on crit like a magic spells
-    if (spellProto->Id == 55078 || spellProto->Id == 61840 ||
-       (spellProto->SpellFamilyName == SPELLFAMILY_HUNTER && spellProto->SpellFamilyFlags[0] & 0x4000))
-        crit_bonus /= 2;
 
     crit_mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, spellProto->GetSchoolMask()) - 1.0f) * 100;
 
@@ -13164,10 +13108,6 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
 {
     // don't mod permament auras duration
     if (duration < 0)
-        return duration;
-        
-    // Envenom duration    
-    if (spellProto->SpellFamilyName == SPELLFAMILY_ROGUE && spellProto->SpellFamilyFlags[1] & 0x8)
         return duration;
 
     // cut duration only of negative effects
@@ -15653,9 +15593,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 if (instanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                    {
                         ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
-                    }
                 }
                 else
                 {
@@ -17508,7 +17446,7 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
     {
         if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex || (*i)->GetTotalTicks() == 0)
             continue;
-        amount += uint32(((*i)->GetAmount() * std::max<int32>(int32((*i)->GetTotalTicks() - (*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
+        amount += uint32(((*i)->GetAmount() * std::max<int32>((*i)->GetTotalTicks() - int32((*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
         break;
     }
 

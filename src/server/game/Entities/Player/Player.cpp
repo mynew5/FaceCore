@@ -1439,7 +1439,7 @@ void Player::HandleDrowning(uint32 time_diff)
                     EnvironmentalDamage(DAMAGE_LAVA, damage);
                 // need to skip Slime damage in Undercity,
                 // maybe someone can find better way to handle environmental damage
-                else if (m_zoneUpdateId != 1497 && m_zoneUpdateId != 3968)
+                else if (m_zoneUpdateId != 1497)
                     EnvironmentalDamage(DAMAGE_SLIME, damage);
             }
         }
@@ -2133,11 +2133,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         return false;                                       // normal client can't teleport to this map...
     }
-    else if((mEntry->Expansion() == 2 && mEntry->MapID != 609) &&  getLevel() < 68)
-    {
-        GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED),68);
-        return false;
-    }
     else
         sLog->outDebug(LOG_FILTER_MAPS, "Player %s is being teleported to map %u", GetName(), mapid);
 
@@ -2164,7 +2159,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER)))
         DuelComplete(DUEL_FLED);
 
-    if (GetMapId() == mapid) // ((GetMapId() == mapid && !m_transport) || (GetTransport() && GetMapId() == 628))
+    if (GetMapId() == mapid)
     {
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
@@ -2210,10 +2205,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     }
     else
     {
-    /* Give deathknight option to get teleported out of startquest phase
-         if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !isGameMaster() && !HasSpell(50977))
-             return false;
-    */
+        if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !isGameMaster() && !HasSpell(50977))
+            return false;
 
         // far teleport to another map
         Map* oldmap = IsInWorld() ? GetMap() : NULL;
@@ -4957,10 +4950,10 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
-            trans->PAppend("DELETE FROM character_glyphs WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_queststatus_daily WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_talent WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_skills WHERE guid = '%u'",guid);
+            trans->PAppend("DELETE FROM character_glyphs WHERE guid = '%u'", guid);
+            trans->PAppend("DELETE FROM character_queststatus_daily WHERE guid = '%u'", guid);
+            trans->PAppend("DELETE FROM character_talent WHERE guid = '%u'", guid);
+            trans->PAppend("DELETE FROM character_skills WHERE guid = '%u'", guid);
 
             CharacterDatabase.CommitTransaction(trans);
             break;
@@ -16879,8 +16872,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // client without expansion support
     if (mapEntry)
     {
-        if (GetSession()->Expansion() < mapEntry->Expansion() || 
-            ((mapEntry->Expansion() == 2 && mapEntry->MapID != 609) &&  getLevel() < 68))
+        if (GetSession()->Expansion() < mapEntry->Expansion())
         {
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player %s using client without required expansion tried login at non accessible map %u", GetName(), mapId);
             RelocateToHomebind();
@@ -17463,11 +17455,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                         ItemPosCountVec dest;
                         err = CanStoreItem(itr->second->GetSlot(), slot, dest, item);
                         if (err == EQUIP_ERR_OK)
-                        { 
                             itr->second->StoreItem(slot, item, true);
-                            //THIS IS A HACK. NEED CORRECT WAY.
-                            AddItemDurations(item);
-                        } 
                     }
                 }
 
@@ -18305,22 +18293,6 @@ bool Player::CheckInstanceLoginValid()
             return false;
     }
 
-    // and do one more check before InstanceMap::CanEnter->crash in assert, cuz cur_map==target_map
-    // instance full don't checks in CanPlayerEnter due ignore login case.
-    if (GetMap()->GetPlayersCountExceptGMs() > ((InstanceMap*)GetMap())->GetMaxPlayers())
-    {
-        SendTransferAborted(GetMap()->GetId(), TRANSFER_ABORT_MAX_PLAYERS);
-        return false;
-    }
-
-    // and do one more check before InstanceMap::CanEnte
-    // instance full don't checks in CanPlayerEnter due ignore login case.
-    if (GetMap()->GetPlayersCountExceptGMs() > ((InstanceMap*)GetMap())->GetMaxPlayers())
-    {
-        SendTransferAborted(GetMap()->GetId(), TRANSFER_ABORT_MAX_PLAYERS);
-        return false;
-    }
-
     // do checks for satisfy accessreqs, instance full, encounter in progress (raid), perm bind group != perm bind player
     return sMapMgr->CanPlayerEnter(GetMap()->GetId(), this, true);
 }
@@ -18994,7 +18966,7 @@ void Player::_SaveSpells(SQLTransaction& trans)
 
         // add only changed/new not dependent spells
         if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED))
-            trans->PAppend("INSERT INTO character_spell (guid,spell,active,disabled) VALUES ('%u', '%u', '%u', '%u')", GetGUIDLow(), itr->first, itr->second->active ? 1 : 0,itr->second->disabled ? 1 : 0);
+            trans->PAppend("INSERT INTO character_spell (guid, spell, active, disabled) VALUES ('%u', '%u', '%u', '%u')", GetGUIDLow(), itr->first, itr->second->active ? 1 : 0, itr->second->disabled ? 1 : 0);
 
         if (itr->second->state == PLAYERSPELL_REMOVED)
         {
@@ -19309,7 +19281,7 @@ void Player::UpdateContestedPvP(uint32 diff)
 
 void Player::UpdatePvPFlag(time_t currTime)
 {
-    if (!IsPvP() || InBattleground() || InArena()) 
+    if (!IsPvP())
         return;
     if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300) || pvpInfo.inHostileArea)
         return;

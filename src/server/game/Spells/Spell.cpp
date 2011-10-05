@@ -1346,11 +1346,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             AuraEffect* aurEff = m_spellAura->GetEffect(1);
             aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
-        // Cobra Strikes (can't find any other way that may work)
-        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->SpellFamilyFlags[1] & 0x10000000)
-            if (Unit * owner = caster->GetOwner())
-                if (Aura* pAura = owner->GetAura(53257))
-                    pAura->DropCharge();
         m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
@@ -3089,10 +3084,6 @@ void Spell::cancel()
         default:
             break;
     }
-    
-    SetReferencedFromCurrent(false);
-    if (m_selfContainer && *m_selfContainer == this)
-        *m_selfContainer = NULL;
 
     SetReferencedFromCurrent(false);
     if (m_selfContainer && *m_selfContainer == this)

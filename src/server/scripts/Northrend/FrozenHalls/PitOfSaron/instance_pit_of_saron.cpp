@@ -154,18 +154,6 @@ class instance_pit_of_saron : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                case GO_ICE_WALL:
-                    uiIceWall = go->GetGUID();
-                    if(GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
-                        HandleGameObject(NULL,true,go);
-                    break;
-                }
-            }
-
             bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -173,13 +161,6 @@ class instance_pit_of_saron : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_ICK:
-                        if (state == DONE)
-                        {
-                            if(GetBossState(DATA_GARFROST)==DONE)
-                            HandleGameObject(uiIceWall,true,NULL);
-                        }
-                        break;
                     case DATA_GARFROST:
                         if (state == DONE)
                         {
@@ -190,8 +171,6 @@ class instance_pit_of_saron : public InstanceMapScript
                                 else
                                     summoner->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
                             }
-                            if(GetBossState(DATA_ICK)==DONE)
-                                HandleGameObject(uiIceWall,true,NULL);
                         }
                         break;
                     case DATA_TYRANNUS:
