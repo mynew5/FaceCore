@@ -1434,22 +1434,12 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             break;
         case SPELLFAMILY_PALADIN:
             // Divine Storm
-            if (m_spellInfo->SpellFamilyFlags[EFFECT_1] & SPELLFAMILYFLAG1_PALADIN_DIVINESTORM)
+            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_PALADIN_DIVINESTORM && effIndex == 1)
             {
-                if (effIndex != EFFECT_0)
-                    return;
-
-                uint32 target_count = 0;
-                for (std::list<TargetInfo>::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); ++itr)
-                    if (itr->effectMask & (1 << EFFECT_2))
-                        ++target_count;
-
-                if (!target_count)
-                    return;
-
-                if (Aura * aura = m_caster->AddAura(199997, unitTarget))
-                    aura->SetCharges(target_count);
-
+                int32 dmg = CalculatePctN(m_damage, damage);
+                if (!unitTarget)
+                    unitTarget = m_caster;
+                m_caster->CastCustomSpell(unitTarget, 54171, &dmg, 0, 0, true);
                 return;
             }
 
@@ -2362,7 +2352,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
             int32 tickheal = targetAura->GetAmount();
             if (Unit* auraCaster = targetAura->GetCaster())
                 tickheal = auraCaster->SpellHealingBonus(unitTarget, targetAura->GetSpellInfo(), tickheal, DOT);
-            //int32 tickheal = targetAura->GetSpellInfo()->Effect[idx].BasePoints + 1;
+            //int32 tickheal = targetAura->GetSpellInfo()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
 
             int32 tickcount = 0;
@@ -2709,7 +2699,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        case 2687:                                          // Bloodrage
+        case 2687:                                          // Bloodthirst - Warrior T10 Protection 4P
             if (m_caster->HasAura(70844))
                 m_caster->CastSpell(m_caster, 70845, true);
             break;
@@ -2905,25 +2895,6 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
     uint32 lockId = 0;
     uint64 guid = 0;
-
-    // selection by spell family
-    switch (m_spellInfo->SpellFamilyName)
-    {
-        case SPELLFAMILY_GENERIC:
-        {
-            switch (m_spellInfo->Id)
-            {
-                case 38790:
-                {
-                    if (!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->ToPlayer()->KilledMonsterCredit(22112,0);
-                    return;
-                }
-            }
-        }
-    }
 
     // Get lockId
     if (gameObjTarget)
@@ -3229,9 +3200,6 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         properties->Id == 2081)     // Mechanical Dragonling, Arcanite Dragonling, Mithril Dragonling TODO: Research on meaning of basepoints
                         amount = 1;
 
-                    if ((properties->Id == 2081 || m_spellInfo->Id == 13258 || m_spellInfo->Id == 13166) && !m_CastItem)
-                        return;
-
                     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
                     for (uint32 count = 0; count < amount; ++count)
@@ -3453,9 +3421,9 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         int32 heal_amount = m_spellInfo->Effects[EFFECT_1].CalcValue();
         m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
         // Glyph of Felhunter
-        if (Unit* pOwner = m_caster->GetOwner())
-            if (pOwner->GetAura(56249))
-                pOwner->CastCustomSpell(pOwner, 19658, &heal_amount, NULL, NULL, true);
+        if (Unit* owner = m_caster->GetOwner())
+            if (owner->GetAura(56249))
+                owner->CastCustomSpell(owner, 19658, &heal_amount, NULL, NULL, true);
     }
 }
 
@@ -4604,7 +4572,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
             switch (m_spellInfo->Id)
             {
-                //Sunreaver Disguis
+                // Sunreaver Disguis
                 case 69672:
                 {
                     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -4618,7 +4586,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                         
                 }
-                //Silver Covenant Disguise
+                // Silver Covenant Disguise
                 case 69673:
                 {
                     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -4632,10 +4600,10 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                         
                 }
-                //Teleport to Lake Wintergrasp
+                // Teleport to Lake Wintergrasp
                 case 58622:
                    {
-                  if(OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+                  if(OutdoorPvPWG* pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
                         if(pvpWG->isWarTime() || pvpWG->m_timer<300000)
                         {
                         if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
@@ -6533,7 +6501,7 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
 
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
-    Player* pPlayer = unitTarget->ToPlayer();
+    Player* player = unitTarget->ToPlayer();
 
     uint32 quest_id = m_spellInfo->Effects[effIndex].MiscValue;
 
@@ -6543,24 +6511,24 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
         return;
 
     // Player has never done this quest
-    if (pPlayer->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
+    if (player->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
         return;
 
     // remove all quest entries for 'entry' from quest log
     for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
-        uint32 quest = pPlayer->GetQuestSlotQuestId(slot);
+        uint32 quest = player->GetQuestSlotQuestId(slot);
         if (quest == quest_id)
         {
-            pPlayer->SetQuestSlot(slot, 0);
+            player->SetQuestSlot(slot, 0);
 
             // we ignore unequippable quest items in this case, its' still be equipped
-            pPlayer->TakeQuestSourceItem(quest, false);
+            player->TakeQuestSourceItem(quest, false);
         }
     }
 
-    pPlayer->RemoveActiveQuest(quest_id);
-    pPlayer->RemoveRewardedQuest(quest_id);
+    player->RemoveActiveQuest(quest_id);
+    player->RemoveRewardedQuest(quest_id);
 }
 
 void Spell::EffectSendTaxi(SpellEffIndex effIndex)
@@ -7329,7 +7297,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
     int32 duration = m_spellInfo->GetDuration();
     switch (m_spellInfo->Id)
     {
-        case 1122: // Inferno
+        case 1122:  // Inferno
         case 4073:  // Mechanical Dragonling
         case 12749: // Mithril Mechanical Dragonling
         case 18662: // Curse of Doom
@@ -7484,12 +7452,11 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG* pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
     switch (m_spellInfo->Id)
     {
         case 58730: // Restricted Flight Area
-        {
             if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
             {
                 if (pvpWG->isWarTime())
@@ -7498,7 +7465,6 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
                     unitTarget->RemoveAura(58730);
             }
             break;
-        }
         case 58600: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
             break;
