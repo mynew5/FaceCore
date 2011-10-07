@@ -886,8 +886,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if (pCurrChar->GetGuildId() != 0)
     {
-        if (Guild* pGuild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
-            pGuild->SendLoginInfo(this);
+        if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
+            guild->SendLoginInfo(this);
         else
         {
             // remove wrong guild data
@@ -1445,6 +1445,8 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     data << uint8(hairColor);
     data << uint8(facialHair);
     SendPacket(&data);
+
+    sWorld->ReloadSingleCharacterNameData(GUID_LOPART(guid));
 }
 
 void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
