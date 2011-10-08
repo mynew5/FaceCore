@@ -5209,15 +5209,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 33494;
                     break;
                 }
-		//Item - Icecrown 25 Normal Tank Weapon Proc
-		case 71871:
+                // Item - Icecrown 25 Normal Tank Weapon Proc
+                case 71871:
                 {
                     triggered_spell_id = 71870;
                     target = this;
                     break;
                 }
-		//Item - Icecrown 25 Heroic Tank Weapon Proc
-		case 71873:
+                // Item - Icecrown 25 Heroic Tank Weapon Proc
+                case 71873:
                 {
                     triggered_spell_id = 71872;
                     target = this;
@@ -5227,15 +5227,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 21063:
                     triggered_spell_id = 21064;
                     break;
-		//Item - Icecrown 25 Normal Caster Weapon Proc
-		case 71845:
+                // Item - Icecrown 25 Normal Caster Weapon Proc
+                case 71845:
                 {
                     triggered_spell_id = 71843;
                     target = this;
                     break;
                 }
-		//Item - Icecrown 25 Heroic Caster Weapon Proc
-		case 71846:
+                // Item - Icecrown 25 Heroic Caster Weapon Proc
+                case 71846:
                 {
                     triggered_spell_id = 71844;
                     target = this;
@@ -5443,16 +5443,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 = damage / 2;
                     target = this;
                     break;
-                }
-                // Shadowfiend Death (Gain mana if pet dies with Glyph of Shadowfiend)
-                case 57989:
-                {
-                    Unit* owner = GetOwner();
-                    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-                        return false;
-                    // Glyph of Shadowfiend (need cast as self cast for owner, no hidden cooldown)
-                    owner->CastSpell(owner, 58227, true, castItem, triggeredByAura);
-                    return true;
                 }
                 // Divine purpose
                 case 31871:

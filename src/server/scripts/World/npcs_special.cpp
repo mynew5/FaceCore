@@ -2213,11 +2213,17 @@ public:
     {
         npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) {}
 
+        void Reset()
+        {
+            if (!me->HasAura(28305))
+                me->CastSpell(me, 28305, false);
+        }
+
         void DamageTaken(Unit* /*killer*/, uint32& damage)
         {
-            if (me->isSummon())
-                if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                    if (owner->HasAura(GLYPH_OF_SHADOWFIEND) && damage >= me->GetHealth())
+            if (damage >= me->GetHealth())
+                if (Unit* owner = me->GetOwner())
+                    if (owner->HasAura(GLYPH_OF_SHADOWFIEND))
                         owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
         }
 
