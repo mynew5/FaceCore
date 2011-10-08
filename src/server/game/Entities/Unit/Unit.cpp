@@ -8955,20 +8955,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         }
         case 46916:  // Slam!
         case 52437:  // Sudden Death
-        {
             // Item - Warrior T10 Melee 4P Bonus
             if (AuraEffect const * aurEff = GetAuraEffect(70847, EFFECT_0))
-            {
-                int32 amount = aurEff->GetAmount();
-                if (roll_chance_i(amount))
+                if (roll_chance_i(aurEff->GetAmount()))
                     CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
-                if (roll_chance_i(amount))
-                    CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
-                if (roll_chance_i(amount))
-                    CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
-            }
+                    // linked spells (DB): 71072, 71069
             break;
-        }
         // Sword and Board
         case 50227:
         {

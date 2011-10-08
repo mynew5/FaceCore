@@ -674,22 +674,17 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     }
                 }
                 // Eviscerate
-                if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & 0x20000)
+                else if ((m_spellInfo->SpellFamilyFlags[0] & 0x00020000) && m_caster->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (!m_caster->ToPlayer())
-                        return;
+                    if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
+                    {
+                        float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                        damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
 
-                    uint32 combo = m_caster->ToPlayer()->GetComboPoints();
-                    if (!combo)
-                        return;
-
-                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
-
-                    // Eviscerate and Envenom Bonus Damage
-                    if (AuraEffect const * aurEffB = m_caster->GetAuraEffect(37169, EFFECT_0, m_caster->GetGUID()))
-                        damage += combo * aurEffB->GetAmount();
-                    break;
+                        // Eviscerate and Envenom Bonus Damage (item set effect)
+                        if (m_caster->HasAura(37169))
+                            damage += combo*40;
+                    }
                 }
                 break;
             }
@@ -755,17 +750,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     damage += CalculatePctN(m_caster->GetShieldBlockValue(), m_spellInfo->Effects[EFFECT_1].CalcValue());
                     break;
                 }
-		//Item - Icecrown 25 Normal Dagger Proc
-                if (m_spellInfo->Id == 71887 || m_spellInfo->Id == 71881)
-                    if (Aura * aur = m_caster->GetAura(71880))
-                        if (roll_chance_i(25))
-                        m_caster->CastSpell(m_caster, 71883, true);
-                break;
-		//Item - Icecrown 25 Heroic Dagger Proc
-		if (m_spellInfo->Id == 71886 || m_spellInfo->Id == 71882)
-                    if (Aura * aur = m_caster->GetAura(71892))
-                        if (roll_chance_i(35))
-                        m_caster->CastSpell(m_caster, 71888, true);
                 break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
@@ -821,10 +805,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 54015: //Set Oracle Faction Honored
                 case 53487: //Set Wolvar Faction Honored
                 {
-                    if (effIndex==0)
-                    {
+                    if (effIndex == 0)
                             unitTarget->ToPlayer()->SetReputation(m_spellInfo->Effects[0].BasePoints+1,21000);
-                    }
                     return;
                 }
                 case 31225:                                 // Shimmering Vessel (restore creature to life)
@@ -1076,16 +1058,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->CastSpell(m_caster, 42337, true, NULL);
                     return;
                 }
-                case 45980:                                 // Re-Cursive Transmatter Injection
-                {
-                    if(!unitTarget)
-                        return;
-                    Player* pPlayer = m_caster->ToPlayer();
-                    pPlayer->CastSpell(pPlayer, 46022, false);
-                    if(Creature* pCreature = pPlayer->FindNearestCreature(25773, 10.0f, true))
-                        pPlayer->KilledMonsterCredit(pCreature->GetEntry(), pCreature->GetGUID()); // rest is done by EventAI
-                    unitTarget->DestroyForPlayer(pPlayer);
-                }
                 case 47170:                                 // Impale Leviroth
                 {
                     if (!unitTarget || (unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95)))
@@ -1177,15 +1149,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 case 51582:                                 //Rocket Boots Engaged (Rocket Boots Xtreme and Rocket Boots Xtreme Lite)
                 {
-                    if (!m_CastItem) 
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     if (Battleground* bg = m_caster->ToPlayer()->GetBattleground())
                         bg->EventPlayerDroppedFlag(m_caster->ToPlayer());
 
-                    ((Player*)m_caster)->RemoveSpellCooldown(30452, true);
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
-                    ((Player*)m_caster)->AddSpellCooldown(30452,m_CastItem->GetEntry(), time(NULL)+300);
                     return;
                 }
                 case 52759:                                 // Ancestral Awakening
@@ -1195,16 +1165,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     return;
                 case 54171:                                   //Divine Storm
                 {
-                    if (!damage)
-                        return;
-
-                    if (m_UniqueTargetInfo.size())
-                    {
-                        SpellInfo const * spellInfo = sSpellMgr->GetSpellInfo(53385);
-                        int32 heal = spellInfo->Effects[EFFECT_1].CalcValue() * damage / m_UniqueTargetInfo.size() / 100;
-
-                        m_caster->CastCustomSpell(unitTarget, 54172, &heal, NULL, NULL, true);
-                    }
+                    m_caster->CastCustomSpell(unitTarget, 54172, &damage, 0, 0, true);
                     return;
                 }
                 case 58418:                                 // Portal to Orgrimmar
@@ -1326,12 +1287,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 m_caster->CastCustomSpell(unitTarget, 50783, &bp0, NULL, NULL, true, 0);
 
                 // Item - Warrior T10 Melee 4P Bonus
-                if (Aura * aura = m_caster->GetAura(46916))
+                if (Aura* aura = m_caster->GetAura(46916))
                     if (aura->GetCharges())
                     {
-                        m_caster->ToPlayer()->RestoreSpellMods(this, 46916);
+                        m_caster->ToPlayer()->RestoreSpellMods(this, 46916); // this crap wouldnt be necessary if TC handled charges correctly
                         aura->DropCharge();
                     }
+                return;
             }
             // Execute
             if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & SPELLFAMILYFLAG_WARRIOR_EXECUTE)
@@ -1360,7 +1322,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 bp = damage + int32(rageUsed * m_spellInfo->Effects[effIndex].DamageMultiplier + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
 
                 // Item - Warrior T10 Melee 4P Bonus
-                if (Aura * aura = m_caster->GetAura(52437))
+                if (Aura* aura = m_caster->GetAura(52437))
                     aura->DropCharge();
                 break;
             }
@@ -1590,8 +1552,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 spell_id = CalculateDamage(0, NULL);
                 break;
             }
-            break;
-        default:
             break;
     }
 
@@ -2699,7 +2659,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        case 2687:                                          // Bloodthirst - Warrior T10 Protection 4P
+        case 2687:                                          // Bloodthirst - Warrior T10 Protection 4P Set bonus
             if (m_caster->HasAura(70844))
                 m_caster->CastSpell(m_caster, 70845, true);
             break;
