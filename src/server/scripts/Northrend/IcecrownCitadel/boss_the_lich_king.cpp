@@ -292,17 +292,17 @@ enum Phases
 
 #define PHASE_TWO_THREE  (events.GetPhaseMask() & PHASE_MASK_TWO ? PHASE_TWO : PHASE_THREE)
 
-Position const CenterPosition     = {503.6282f, -2124.655f, 1040.8569f, 0.0f};
-Position const TirionIntro        = {489.2970f, -2124.840f, 1040.8569f, 0.0f};
-Position const TirionCharge       = {482.9019f, -2124.479f, 1040.8570f, 0.0f};
+Position const CenterPosition     = {503.6282f, -2124.655f, 840.8569f, 0.0f};
+Position const TirionIntro        = {489.2970f, -2124.840f, 840.8569f, 0.0f};
+Position const TirionCharge       = {482.9019f, -2124.479f, 840.8570f, 0.0f};
 Position const LichKingIntro[3]   =
 {
-    {432.0851f, -2123.673f, 1064.6582f, 0.0f},
-    {457.8351f, -2123.423f, 1041.1582f, 0.0f},
-    {465.0730f, -2123.470f, 1040.8569f, 0.0f},
+    {432.0851f, -2123.673f, 864.6582f, 0.0f},
+    {457.8351f, -2123.423f, 841.1582f, 0.0f},
+    {465.0730f, -2123.470f, 840.8569f, 0.0f},
 };
-Position const OutroPosition1     = {493.6286f, -2124.569f, 1040.8569f, 0.0f};
-Position const OutroFlying        = {508.9897f, -2124.561f, 1045.3565f, 0.0f};
+Position const OutroPosition1     = {493.6286f, -2124.569f, 840.8569f, 0.0f};
+Position const OutroFlying        = {508.9897f, -2124.561f, 845.3565f, 0.0f};
 Position const TerenasSpawn       = {495.5542f, -2517.012f, 1050.000f, 4.6993f};
 Position const TerenasSpawnHeroic = {495.7080f, -2523.760f, 1050.000f, 0.0f};
 Position const SpiritWardenSpawn  = {495.3406f, -2529.983f, 1050.000f, 1.5592f};
