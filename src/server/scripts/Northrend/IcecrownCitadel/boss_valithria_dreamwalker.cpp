@@ -286,17 +286,13 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void InitializeAI()
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
-                    if (data->curhealth)
-                        _spawnHealth = data->curhealth;
-
                 if (!me->isDead())
                     Reset();
             }
 
             void Reset()
             {
-                me->SetHealth(_spawnHealth);
+                me->SetHealth(me->GetMaxHealth() / 2);
                 me->SetReactState(REACT_PASSIVE);
                 me->LoadCreaturesAddon(true);
                 // immune to percent heals
@@ -464,7 +460,6 @@ class boss_valithria_dreamwalker : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
-            uint32 _spawnHealth;
             uint32 const _portalCount;
             uint32 _missedPortals;
             bool _under25PercentTalkDone;

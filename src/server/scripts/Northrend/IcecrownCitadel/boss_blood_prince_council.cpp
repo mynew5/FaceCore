@@ -241,23 +241,7 @@ class boss_blood_council_controller : public CreatureScript
                 }
 
                 if (IsHeroic())
-                {
-                    Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-                    if (PlList.isEmpty())
-                        return;
-
-                    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-                    {
-                        if (Player* player = i->getSource())
-                        {
-                            if (player->isGameMaster())
-                                continue;
-
-                            if (player->isAlive())
-                                player->AddAura(SPELL_SHADOW_PRISON_DUMMY, player);
-                        }
-                    }
-                }
+                    me->AddAura(SPELL_SHADOW_PRISON_DUMMY, me);
             }
 
             void SetData(uint32 /*type*/, uint32 data)
@@ -297,8 +281,6 @@ class boss_blood_council_controller : public CreatureScript
                         killer->Kill(prince);
                     }
                 }
-
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
             }
 
             void UpdateAI(uint32 const diff)
@@ -419,7 +401,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                     DoZoneInCombat(controller);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
-                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, 1000);
                 events.ScheduleEvent(EVENT_SHADOW_LANCE, 2000);
             }
 
@@ -566,7 +548,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                         case EVENT_SHADOW_RESONANCE:
                             Talk(SAY_KELESETH_SPECIAL);
                             DoCast(me, SPELL_SHADOW_RESONANCE);
-                            events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 11000));
                             break;
                         case EVENT_SHADOW_LANCE:
                             if (_isEmpowered)
