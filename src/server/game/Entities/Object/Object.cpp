@@ -1587,14 +1587,6 @@ bool Position::IsPositionValid() const
     return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
-bool WorldObject::isValid() const
-{
-    if (!IsInWorld())
-        return false;
-
-    return true;
-}
-
 float WorldObject::GetGridActivationRange() const
 {
     if (ToPlayer())
@@ -1638,19 +1630,10 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (this == obj)
         return true;
 
-    if (!obj->isValid())
+    if (obj->IsNeverVisible() || CanNeverSee(obj))
         return false;
 
-    if (GetMap() != obj->GetMap())
-        return false;
-
-    if (!InSamePhase(obj))
-        return false;
-
-    if (obj->isAlwaysVisibleFor(this))
-        return true;
-
-    if (canSeeAlways(obj))
+    if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
     bool corpseCheck = false;
@@ -1700,27 +1683,19 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
 
     // Traps can only be detected within melee distance
     if (const GameObject *thisGO = obj->ToGameObject())
-    {
         if (thisGO->GetGoType() == GAMEOBJECT_TYPE_TRAP && thisGO->GetOwnerGUID() && ToPlayer())
-        {
-            if (thisGO->GetOwner() == ToPlayer() ||
-                obj->IsWithinDist(this, ToPlayer()->HasAura(2836) ? 20.0f : 4.0f, false)) // Detect Traps increases chance to detect traps
-                return true;
+            return thisGO->GetOwner() == ToPlayer() || obj->IsWithinDist(this, ToPlayer()->HasAura(2836) ? 20.0f : 4.0f, false);
 
-            return false;
-        }
-    }
-
-    if (!obj->isVisibleForInState(this))
+    if (obj->IsInvisibleDueToDespawn())
         return false;
 
-    if (!canDetect(obj, ignoreStealth))
+    if (!CanDetect(obj, ignoreStealth))
         return false;
 
     return true;
 }
 
-bool WorldObject::canDetect(WorldObject const* obj, bool ignoreStealth) const
+bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
 {
     const WorldObject* seer = this;
 
@@ -1729,19 +1704,19 @@ bool WorldObject::canDetect(WorldObject const* obj, bool ignoreStealth) const
         if (Unit* controller = thisUnit->GetCharmerOrOwner())
             seer = controller;
 
-    if (obj->isAlwaysDetectableFor(seer))
+    if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!seer->canDetectInvisibilityOf(obj))
+    if (!seer->CanDetectInvisibilityOf(obj))
         return false;
 
-    if (!ignoreStealth && !seer->canDetectStealthOf(obj))
+    if (!ignoreStealth && !seer->CanDetectStealthOf(obj))
         return false;
 
     return true;
 }
 
-bool WorldObject::canDetectInvisibilityOf(WorldObject const* obj) const
+bool WorldObject::CanDetectInvisibilityOf(WorldObject const* obj) const
 {
     uint32 mask = obj->m_invisibility.GetFlags() & m_invisibilityDetect.GetFlags();
 
@@ -1772,7 +1747,7 @@ bool WorldObject::canDetectInvisibilityOf(WorldObject const* obj) const
     return true;
 }
 
-bool WorldObject::canDetectStealthOf(WorldObject const* obj) const
+bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
 {
     // Combat reach is the minimal distance (both in front and behind),
     //   and it is also used in the range calculation.
