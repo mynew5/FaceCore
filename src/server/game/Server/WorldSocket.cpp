@@ -766,6 +766,74 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
     ACE_NOTREACHED (return 0);
 }
 
+// DO NOT FORGET TO CREATE THE DEBUG TABLE IN REALMD DATABASE FIRST
+// sql/debug_realmd_debugauthhack_reports.sql
+
+void _DebugAuthHack_RegisterReport(const char* current_ip, std::string report)
+{
+    std::string safe_address = current_ip;
+    std::string safe_report  = report;
+    LoginDatabase.EscapeString(safe_address);
+    LoginDatabase.EscapeString(safe_report);
+    LoginDatabase.PExecute("INSERT INTO debugauthhack_reports VALUES (UNIX_TIMESTAMP(), '%s', '%s')", safe_address.c_str(), safe_report.c_str());
+}
+
+char* _DebugAuthHack_PacketToHex(WorldPacket& recvPacket)
+{
+    uint32 size = recvPacket.size();
+    char* buffer = (char*)malloc(size * 2 + 1);
+    for (uint32 i = 0; i < size; ++i)
+        sprintf(&buffer[i<<1], "%02X", recvPacket.read<uint8>(i));
+    return buffer;
+}
+
+bool DebugAuthHack_FilterA(WorldPacket& recvPacket, const char* current_ip)
+{
+    sLog->outError("recvPacket size = %d", recvPacket.size());
+    if (recvPacket.size() < 58)
+    {
+        char* hexdata = _DebugAuthHack_PacketToHex(recvPacket);
+        std::string report = "CMSG_AUTH_SESSION Packet body is too short to be valid -- ";
+        report.append(hexdata);
+        free(hexdata);
+
+        _DebugAuthHack_RegisterReport(current_ip, report);
+        return false;
+    }
+    return true;
+}
+
+bool DebugAuthHack_FilterB(WorldPacket& recvPacket, const char* current_ip, const char* authserver_ip)
+{
+    if (strcmp(current_ip, authserver_ip))
+    {
+        char* hexdata = _DebugAuthHack_PacketToHex(recvPacket);
+        std::string report = "CMSG_AUTH_SESSION Client IP address differed from AuthAerver to WorldServer authentication. The client IP address should be ";
+        report.append(authserver_ip);
+        report.append(" -- ");
+        report.append(hexdata);
+        free(hexdata);
+
+        _DebugAuthHack_RegisterReport(current_ip, report);
+        return false;
+    }
+    return true;
+}
+
+void DebugAuthHack_BuildReport(WorldPacket& recvPacket, const char* current_ip, const char* username, const char* reason)
+{
+    char* hexdata = _DebugAuthHack_PacketToHex(recvPacket);
+    std::string report = "CMSG_AUTH_SESSION User ";
+    report.append(username);
+    report.append(" failed to authenticate in WorldServer despite he should already have sucessfully authenticated in AuthServer at this point -- Reason: ");
+    report.append(reason);
+    report.append(" -- ");
+    report.append(hexdata);
+    free(hexdata);
+
+    _DebugAuthHack_RegisterReport(current_ip, report);
+}
+
 int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 {
     // NOTE: ATM the socket is singlethread, have this in mind ...
@@ -793,6 +861,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         sLog->outError ("WorldSocket::HandleAuthSession: World closed, denying client (%s).", GetRemoteAddress().c_str());
         return -1;
     }
+
+    if (!DebugAuthHack_FilterA(recvPacket, GetRemoteAddress().c_str()))
+        return -1;
 
     // Read the content of the packet
     recvPacket >> BuiltNumberClient;                        // for now no use
@@ -840,6 +911,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
         SendPacket (packet);
 
+        DebugAuthHack_BuildReport(recvPacket, GetRemoteAddress().c_str(), account.c_str(), "Unknown account");
+
         sLog->outError ("WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
         return -1;
     }
@@ -880,6 +953,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
             return -1;
         }
     }
+    else if (!DebugAuthHack_FilterB(recvPacket, GetRemoteAddress().c_str(), fields[2].GetCString()))
+        return -1;
 
     id = fields[0].GetUInt32();
     K.SetHexStr (fields[1].GetCString());
@@ -966,6 +1041,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         packet << uint8 (AUTH_FAILED);
 
         SendPacket (packet);
+
+        DebugAuthHack_BuildReport(recvPacket, GetRemoteAddress().c_str(), account.c_str(), "Authentication failed");
 
         sLog->outError ("WorldSocket::HandleAuthSession: Sent Auth Response (authentification failed).");
         return -1;
