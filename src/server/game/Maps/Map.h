@@ -275,7 +275,7 @@ class Map : public GridRefManager<NGridType>
         bool GetUnloadLock(const GridCoord &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
         void SetUnloadLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
-        bool UnloadGrid(const uint32 x, const uint32 y, bool pForce);
+        bool UnloadGrid(NGridType& ngrid, bool pForce);
         virtual void UnloadAll();
 
         void ResetGridExpiry(NGridType &grid, float factor = 1) const
@@ -379,7 +379,7 @@ class Map : public GridRefManager<NGridType>
 
         bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
         uint32 GetPlayersCountExceptGMs() const;
-        bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
+        bool ActiveObjectsNearGrid(NGridType const& ngrid) const;
 
         void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
@@ -615,8 +615,7 @@ class BattlegroundMap : public Map
 };
 
 template<class T, class CONTAINER>
-inline void
-Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor)
+inline void Map::Visit(Cell const& cell, TypeContainerVisitor<T, CONTAINER>& visitor)
 {
     const uint32 x = cell.GridX();
     const uint32 y = cell.GridY();
@@ -631,12 +630,10 @@ Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor)
 }
 
 template<class NOTIFIER>
-inline void
-Map::VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier)
+inline void Map::VisitAll(float const& x, float const& y, float radius, NOTIFIER& notifier)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     TypeContainerVisitor<NOTIFIER, WorldTypeMapContainer> world_object_notifier(notifier);
@@ -647,12 +644,10 @@ Map::VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier)
 
 // should be used with Searcher notifiers, tries to search world if nothing found in grid
 template<class NOTIFIER>
-inline void
-Map::VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &notifier)
+inline void Map::VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     TypeContainerVisitor<NOTIFIER, WorldTypeMapContainer> world_object_notifier(notifier);
@@ -665,12 +660,10 @@ Map::VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &not
 }
 
 template<class NOTIFIER>
-inline void
-Map::VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier)
+inline void Map::VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     TypeContainerVisitor<NOTIFIER, WorldTypeMapContainer> world_object_notifier(notifier);
@@ -678,12 +671,10 @@ Map::VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier
 }
 
 template<class NOTIFIER>
-inline void
-Map::VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier)
+inline void Map::VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
     CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     TypeContainerVisitor<NOTIFIER, GridTypeMapContainer >  grid_object_notifier(notifier);

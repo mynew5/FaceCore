@@ -71,6 +71,7 @@ public:
 
             Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
 
+            // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
             if (!player || player->isGameMaster() || player->IsBeingTeleported() || who->HasAura(70971) || who->HasAura(70972) || who->HasAura(70973) || who->HasAura(70974))
                 return;
 
