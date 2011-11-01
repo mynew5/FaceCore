@@ -2370,6 +2370,14 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     return summon;
 }
 
+Player * WorldObject::FindNearestPlayer(float range, bool alive) const
+{
+    Player * player = NULL;
+    Trinity::AnyPlayerInObjectRangeCheck check(this, range, alive);
+    Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
+    VisitNearbyWorldObject(range, searcher);
+    return player;
+}
 Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive) const
 {
     Creature* creature = NULL;

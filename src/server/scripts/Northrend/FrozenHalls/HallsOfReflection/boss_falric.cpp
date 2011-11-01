@@ -50,22 +50,17 @@ class boss_falric : public CreatureScript
 public:
     boss_falric() : CreatureScript("boss_falric") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_falricAI(creature);
-    }
-
     struct boss_falricAI : public boss_horAI
     {
         boss_falricAI(Creature* creature) : boss_horAI(creature) {}
 
-        uint8 uiHopelessnessCount;
+        uint8 HopelessnessCount;
 
         void Reset()
         {
             boss_horAI::Reset();
 
-            uiHopelessnessCount = 0;
+            HopelessnessCount = 0;
 
             if (instance)
                 instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
@@ -73,9 +68,12 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            if (!instance || instance->GetData(DATA_WAVE_COUNT) < 5)
+                return;
+
             DoScriptText(SAY_AGGRO, me);
-            if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+
+            instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
@@ -97,7 +95,6 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            // Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -126,18 +123,19 @@ public:
                     break;
             }
 
-            if ((uiHopelessnessCount < 1 && HealthBelowPct(66))
-                || (uiHopelessnessCount < 2 && HealthBelowPct(33))
-                || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
+            if ((HopelessnessCount < 1 && HealthBelowPct(66)) || (HopelessnessCount < 2 && HealthBelowPct(33)) || (HopelessnessCount < 3 && HealthBelowPct(10)))
             {
-                uiHopelessnessCount++;
+                ++HopelessnessCount;
                 DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
             }
-
             DoMeleeAttackIfReady();
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_falricAI(creature);
+    }
 };
 
 void AddSC_boss_falric()
