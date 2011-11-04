@@ -44,8 +44,8 @@ enum SpellInterruptFlags
 {
     SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
     SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
-    SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x04, // interrupt
-    SPELL_INTERRUPT_FLAG_AUTOATTACK   = 0x08, // enter combat
+    SPELL_INTERRUPT_FLAG_UNK3         = 0x04, // any info?
+    SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x08, // interrupt
     SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10,               // _complete_ interrupt on direct damage
     //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
 };
@@ -1209,6 +1209,8 @@ enum ReactiveType
 #define SUMMON_SLOT_QUEST   6
 #define MAX_SUMMON_SLOT     7
 
+#define MAX_GAMEOBJECT_SLOT 4
+
 enum PlayerTotemType
 {
     SUMMON_TYPE_TOTEM_FIRE  = 63,
@@ -1892,7 +1894,7 @@ class Unit : public WorldObject
 
         uint32 m_addDmgOnce;
         uint64 m_SummonSlot[MAX_SUMMON_SLOT];
-        uint64 m_ObjectSlot[4];
+        uint64 m_ObjectSlot[MAX_GAMEOBJECT_SLOT];
 
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(GetByteValue(UNIT_FIELD_BYTES_2, 3)); }
         void SetShapeshiftForm(ShapeshiftForm form)

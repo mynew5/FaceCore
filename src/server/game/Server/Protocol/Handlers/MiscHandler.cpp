@@ -239,7 +239,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     data << uint32(matchcount);                           // placeholder, count of players matching criteria
     data << uint32(displaycount);                         // placeholder, count of players displayed
 
-    ACE_READ_GUARD(HashMapHolder<Player>::LockType, g, *HashMapHolder<Player>::GetLock());
+    TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
@@ -338,12 +338,6 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
         // through config, but is unstable
         if ((matchcount++) >= sWorld->getIntConfig(CONFIG_MAX_WHO))
             continue;
-
-        if (itr->second->isGameMaster())
-        {
-            pname = "<GM>";
-            pname.append(itr->second->GetName());
-        }
 
         data << pname;                                    // player name
         data << gname;                                    // guild name
