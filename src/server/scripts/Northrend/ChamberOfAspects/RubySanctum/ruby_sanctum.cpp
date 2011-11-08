@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,155 +15,260 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Based on /dev/rsa modified by Vlad
+// need testing
+
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
-enum Texts
+enum TrashSpells
 {
-    SAY_XERESTRASZA_EVENT       = 0,
-    SAY_XERESTRASZA_EVENT_1     = 1,
-    SAY_XERESTRASZA_EVENT_2     = 2,
-    SAY_XERESTRASZA_EVENT_3     = 3,
-    SAY_XERESTRASZA_EVENT_4     = 4,
-    SAY_XERESTRASZA_EVENT_5     = 5,
-    SAY_XERESTRASZA_EVENT_6     = 6,
-    SAY_XERESTRASZA_EVENT_7     = 7,
-    SAY_XERESTRASZA_INTRO       = 8,
+    // Charscale Assaulter
+    SPELL_CLEAVE          = 15284,
+    SPELL_SHOCKWAVE_10    = 75417,
+    SPELL_SHOCKWAVE_25    = 75418,
+
+    // Charscale Commander
+    SPELL_MORTAL_STRIKE   = 13737,
+    SPELL_RALLYING_SHOUT  = 75414,
+
+    // Charscale Elite
+    SPELL_SKULL_CRACK     = 15621,
+
+    // Charscale Invoker
+    SPELL_FLAME_WAVE      = 75413,
+    SPELL_SCORCH_10       = 75412,
+    SPELL_SCORCH_25       = 75419,
 };
 
-enum Events
+/*######
+## npc_charscale_assaulter
+######*/
+class npc_charscale_assaulter : public CreatureScript
 {
-    EVENT_XERESTRASZA_EVENT_1   = 1,
-    EVENT_XERESTRASZA_EVENT_2   = 2,
-    EVENT_XERESTRASZA_EVENT_3   = 3,
-    EVENT_XERESTRASZA_EVENT_4   = 4,
-    EVENT_XERESTRASZA_EVENT_5   = 5,
-    EVENT_XERESTRASZA_EVENT_6   = 6,
-    EVENT_XERESTRASZA_EVENT_7   = 7,
-};
+public:
+    npc_charscale_assaulter() : CreatureScript("npc_charscale_assaulter") { }
 
-Position const xerestraszaMovePos = {3151.236f, 379.8733f, 86.31996f, 0.0f};
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_charscale_assaulterAI(pCreature);
+    }
 
-class npc_xerestrasza : public CreatureScript
-{
-    public:
-        npc_xerestrasza() : CreatureScript("npc_xerestrasza") { }
-
-        struct npc_xerestraszaAI : public ScriptedAI
+    struct npc_charscale_assaulterAI : public ScriptedAI
+    {
+        npc_charscale_assaulterAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            npc_xerestraszaAI(Creature* creature) : ScriptedAI(creature)
-            {
-                _isIntro = true;
-                _introDone = false;
-            }
-
-            void Reset()
-            {
-                _events.Reset();
-                me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
-            }
-
-            void DoAction(int32 const action)
-            {
-                if (action == ACTION_BALTHARUS_DEATH)
-                {
-                    me->setActive(true);
-                    _isIntro = false;
-
-                    Talk(SAY_XERESTRASZA_EVENT);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                    me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
-
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69000);
-                }
-                else if (action == ACTION_INTRO_BALTHARUS && !_introDone)
-                {
-                    _introDone = true;
-                    Talk(SAY_XERESTRASZA_INTRO);
-                }
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (_isIntro)
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_XERESTRASZA_EVENT_1:
-                            Talk(SAY_XERESTRASZA_EVENT_1);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_2:
-                            Talk(SAY_XERESTRASZA_EVENT_2);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_3:
-                            Talk(SAY_XERESTRASZA_EVENT_3);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_4:
-                            Talk(SAY_XERESTRASZA_EVENT_4);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_5:
-                            Talk(SAY_XERESTRASZA_EVENT_5);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_6:
-                            Talk(SAY_XERESTRASZA_EVENT_6);
-                            break;
-                        case EVENT_XERESTRASZA_EVENT_7:
-                            me->SetFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
-                            Talk(SAY_XERESTRASZA_EVENT_7);
-                            me->setActive(false);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-            bool _isIntro;
-            bool _introDone;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return GetRubySanctumAI<npc_xerestraszaAI>(creature);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            Reset();
         }
+		
+        InstanceScript* pInstance;
+		
+        uint32 m_uiCleaveTimer;
+        uint32 m_uiShockwaveTimer;
+
+        void Reset()
+        {
+            m_uiCleaveTimer = urand(5*IN_MILLISECONDS,10*IN_MILLISECONDS);
+            m_uiShockwaveTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
+            me->SetRespawnDelay(7*DAY);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiCleaveTimer <= diff)
+            {
+                DoCast(SPELL_CLEAVE);
+                m_uiCleaveTimer = urand(5*IN_MILLISECONDS,10*IN_MILLISECONDS);
+            } else m_uiCleaveTimer -= diff;
+
+            if (m_uiShockwaveTimer <= diff)
+            {
+                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || GetDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC)
+                    DoCast(SPELL_SHOCKWAVE_10);
+                else DoCast(SPELL_SHOCKWAVE_25);
+                m_uiShockwaveTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
+            } else m_uiShockwaveTimer -= diff;
+			
+            DoMeleeAttackIfReady();
+        }
+    };
 };
 
-class at_baltharus_plateau : public AreaTriggerScript
+/*######
+## npc_charscale_invoker
+######*/
+class npc_charscale_invoker : public CreatureScript
 {
-    public:
-        at_baltharus_plateau() : AreaTriggerScript("at_baltharus_plateau") { }
+public:
+    npc_charscale_invoker() : CreatureScript("npc_charscale_invoker") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_charscale_invokerAI(pCreature);
+    }
+
+    struct npc_charscale_invokerAI : public ScriptedAI
+    {
+        npc_charscale_invokerAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            // Only trigger once
-            if (InstanceScript* instance = player->GetInstanceScript())
-            {
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_XERESTRASZA)))
-                    xerestrasza->AI()->DoAction(ACTION_INTRO_BALTHARUS);
-
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
-                    baltharus->AI()->DoAction(ACTION_INTRO_BALTHARUS);
-            }
-
-            return true;
+			me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+			me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+			Reset();
         }
+		
+		InstanceScript* pInstance;
+		
+		uint32 m_uiFlameWaveTimer;
+        uint32 m_uiScorchTimer;
+
+        void Reset()
+        {
+			m_uiFlameWaveTimer = urand(15*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            m_uiScorchTimer = 10*IN_MILLISECONDS;
+            me->SetRespawnDelay(7*DAY);
+        }
+
+		void UpdateAI(const uint32 diff)
+        {
+			if (!UpdateVictim())
+                return;
+
+            if (m_uiFlameWaveTimer <= diff)
+            {
+                DoCast(SPELL_FLAME_WAVE);
+                m_uiFlameWaveTimer = urand(15*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            }
+            else m_uiFlameWaveTimer -= diff;
+
+            if (m_uiScorchTimer <= diff)
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                {
+                    if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || GetDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC)
+                        DoCast(pTarget,SPELL_SCORCH_10);
+                    else DoCast(pTarget,SPELL_SCORCH_25);
+                    m_uiScorchTimer = 10*IN_MILLISECONDS;
+                }
+            } else m_uiScorchTimer -= diff;
+			
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+/*######
+## npc_charscale_elite
+######*/
+class npc_charscale_elite : public CreatureScript
+{
+public:
+    npc_charscale_elite() : CreatureScript("npc_charscale_elite") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_charscale_eliteAI(pCreature);
+    }
+
+    struct npc_charscale_eliteAI : public ScriptedAI
+    {
+        npc_charscale_eliteAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            Reset();
+        }
+		
+        InstanceScript* pInstance;
+		
+        uint32 m_uiSkullCrackTimer;
+
+        void Reset()
+        {
+            m_uiSkullCrackTimer = urand(5*IN_MILLISECONDS,10*IN_MILLISECONDS);
+            me->SetRespawnDelay(7*DAY);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiSkullCrackTimer <= diff)
+            {
+                DoCast(SPELL_SKULL_CRACK);
+                m_uiSkullCrackTimer = urand(5*IN_MILLISECONDS,10*IN_MILLISECONDS);
+            } else m_uiSkullCrackTimer -= diff;
+			
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+/*######
+## npc_charscale_commander
+######*/
+class npc_charscale_commander : public CreatureScript
+{
+public:
+    npc_charscale_commander() : CreatureScript("npc_charscale_commander") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_charscale_commanderAI(pCreature);
+    }
+
+    struct npc_charscale_commanderAI : public ScriptedAI
+    {
+        npc_charscale_commanderAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            Reset();
+        }
+		
+        InstanceScript* pInstance;
+
+        uint32 m_uiMortalStrikeTimer;
+        uint32 m_uiRallyingShoutTimer;
+
+        void Reset()
+        {
+            m_uiMortalStrikeTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            m_uiRallyingShoutTimer = urand(35*IN_MILLISECONDS,40*IN_MILLISECONDS);
+            me->SetRespawnDelay(7*DAY);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiMortalStrikeTimer <= diff)
+            {
+                DoCast(SPELL_MORTAL_STRIKE);
+                m_uiMortalStrikeTimer = urand(15*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            } else m_uiMortalStrikeTimer -= diff;
+
+            if(m_uiRallyingShoutTimer <= diff)
+            {
+                me->AddAura(SPELL_RALLYING_SHOUT,me);
+                m_uiRallyingShoutTimer = 60*IN_MILLISECONDS;
+            } else m_uiRallyingShoutTimer -=diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
 };
 
 void AddSC_ruby_sanctum()
 {
-    new npc_xerestrasza();
-    new at_baltharus_plateau();
+    new npc_charscale_assaulter();
+    new npc_charscale_invoker();
+    new npc_charscale_elite();
+    new npc_charscale_commander();
 }
