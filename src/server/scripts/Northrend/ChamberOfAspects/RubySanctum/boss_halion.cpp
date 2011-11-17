@@ -197,6 +197,12 @@ public:
 
             if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER) return;
 
+            if (pInstance->GetData(TYPE_BALTHARUS) != DONE ||
+                pInstance->GetData(TYPE_RAGEFIRE) != DONE ||
+                pInstance->GetData(TYPE_XERESTRASZA) != DONE ||
+                pInstance->GetData(TYPE_ZARITHRIAN) != DONE)
+                return;
+
             if (!intro && pWho->IsWithinDistInMap(me, 80.0f))
                 {
                     DoScriptText(-1666100,me);
