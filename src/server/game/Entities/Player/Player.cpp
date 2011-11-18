@@ -5098,8 +5098,6 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
 
-    setDeathState(ALIVE);
-
     SetMovement(MOVE_LAND_WALK);
     SetMovement(MOVE_UNROOT);
 
@@ -5128,6 +5126,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     // update visibility
     UpdateObjectVisibility();
+
+    setDeathState(ALIVE);
 
     if (!applySickness)
         return;
