@@ -396,28 +396,31 @@ class boss_sindragosa : public CreatureScript
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
                 // Frost Infusion
-                if (Player* player = target->ToPlayer())
+                if (Is25ManRaid())
                 {
-                    if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
+                    if (Player* player = target->ToPlayer())
                     {
-                        if (player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && spellId == spell->Id)
+                        if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
                         {
-                            if (Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true))
+                            if (player->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_REWARDED && spellId == spell->Id)
                             {
-                                if (!player->HasAura(SPELL_FROST_IMBUED_BLADE) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE)
+                                if (Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true))
                                 {
-                                    if (Aura* infusion = player->GetAura(SPELL_FROST_INFUSION))
+                                    if (!player->HasAura(SPELL_FROST_IMBUED_BLADE) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE)
                                     {
-                                        if (infusion->GetStackAmount() == 3)
+                                        if (Aura* infusion = player->GetAura(SPELL_FROST_INFUSION))
                                         {
-                                            player->CastSpell(player, SPELL_FROST_IMBUED_BLADE, true);
-                                            player->RemoveAura(infusion);
+                                            if (infusion->GetStackAmount() == 3)
+                                            {
+                                                player->CastSpell(player, SPELL_FROST_IMBUED_BLADE, true);
+                                                player->RemoveAura(infusion);
+                                            }
+                                            else
+                                                player->CastSpell(player, SPELL_FROST_INFUSION, true);
                                         }
                                         else
                                             player->CastSpell(player, SPELL_FROST_INFUSION, true);
                                     }
-                                    else
-                                        player->CastSpell(player, SPELL_FROST_INFUSION, true);
                                 }
                             }
                         }
