@@ -370,7 +370,17 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     {
         plMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        if (movementInfo.pos.GetPositionZ() < -500.0f || (plMover->GetMapId() == 631 && movementInfo.pos.GetPositionZ() < -3.0f))
+        float underMapValueZ;
+
+        switch (plMover->GetMapId())
+        {
+            case 631: underMapValueZ = 3.0f; break;   // Icecrown Citadel
+            case 617: underMapValueZ = 3.0f; break;   // Dalaran Sewers
+            case 618: underMapValueZ = 28.0f; break;  // Ring of Valor
+            default: underMapValueZ  = -500.0f; break;
+        }
+
+        if (movementInfo.pos.GetPositionZ() < underMapValueZ)
         {
             if (!(plMover->InBattleground()
                 && plMover->GetBattleground()
