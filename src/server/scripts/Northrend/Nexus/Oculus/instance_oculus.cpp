@@ -26,11 +26,6 @@
 2 - Mage-Lord Urom
 3 - Ley-Guardian Eregos */
 
-enum eAchievements
-{
-    ACHIEV_TIMED_START_EVENT = 18153,
-};
-
 class instance_oculus : public InstanceMapScript
 {
 public:
@@ -58,15 +53,13 @@ public:
             centrifugueConstructCounter = 0;
 
             eregosCacheGUID = 0;
-            lightCacheGUID = 0;
 
-            unusedDrakesList.clear();
+            azureDragonsList.clear();
             gameObjectList.clear();
         }
 
         void OnCreatureDeath(Creature* creature)
         {
-            unusedDrakesList.remove(creature->GetGUID());
             if (creature->GetEntry() != NPC_CENTRIFUGE_CONSTRUCT)
                 return;
 
@@ -115,29 +108,14 @@ public:
                     varosGUID = creature->GetGUID();
                     break;
                 case NPC_UROM:
-                    if(GetBossState(DATA_VAROS_EVENT) != DONE)
-                    {
-                        creature->SetReactState(REACT_PASSIVE);
-                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    }
                     uromGUID = creature->GetGUID();
                     break;
                 case NPC_EREGOS:
-                    if(GetBossState(DATA_UROM_EVENT) != DONE)
-                    {
-                        creature->SetReactState(REACT_PASSIVE);
-                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    }
                     eregosGUID = creature->GetGUID();
                     break;
                 case NPC_CENTRIFUGE_CONSTRUCT:
                     if (creature->isAlive())
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, ++centrifugueConstructCounter);
-                    break;
-                case NPC_RUBY_DRAKE_VEHICLE:
-                case NPC_EMERALD_DRAKE_VEHICLE:
-                case NPC_AMBER_DRAKE_VEHICLE:
-                    unusedDrakesList.push_back(creature->GetGUID());
                     break;
             }
         }
@@ -156,13 +134,6 @@ public:
                 case GO_EREGOS_CACHE_N:
                 case GO_EREGOS_CACHE_H:
                     eregosCacheGUID = go->GetGUID();
-                    if (GetBossState(DATA_EREGOS_EVENT) != DONE)
-                        go->SetPhaseMask(2, true);
-                    break;
-                case GO_CACHE_SPOTLIGHT:
-                    lightCacheGUID = go->GetGUID();
-                    if (GetBossState(DATA_EREGOS_EVENT) != DONE)
-                        go->SetPhaseMask(2, true);
                     break;
                 default:
                     break;
@@ -181,43 +152,16 @@ public:
                     {
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, centrifugueConstructCounter);
-                        DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
                         OpenCageDoors();
                     }
                     break;
                 case DATA_VAROS_EVENT:
                     if (state == DONE)
-                    {
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
-                        if(Creature* urom = instance->GetCreature(uromGUID))
-                        {
-                            urom->SetReactState(REACT_AGGRESSIVE);
-                            urom->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                            urom->RemoveAllAuras();
-                        }
-                    }
-                    break;
-                case DATA_UROM_EVENT:
-                    if (state == DONE)
-                    {
-                        if(Creature* eregos = instance->GetCreature(eregosGUID))
-                        {
-                            eregos->SetReactState(REACT_AGGRESSIVE);
-                            eregos->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                        }
-                    }
                     break;
                 case DATA_EREGOS_EVENT:
-                    if (state == IN_PROGRESS)
-                        DespawnUnusedDrakes();
-
                     if (state == DONE)
-                    {
-                        if(GameObject* cache = instance->GetGameObject(eregosCacheGUID))
-                            cache->SetPhaseMask(1, true);
-                        if(GameObject* light = instance->GetGameObject(lightCacheGUID))
-                            light->SetPhaseMask(1, true);
-                    }
+                        DoRespawnGameObject(eregosCacheGUID, 7*DAY);
                     break;
             }
 
@@ -259,18 +203,6 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 type, uint64 data)
-        {
-            switch(type)
-            {
-                case DATA_DRAKE_IN_USE:
-                    unusedDrakesList.remove(data);
-                    break;
-                case DATA_DRAKE_NOT_IN_USE:
-                    unusedDrakesList.push_back(data);
-                    break;
-            }
-        }
         void OpenCageDoors()
         {
             if (gameObjectList.empty())
@@ -325,7 +257,6 @@ public:
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
-
         private:
             uint64 drakosGUID;
             uint64 varosGUID;
@@ -336,33 +267,11 @@ public:
             uint8 centrifugueConstructCounter;
 
             uint64 eregosCacheGUID;
-            uint64 lightCacheGUID;
 
             std::string str_data;
 
             std::list<uint64> gameObjectList;
-            std::list<uint64> unusedDrakesList;
-
-            void DespawnUnusedDrakes()
-            {
-                while (!unusedDrakesList.empty())
-                {
-                    Creature *summon = instance->GetCreature(*unusedDrakesList.begin());
-                    if (!summon)
-                        unusedDrakesList.erase(unusedDrakesList.begin());
-                    else
-                    {
-                        unusedDrakesList.erase(unusedDrakesList.begin());
-                        if (TempSummon* summ = summon->ToTempSummon())
-                        {
-                            summon->DestroyForNearbyPlayers();
-                            summ->UnSummon();
-                        }
-                        else
-                            summon->DisappearAndDie();
-                    }
-                }
-            }
+            std::list<uint64> azureDragonsList;
     };
 
 };
