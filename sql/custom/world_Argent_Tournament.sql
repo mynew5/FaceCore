@@ -59,6 +59,36 @@ UPDATE `creature_template` SET `npcflag`='3' ,`ScriptName` = 'npc_variant' WHERE
 UPDATE `creature_template` SET `ScriptName` = 'npc_keritose', `npcflag`='3' WHERE `entry`= 30946;
 UPDATE `creature_template` SET `ScriptName`='npc_vendor_argent_tournament' WHERE `entry` IN (33553, 33554, 33556, 33555, 33557, 33307, 33310, 33653, 33650, 33657);
 UPDATE `creature_template` SET `ScriptName`='npc_justicar_mariel_trueheart' WHERE `entry`=33817;
+UPDATE `creature_template` SET `ScriptName`='npc_dying_berserker' WHERE `entry`=31273; -- Dying Berserker
+-- Quest From Their Corpses, Rise! 12813
+UPDATE `creature_template` SET `ScriptName` = 'npc_Scarlet_Onslaught', `AIName` = '' WHERE entry IN (29330, 29338, 29333, 29329);
+
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN (-1603515) AND (-1603511);
+INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`)
+VALUES
+(30658,-1603511,'Please $R... Release me...','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL',0,0,0,0,'Dying NPC - SAY1'),
+(30658,-1603512,'Don\'t think $C...Just..do it...','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL',0,0,0,0,'Dying NPC - SAY2'),
+(30658,-1603513,'Send me on my way...I beg you...','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL',0,0,0,0,'Dying NPC - SAY3'),
+(30658,-1603514,'Do it $C...then...avenge me!','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL',0,0,0,0,'Dying NPC - SAY4'),
+(30658,-1603515,'Tell my family...my last thoughts were of them...','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL',0,0,0,0,'Dying NPC - SAY5');
+
+-- ScriptName
+UPDATE `creature_template` SET `ScriptName`='npc_dying_soldier' WHERE `entry`=31304; -- Dying Soldier
+
+
+
+-- Quest Deep in the Bowels of the Underhalls (13042)
+-- Script Texts
+DELETE FROM `script_texts` WHERE `entry` IN (-1603500,-1603501);
+INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`)
+VALUES
+(30409,-1603500,'You\'ve come for the doctor\'s plans! You\'ll only find death!','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL',0,0,0,0,'Apprentice Osterkilgr - SAY_QUEST1'),
+(30409,-1603501,'The doctor entrusted me with the plans to Nergeld! I will not fail!','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL',0,0,0,0,'Apprentice Osterkilgr - SAY_QUEST2');
+
+-- ScriptName
+UPDATE `creature_template` SET `ScriptName`='npc_apprentice_osterkilgr',`AIName`='' WHERE `entry`=30409; -- Apprentice Osterkilgr
+
 
 -- -----------------------------------------------
 -- Misc
