@@ -2935,17 +2935,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 if (spellInfo->SpellFamilyFlags[0] & 0x20000 || spellInfo->SpellFamilyFlags[1] & 0x20)
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                 break;
-            case SPELLFAMILY_PALADIN:
-                // Sanctified Retribution talent fix
-                if (spellInfo->SpellFamilyFlags[2] & 0x20 && spellInfo->SpellIconID == 555)
-                {
-                    spellInfo->Effect[1] = 0;
-                    spellInfo->Effect[2] = 0;
-                }
-                else
-                    break;
-                count++;
-                break;
             case SPELLFAMILY_DRUID:
                 // Roar
                 if (spellInfo->SpellFamilyFlags[0] & 0x8)
@@ -3331,6 +3320,17 @@ void SpellMgr::LoadDbcDataCorrections()
             case 63024: // Gravity Bomb (XT-002)
             case 64234: // Gravity Bomb (25m) (XT-002)
                 spellInfo->MaxAffectedTargets = 1;
+                break;
+
+            case 7294: // Retribution Aura (Rank 1)
+            case 10298: // Retribution Aura (Rank 2)
+            case 10299: // Retribution Aura (Rank 3)
+            case 10300: // Retribution Aura (Rank 4)
+            case 10301: // Retribution Aura (Rank 5)
+            case 27150: // Retribution Aura (Rank 6)
+            case 54043: // Retribution Aura (Rank 7)
+                spellInfo->Effect[EFFECT_1] = 0;
+                spellInfo->Effect[EFFECT_2] = 0;
                 break;
             case 62834: // Boom (XT-002)
             // This hack is here because we suspect our implementation of spell effect execution on targets

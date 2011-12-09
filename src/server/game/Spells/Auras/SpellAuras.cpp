@@ -1708,7 +1708,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     break;
             }
-            if (GetSpellSpecific(GetSpellProto()) == SPELL_SPECIFIC_AURA)
+            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
             {
                 if (GetCasterGUID() == target->GetGUID())
                 {
