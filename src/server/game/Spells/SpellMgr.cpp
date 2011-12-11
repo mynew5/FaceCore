@@ -2846,6 +2846,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 48689:
             case 48690:
             case 48691:
+            case 6785: // Ravage
+            case 6787:
+            case 9866:
+            case 9867:
+            case 27005:
+            case 48578:
+            case 48579:
             case 21987: // Lash of Pain
             case 23959: // Test Stab R50
             case 24825: // Test Backstab
@@ -2990,6 +2997,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
             case 2895:  // Wrath of Air Totem rank 1 (Aura)
             case 68933: // Wrath of Air Totem rank 2 (Aura)
+            case 29200: // Purify Helboar Meat
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 break;
@@ -3312,6 +3320,17 @@ void SpellMgr::LoadDbcDataCorrections()
             case 63024: // Gravity Bomb (XT-002)
             case 64234: // Gravity Bomb (25m) (XT-002)
                 spellInfo->MaxAffectedTargets = 1;
+                break;
+
+            case 7294: // Retribution Aura (Rank 1)
+            case 10298: // Retribution Aura (Rank 2)
+            case 10299: // Retribution Aura (Rank 3)
+            case 10300: // Retribution Aura (Rank 4)
+            case 10301: // Retribution Aura (Rank 5)
+            case 27150: // Retribution Aura (Rank 6)
+            case 54043: // Retribution Aura (Rank 7)
+                spellInfo->Effect[EFFECT_1] = 0;
+                spellInfo->Effect[EFFECT_2] = 0;
                 break;
             case 62834: // Boom (XT-002)
             // This hack is here because we suspect our implementation of spell effect execution on targets

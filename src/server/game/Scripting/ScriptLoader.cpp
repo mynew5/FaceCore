@@ -34,7 +34,7 @@ void AddSC_DuelReset();
 //NPC Transport Service
 void AddSC_npc_mount();	
 // Argent Tournament quest scripts
-void AddSC_ArgentTournament();
+void AddSC_Argen_Tournament();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1265,6 +1265,6 @@ void AddCustomScripts()
     // Custom
     AddSC_DuelReset();
     AddSC_npc_mount();		
-    AddSC_ArgentTournament();
+    AddSC_Argen_Tournament();
 #endif
 }

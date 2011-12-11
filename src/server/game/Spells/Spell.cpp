@@ -4597,7 +4597,38 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
-	OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+	OutdoorPvPWG* pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
+    // Hackfixes
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (Battleground* bg = m_caster->ToPlayer()->GetBattleground())
+        {
+            // check Mage Invisibility (#66) on battleground
+            // or arena when status STATUS_WAIT_JOIN
+            if (bg->GetStatus() == STATUS_WAIT_JOIN && m_spellInfo->Id == 66) // Invisibility
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+            // check Mage Blink on gates
+            if (bg->GetTypeID() == BATTLEGROUND_IC && m_spellInfo->Id == 1953)
+            {
+                GameObject* go1 = bg->GetBGObject(1);  // Alliance Gate 1
+                GameObject* go2 = bg->GetBGObject(2);  // Alliance Gate 2
+                GameObject* go3 = bg->GetBGObject(3);  // Alliance Gate 3
+                GameObject* go4 = bg->GetBGObject(49); // Horde Gate 1
+                GameObject* go5 = bg->GetBGObject(50); // Horde Gate 2
+                GameObject* go6 = bg->GetBGObject(51); // Horde Gate 3
+
+                if (go1->IsInRange3d(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 0, 20) ||
+                    go2->IsInRange3d(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 0, 20) ||
+                    go3->IsInRange3d(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 0, 20) ||
+                    go4->IsInRange3d(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 0, 20) ||
+                    go5->IsInRange3d(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 0, 20) ||
+                    go6->IsInRange3d(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 0, 20))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+            }
+        }
+    }
 
     // check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
