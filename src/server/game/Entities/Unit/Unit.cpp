@@ -5515,7 +5515,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         case CLASS_DRUID:
                             RandomSpells.push_back(71484);
                             RandomSpells.push_back(71485);
-                            RandomSpells.push_back(71486);
+                            RandomSpells.push_back(71492);
                             break;
                         case CLASS_HUNTER:
                             RandomSpells.push_back(71486);
@@ -5561,7 +5561,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         case CLASS_DRUID:
                             RandomSpells.push_back(71561);
                             RandomSpells.push_back(71556);
-                            RandomSpells.push_back(71558);
+                            RandomSpells.push_back(71560);
                             break;
                         case CLASS_HUNTER:
                             RandomSpells.push_back(71558);
@@ -6546,14 +6546,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 case 57934: // Tricks of the Trade
                 {
-                    if (Unit * unitTarget = GetMisdirectionTarget())
-                    {
-                        RemoveAura(dummySpell->Id, GetGUID(), 0, AURA_REMOVE_BY_DEFAULT);
-                        CastSpell(this, 59628, true);
-                        CastSpell(unitTarget, 57933, true);
-                        return true;
-                    }
-                    return false;
+                    Unit* redirectTarget = GetMisdirectionTarget();
+                    RemoveAura(57934);
+                    if (!redirectTarget)
+                        break;
+                    CastSpell(this,59628,true);
+                    CastSpell(redirectTarget,57933,true);
+                    break;
                 }
             }
 
