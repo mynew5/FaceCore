@@ -177,6 +177,8 @@ class boss_professor_putricide : public CreatureScript
                 _baseSpeed(creature->GetSpeedRate(MOVE_RUN)), _experimentState(EXPERIMENT_STATE_OOZE)
             {
                 _phase = PHASE_NONE;
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void Reset()
@@ -303,12 +305,16 @@ class boss_professor_putricide : public CreatureScript
                             return;
                         me->SetReactState(REACT_PASSIVE);
                         DoAction(ACTION_CHANGE_PHASE);
+                        UnsummonSpecificCreaturesNearby(me,NPC_VOLATILE_OOZE,100.0f);
+                        UnsummonSpecificCreaturesNearby(me,NPC_GAS_CLOUD,100.0f);
                         break;
                     case PHASE_COMBAT_2:
                         if (HealthAbovePct(35))
                             return;
                         me->SetReactState(REACT_PASSIVE);
                         DoAction(ACTION_CHANGE_PHASE);
+                        UnsummonSpecificCreaturesNearby(me,NPC_VOLATILE_OOZE,100.0f);
+                        UnsummonSpecificCreaturesNearby(me,NPC_GAS_CLOUD,100.0f);
                         break;
                     default:
                         break;
@@ -441,8 +447,9 @@ class boss_professor_putricide : public CreatureScript
                         me->AttackStop();
                         if (!IsHeroic())
                         {
+                            SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_TEAR_GAS);
                             DoCast(me, SPELL_TEAR_GAS);
-                            events.ScheduleEvent(EVENT_TEAR_GAS, 2500);
+                            events.ScheduleEvent(EVENT_TEAR_GAS, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 2500);
                         }
                         else
                         {
@@ -577,6 +584,8 @@ class boss_professor_putricide : public CreatureScript
                             events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(35000, 40000));
                             break;
                         case EVENT_TEAR_GAS:
+                            me->RemoveAurasDueToSpell(71615);
+                            me->RemoveAurasDueToSpell(71618);
                             me->GetMotionMaster()->MovePoint(POINT_TABLE, tablePos);
                             break;
                         case EVENT_RESUME_ATTACK:
@@ -692,13 +701,21 @@ class npc_volatile_ooze : public CreatureScript
             void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
             {
                 if (!_newTargetSelectTimer && sSpellMgr->GetSpellDifficultyId(spell->Id) == sSpellMgr->GetSpellDifficultyId(SPELL_OOZE_ERUPTION))
-                    _newTargetSelectTimer = 1000;
+                    _newTargetSelectTimer = 2000;
             }
 
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
+
+                Unit* victim = me->getVictim();
+                
+                if (victim && victim->IsWithinDistInMap(me, 1.0f) && victim->HasAura(SPELL_VOLATILE_OOZE_ADHESIVE) && victim->isAlive())
+                {
+                    DoCast(me, SPELL_OOZE_ERUPTION);
+                    victim->RemoveAurasDueToSpell(SPELL_VOLATILE_OOZE_ADHESIVE, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                }
 
                 if (!_newTargetSelectTimer)
                     return;

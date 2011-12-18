@@ -136,6 +136,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
         {
             boss_blood_queen_lana_thelAI(Creature* creature) : BossAI(creature, DATA_BLOOD_QUEEN_LANA_THEL)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void Reset()
@@ -543,21 +545,17 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 if (GetCaster()->GetMap()->IsHeroic())
                     GetCaster()->CastSpell(GetCaster(), SPELL_PRESENCE_OF_THE_DARKFALLEN, true);
                 // Shadowmourne questline
-                Map* map = GetCaster()->GetMap();
-                if (map->IsRaid() && is_25_player_raid(map->GetDifficulty()))
+                if (GetCaster()->ToPlayer()->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (GetCaster()->ToPlayer()->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE)
+                    if (Aura* aura = GetCaster()->GetAura(SPELL_GUSHING_WOUND))
                     {
-                        if (Aura* aura = GetCaster()->GetAura(SPELL_GUSHING_WOUND))
+                        if (aura->GetStackAmount() == 3)
                         {
-                            if (aura->GetStackAmount() == 3)
-                            {
-                                GetCaster()->CastSpell(GetCaster(), SPELL_THIRST_QUENCHED, true);
-                                GetCaster()->RemoveAura(aura);
-                            }
-                            else
-                                GetCaster()->CastSpell(GetCaster(), SPELL_GUSHING_WOUND, true);
+                            GetCaster()->CastSpell(GetCaster(), SPELL_THIRST_QUENCHED, true);
+                            GetCaster()->RemoveAura(aura);
                         }
+                        else
+                            GetCaster()->CastSpell(GetCaster(), SPELL_GUSHING_WOUND, true);
                     }
                 }
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())

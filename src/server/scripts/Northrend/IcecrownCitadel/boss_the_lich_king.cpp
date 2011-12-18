@@ -483,6 +483,8 @@ class boss_the_lich_king : public CreatureScript
         {
             boss_the_lich_kingAI(Creature* creature) : BossAI(creature, DATA_THE_LICH_KING)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void Reset()
@@ -905,6 +907,7 @@ class boss_the_lich_king : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_ONE);
+                            me->SetInCombatWithZone();
                             break;
                         case EVENT_SUMMON_SHAMBLING_HORROR:
                             DoCast(me, SPELL_SUMMON_SHAMBLING_HORROR);
@@ -1476,7 +1479,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                 _events.Reset();
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_WINGS_OF_THE_DAMNED, false);
-                me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
+                me->SetSpeed(MOVE_FLIGHT, 0.242857f, true);
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
