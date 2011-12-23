@@ -234,6 +234,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 
         if (msg.empty())
             return;
+
+        if (strcmp(sender->GetSession()->m_lastMessage.c_str(), msg.c_str()) != 0)
+            sender->GetSession()->m_lastMessage = msg;
+        else
+            return;
     }
 
     switch (type)
