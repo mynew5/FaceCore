@@ -799,16 +799,25 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     //scale
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if (cFamily && cFamily->minScale > 0.0f && petType == HUNTER_PET)
+    if (cFamily && petType == HUNTER_PET)
     {
-        float scale;
-        if (getLevel() >= cFamily->maxScaleLevel)
-            scale = cFamily->maxScale;
-        else if (getLevel() <= cFamily->minScaleLevel)
-            scale = cFamily->minScale;
+        float scale, minscale, maxscale, maxlevel;
+        minscale = 0.8f;
+        maxscale = 1.2f;
+        if (getLevel() > 70)
+        {
+            if (cinfo->type_flags & CREATURE_TYPEFLAGS_EXOTIC)
+                if (getLevel() > 80)
+                    maxlevel = 80; //for gms and fun servers
+                else
+                    maxlevel = getLevel();
+            else
+                maxlevel = 70;
+        }
         else
-            scale = cFamily->minScale + float(getLevel() - cFamily->minScaleLevel) / cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
+            maxlevel = getLevel();
 
+        scale = minscale + (maxlevel * ((maxscale - minscale) / 80));
         SetFloatValue(OBJECT_FIELD_SCALE_X, scale);
     }
 
@@ -845,6 +854,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     }
 
     SetBonusDamage(0);
+
+    if (m_owner->GetTypeId() == TYPEID_PLAYER)
+        LoadCreaturesAddon(true);
+
     switch (petType)
     {
         case SUMMON_PET:
@@ -864,6 +877,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         }
         case HUNTER_PET:
         {
+            // use generic combatreach- and boundingradius values, TODO: find correct ones
+            SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 1.0f);
+            SetFloatValue(UNIT_FIELD_COMBATREACH, 1.0f); // DEFAULT_COMBAT_REACH?
+
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(petlevel)*PET_XP_FACTOR));
             //these formula may not be correct; however, it is designed to be close to what it should be
             //this makes dps 0.5 of pets level
@@ -985,6 +1002,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetCreateHealth(4 * petlevel);
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - 30 - (petlevel / 4)) + m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f);
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel - 30 + (petlevel / 4)) + m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f);
+                    break;
                 }
             }
             break;
