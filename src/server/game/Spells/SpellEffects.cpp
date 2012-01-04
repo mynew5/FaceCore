@@ -4704,7 +4704,12 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     unitTarget->RemoveAuraFromStack(26464);
                     return;
                 // Argent Tournament Spells
-                // Shield Breaker
+                case 64595:
+                    if(m_caster->GetOwner())
+                        m_caster->GetOwner()->CastSpell(unitTarget, 64590, true);
+                    else
+                        m_caster->CastSpell(unitTarget, 64590, true);
+                        return;
                 case 62575:
                 case 66480:
                 {
@@ -4719,7 +4724,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
-                // Charge
+                // Charge - Argent Tournament
                 case 62960:
                 {
                     if (!unitTarget || !m_caster)
@@ -4730,10 +4735,30 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     return;
                 }
-                // Shield Breaker Trigger
-                case 62626:
+                // Charge - Argent Tournament
+                case 68282:
+                {
+                    if (!unitTarget)
+                        return;
+                    m_caster->CastSpell(unitTarget, 68284, true);
+                }
+                // Necrocution - Argent Tournament
+                case 63233:
+                // Sundering Thrust - Argent Tournament
+                case 63825:
+                // Counter attack - Argent Tournament
+                case 62709:
+                // Shield-Breaker - Argent Tournament
                 case 64590:
-                // Charge Effect
+                case 65147:
+                case 62626:
+                    if(!unitTarget)
+                        return;
+                    if (unitTarget->GetAura(64100))
+                        unitTarget->RemoveAuraFromStack(64100);
+                // Charge - Argent Tournament
+                case 63010:
+                case 63003:
                 case 68321:
                 {
                     if (!unitTarget || !m_caster)
