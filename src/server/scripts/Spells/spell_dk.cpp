@@ -594,8 +594,6 @@ public:
         {
             OnEffectHit += SpellEffectFn(spell_dk_blood_tap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_ACTIVATE_RUNE);
         }
-    
-            
     };
 
     SpellScript* GetSpellScript() const
