@@ -1321,6 +1321,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
                 maximum = 0;
             SetBonusDamage(int32(maximum * 0.15f));
             bonusAP = maximum * 0.57f;
+            if (GetEntry() == ENTRY_FELGUARD && owner->HasAura(56246))
+                bonusAP *= 1.2f; // Glyph of Felguard
         }
         //water elementals benefit from mage's frost damage
         else if (GetEntry() == ENTRY_WATER_ELEMENTAL)
