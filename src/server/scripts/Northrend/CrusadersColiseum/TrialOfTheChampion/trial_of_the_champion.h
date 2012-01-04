@@ -19,7 +19,6 @@
 #ifndef DEF_TOC_H
 #define DEF_TOC_H
 
-
 enum eData
 {
     BOSS_GRAND_CHAMPIONS,
@@ -27,21 +26,18 @@ enum eData
     BOSS_ARGENT_CHALLENGE_P,
     BOSS_BLACK_KNIGHT,
     DATA_MOVEMENT_DONE,
-    DATA_AGGRO_DONE,
-    DATA_AGRO_DONE,
     DATA_LESSER_CHAMPIONS_DEFEATED,
     DATA_START,
     DATA_IN_POSITION,
     DATA_ARGENT_SOLDIER_DEFEATED,
-    DATA_BLACK_KNIGHT,
-    DATA_KNIGHT
+    DATA_TEAM_IN_INSTANCE
 };
 
 enum Data64
 {
     DATA_ANNOUNCER,
     DATA_MAIN_GATE,
-    DATA_MAIN_GATE1,				
+    DATA_MAIN_GATE1,
 
     DATA_GRAND_CHAMPION_VEHICLE_1,
     DATA_GRAND_CHAMPION_VEHICLE_2,
@@ -54,7 +50,7 @@ enum Data64
 
 enum eNpcs
 {
- // Horde Champions
+    // Horde Champions
     NPC_MOKRA                   = 35572,
     NPC_ERESSEA                 = 35569,
     NPC_RUNOK                   = 35571,
@@ -68,27 +64,41 @@ enum eNpcs
     NPC_JAELYNE                 = 34657,
     NPC_LANA                    = 34703,
 
-	// Crusader Champions
+    // Faction champions horde
+    NPC_ORGRIMAR_CHAMPION       = 35314,
+    NPC_SILVERMOON_CHAMPION     = 35326,
+    NPC_THUNDER_CHAMPION        = 35325,
+    NPC_TROLL_CHAMPION          = 35323,
+    NPC_UNDERCITY_CHAMPION      = 35327,
+
+    // Faction champions alliance
+    NPC_STORMWIND_CHAMPION      = 35328,
+    NPC_GNOMERAGN_CHAMPION      = 35331,
+    NPC_EXODAR_CHAMPION         = 35330,
+    NPC_DRNASSUS_CHAMPION       = 35332,
+    NPC_IRONFORGE_CHAMPION      = 35329,
+
     NPC_EADRIC                  = 35119,
     NPC_PALETRESS               = 34928,
 
-	// Crusader mobs
     NPC_ARGENT_LIGHWIELDER      = 35309,
     NPC_ARGENT_MONK             = 35305,
     NPC_PRIESTESS               = 35307,
 
-	// Black Knight
     NPC_BLACK_KNIGHT            = 35451,
-	
-	// Black Knight's add
+
     NPC_RISEN_JAEREN            = 35545,
     NPC_RISEN_ARELAS            = 35564,
-	
-	// Announcer	
+
+    // Announcer Start Event
+    NPC_JAEREN                  = 35004,
+    NPC_ARELAS                  = 35005,
+
+    // Announcer
     NPC_JAEREN_AN               = 35591,
     NPC_ARELAS_AN               = 35592,
 
-	// Memory	
+    // Memory
     MEMORY_ALGALON              = 35052,
     MEMORY_ARCHIMONDE           = 35041,
     MEMORY_CHROMAGGUS           = 35033,
@@ -113,11 +123,7 @@ enum eNpcs
     MEMORY_VANCLEEF             = 35028,
     MEMORY_VASHJ                = 35040,
     MEMORY_VEKNILASH            = 35036,
-    MEMORY_VEZAX                = 35051,
-
-	// Announcer Start Event
-    NPC_JAEREN                  = 35004,
-    NPC_ARELAS                  = 35005
+    MEMORY_VEZAX                = 35051
 };
 
 enum eGameObjects
@@ -164,7 +170,6 @@ enum eVehicles
 
     VEHICLE_ARGENT_WARHORSE                         = 35644,
     VEHICLE_ARGENT_BATTLEWORG                       = 36558,
-    VEHICLE_GR                                      = 35492,
 
     VEHICLE_BLACK_KNIGHT                            = 35491
 };
