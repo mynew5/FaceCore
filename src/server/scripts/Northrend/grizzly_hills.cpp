@@ -450,7 +450,8 @@ public:
 
 enum etallhornstage
 {
-    OBJECT_HAUNCH                   = 188665
+    OBJECT_HAUNCH                   = 188665,
+    SPELL_GORE                      = 32019
 };
 
 class npc_tallhorn_stag : public CreatureScript
@@ -463,13 +464,15 @@ public:
         npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 m_uiPhase;
+        uint32 m_uiTimer;
 
         void Reset()
         {
             m_uiPhase = 1;
+            m_uiTimer = 3000;
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+        void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiPhase == 1)
             {
@@ -481,6 +484,18 @@ public:
                 }
                 m_uiPhase = 0;
             }
+
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_GORE);
+                m_uiTimer = 15000;
+            }
+            else
+                m_uiTimer -= uiDiff;
+
             DoMeleeAttackIfReady();
         }
     };
@@ -799,6 +814,92 @@ public:
     };
 };
 
+/*####
+## npc_grizzly_lake_frog
+####*/
+
+enum eLakeFrog
+{
+    SPELL_WARTS                 = 62581,
+    SPELL_WARTS_B_GONE          = 62574,
+    SPELL_TRANSFORM             = 62550,
+    SPELL_SUMMON_ASHWOOD_BRAND  = 62554,
+    SPELL_FROG_LOVE             = 62537,
+
+    ENTRY_NOT_MAIDEN_FROG       = 33211,
+    ENTRY_MAIDEN_FROG           = 33224,
+};
+
+#define SAY_FREED               "Can it really be? Free after all these years?"
+#define GOSSIP_TEXT_GET_WEAPON  "Glad to help, my lady. I'm told you were once the guardian of a fabled sword. Do you know where I might find it?"
+
+class npc_grizzly_lake_frog : public CreatureScript
+{
+public:
+    npc_grizzly_lake_frog() : CreatureScript("npc_grizzly_lake_frog") { }
+
+    struct npc_grizzly_lake_frogAI : public ScriptedAI
+    {
+        npc_grizzly_lake_frogAI(Creature* c) : ScriptedAI(c) { alreadykissed = false;}
+
+        bool alreadykissed;
+
+        void ReceiveEmote(Player* player, uint32 emote)
+        {
+            if (emote == TEXT_EMOTE_KISS)
+            {
+                alreadykissed = true;
+
+                if(urand(0,3) == 0)
+                {
+                    DoCast(me,SPELL_TRANSFORM,true);
+                    me->MonsterSay(SAY_FREED,LANG_UNIVERSAL,player->GetGUID());
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }else
+                {
+                    if (!player->HasAura(SPELL_WARTS_B_GONE))
+                    {
+                        me->CastSpell(player,SPELL_WARTS);
+                    }else
+                        player->RemoveAurasDueToSpell(SPELL_WARTS_B_GONE);
+
+                        me->CastSpell(me,SPELL_FROG_LOVE,true);
+                        me->GetMotionMaster()->MoveFollow(player,1,float(rand_norm()*2*M_PI));
+                }
+
+                me->DespawnOrUnsummon(15000);
+            }
+        }
+    };
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_TEXT_GET_WEAPON , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        player->CLOSE_GOSSIP_MENU();
+
+        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            creature->CastSpell(player,SPELL_SUMMON_ASHWOOD_BRAND,true);
+        }
+
+        return true;
+    }
+
+
+    CreatureAI *GetAI(Creature* creature) const
+    {
+        return new npc_grizzly_lake_frogAI(creature);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_orsonn_and_kodian;
@@ -810,4 +911,5 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher;
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
+    new npc_grizzly_lake_frog();
 }
