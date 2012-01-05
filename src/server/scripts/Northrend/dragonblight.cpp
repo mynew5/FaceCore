@@ -924,66 +924,6 @@ public:
 
 };
 
-/*######
-## No Mercy for the Captured
-## http://www.wowhead.com/quest=12245
-## UPDATE `creature_template`SET `ScriptName` = 'npc_no_mercy_for_the_captured' WHERE `entry` IN (27376,27378,27379,27381);
-######*/
-
-enum NoMercyForTheCaptured
-{
-    NPC_DEATHGUARD_SCHNEIDER        = 27376,
-    NPC_SENIOR_SCRIVENER_BARRIGA    = 27378,
-    NPC_ENGINEER_BURKE              = 27379,
-    NPC_CHANCELLOR_AMAI             = 27381,
-    QUEST_NO_MERCY_FOR_THE_CAPTURED = 12245,
-};
-
-#define GOSSIP_PRISIONEROS "Barney Sobalo"
-
-class npc_no_mercy_for_the_captured : public CreatureScript
-{
-public:
-    npc_no_mercy_for_the_captured() : CreatureScript("npc_no_mercy_for_the_captured") { }
-
-    struct npc_no_mercy_for_the_capturedAI : public ScriptedAI
-    {
-        npc_no_mercy_for_the_capturedAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
-        {
-            me->RestoreFaction();
-        }
-    };
-
-    CreatureAI *GetAI(Creature* creature) const
-    {
-        return new npc_no_mercy_for_the_capturedAI(creature);
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_NO_MERCY_FOR_THE_CAPTURED) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PRISIONEROS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(13691, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-        {            
-            player->CLOSE_GOSSIP_MENU();
-            creature->setFaction(14);
-            creature->AI()->AttackStart(player);
-        }
-
-        return true;
-    }
-};
-
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
@@ -997,5 +937,4 @@ void AddSC_dragonblight()
     new npc_7th_legion_siege_engineer;
     new vehicle_alliance_steamtank;
     new mob_woodlands_walker;
-    new npc_no_mercy_for_the_captured;
 }
