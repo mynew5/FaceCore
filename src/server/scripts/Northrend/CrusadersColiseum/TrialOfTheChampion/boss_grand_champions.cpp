@@ -102,6 +102,9 @@ struct npc_mounted_championAI : ScriptedAI
 
     void Reset()
     {
+        if (!instance)
+            return;
+
         if(_defeated)
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
@@ -146,6 +149,9 @@ struct npc_mounted_championAI : ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32 & damage)
     {
+        if (!instance)
+            return;
+
         if (!isGrandChampion())
             return;
 
@@ -178,6 +184,9 @@ struct npc_mounted_championAI : ScriptedAI
 
     void EnterCombat(Unit* /*who*/)
     {
+        if (!instance)
+            return;
+
         // Set Defend to 3 charges at start
         for (uint8 i = 0; i < 3; ++i)
             DoCast(me, SPELL_SHIELD, true);
@@ -188,12 +197,18 @@ struct npc_mounted_championAI : ScriptedAI
 
     void JustReachedHome()
     {
+        if (!instance)
+            return;
+
         if (instance->GetData(MINION_ENCOUNTER) == IN_PROGRESS)
             instance->SetData(MINION_ENCOUNTER, FAIL);
     }
 
     bool isGrandChampion()
     {
+        if (!instance)
+            return false;
+
         return (me->GetEntry() == NPC_MOKRA   || me->GetEntry() == NPC_JACOB   ||
                 me->GetEntry() == NPC_ERESSEA || me->GetEntry() == NPC_AMBROSE ||
                 me->GetEntry() == NPC_RUNOK   || me->GetEntry() == NPC_COLOSOS ||
@@ -203,6 +218,9 @@ struct npc_mounted_championAI : ScriptedAI
 
     bool isInMountedGauntlet()
     {
+        if (!instance)
+            return false;
+
         if(Creature* announcer = me->GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
         {
             if (announcer->AI()->GetData(EVENT_INTRO) == IN_PROGRESS || announcer->AI()->GetData(EVENT_WAVES) == IN_PROGRESS)
@@ -213,6 +231,9 @@ struct npc_mounted_championAI : ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (!instance)
+            return;
+
         if (!UpdateVictim())
             return;
 
