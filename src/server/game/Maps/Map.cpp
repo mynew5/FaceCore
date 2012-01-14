@@ -220,13 +220,11 @@ i_scriptLock(false)
         }
     }
 
-    for (std::map<uint32, DynamicLOSObject*>::iterator i = m_dynamicLOSObjects.begin(); i != m_dynamicLOSObjects.end(); ++i)
-        delete i->second;
-
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
 
     m_dynamicLOSCounter = 0;
+    m_dynamicLOSObjects.clear();
 
     sScriptMgr->OnCreateMap(this);
 }
