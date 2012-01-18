@@ -3017,6 +3017,9 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
+            case 24259: // Felhunter's Spell Lock
+                spellInfo->speed = 80;
+                break;
             case 40244: case 40245: // Simon Game Visual
             case 40246: case 40247: // Simon Game Visual
             case 42835: // Spout, remove damage effect, only anim is needed
