@@ -426,6 +426,15 @@ void Vehicle::RemovePassenger(Unit* unit)
         unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
         unit->m_movementInfo.t_time = 0;
         unit->m_movementInfo.t_seat = 0;
+
+        /* ### THIS IS A HACKFIX ### */
+
+        unit->SetUnitMovementFlags(0);
+        unit->SetExtraUnitMovementFlags(0);
+        if (unit->HasUnitState(UNIT_STAT_NOT_MOVE))
+            unit->ClearUnitState(UNIT_STAT_NOT_MOVE);
+
+        /* ### REMOVE IT ONCE #4847 IS SOLVED ### */
     }
 
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled)
