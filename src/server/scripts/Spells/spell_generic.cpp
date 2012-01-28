@@ -2003,19 +2003,19 @@ class spell_gen_defend : public SpellScriptLoader
         }
 };
 
-enum ArgentMounts
+enum ArgentMountsSpells
 {
     SPELL_LANCE_EQUIPPED = 62853,
 };
 
-class spell_gen_summon_argent_mount : public SpellScriptLoader
+class spell_gen_summon_tournament_mount : public SpellScriptLoader
 {
     public:
-        spell_gen_summon_argent_mount() : SpellScriptLoader("spell_gen_summon_argent_mount") { }
+        spell_gen_summon_tournament_mount() : SpellScriptLoader("spell_gen_summon_tournament_mount") { }
 
-        class spell_gen_summon_argent_mount_SpellScript : public SpellScript
+        class spell_gen_summon_tournament_mount_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_summon_argent_mount_SpellScript);
+            PrepareSpellScript(spell_gen_summon_tournament_mount_SpellScript);
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -2039,13 +2039,258 @@ class spell_gen_summon_argent_mount : public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_summon_argent_mount_SpellScript::CheckIfLanceEquiped);
+                OnCheckCast += SpellCheckCastFn(spell_gen_summon_tournament_mount_SpellScript::CheckIfLanceEquiped);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_gen_summon_argent_mount_SpellScript();
+            return new spell_gen_summon_tournament_mount_SpellScript();
+        }
+};
+
+enum ArgentPennantSpells
+{
+    SPELL_PENNANT_STORMWIND_ASPIRANT      = 62595,
+    SPELL_PENNANT_STORMWIND_VALIANT       = 62596,
+    SPELL_PENNANT_STORMWIND_CHAMPION      = 62594,
+    SPELL_PENNANT_GNOMEREGAN_ASPIRANT     = 63394,
+    SPELL_PENNANT_GNOMEREGAN_VALIANT      = 63395,
+    SPELL_PENNANT_GNOMEREGAN_CHAMPION     = 63396,
+    SPELL_PENNANT_SEN_JIN_ASPIRANT        = 63397,
+    SPELL_PENNANT_SEN_JIN_VALIANT         = 63398,
+    SPELL_PENNANT_SEN_JIN_CHAMPION        = 63399,
+    SPELL_PENNANT_SILVERMOON_ASPIRANT     = 63401,
+    SPELL_PENNANT_SILVERMOON_VALIANT      = 63402,
+    SPELL_PENNANT_SILVERMOON_CHAMPION     = 63403,
+    SPELL_PENNANT_DARNASSUS_ASPIRANT      = 63404,
+    SPELL_PENNANT_DARNASSUS_VALIANT       = 63405,
+    SPELL_PENNANT_DARNASSUS_CHAMPION      = 63406,
+    SPELL_PENNANT_EXODAR_ASPIRANT         = 63421,
+    SPELL_PENNANT_EXODAR_VALIANT          = 63422,
+    SPELL_PENNANT_EXODAR_CHAMPION         = 63423,
+    SPELL_PENNANT_IRONFORGE_ASPIRANT      = 63425,
+    SPELL_PENNANT_IRONFORGE_VALIANT       = 63426,
+    SPELL_PENNANT_IRONFORGE_CHAMPION      = 63427,
+    SPELL_PENNANT_UNDERCITY_ASPIRANT      = 63428,
+    SPELL_PENNANT_UNDERCITY_VALIANT       = 63429,
+    SPELL_PENNANT_UNDERCITY_CHAMPION      = 63430,
+    SPELL_PENNANT_ORGRIMMAR_ASPIRANT      = 63431,
+    SPELL_PENNANT_ORGRIMMAR_VALIANT       = 63432,
+    SPELL_PENNANT_ORGRIMMAR_CHAMPION      = 63433,
+    SPELL_PENNANT_THUNDER_BLUFF_ASPIRANT  = 63434,
+    SPELL_PENNANT_THUNDER_BLUFF_VALIANT   = 63435,
+    SPELL_PENNANT_THUNDER_BLUFF_CHAMPION  = 63436,
+    SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT = 63606,
+    SPELL_PENNANT_ARGENT_CRUSADE_VALIANT  = 63500,
+    SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION = 63501,
+    SPELL_PENNANT_EBON_BLADE_ASPIRANT     = 63607,
+    SPELL_PENNANT_EBON_BLADE_VALIANT      = 63508,
+    SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63509,
+};
+
+enum ArgentMounts
+{
+    NPC_STORMWIND_STEED             = 33217,
+    NPC_IRONFORGE_RAM               = 33316,
+    NPC_GNOMEREGAN_MECHANOSTRIDER   = 33317,
+    NPC_EXODAR_ELEKK                = 33318,
+    NPC_DARNASSIAN_NIGHTSABER       = 33319,
+    NPC_ORGRIMMAR_WOLF              = 33320,
+    NPC_DARK_SPEAR_RAPTOR           = 33321,
+    NPC_THUNDER_BLUFF_KODO          = 33322,
+    NPC_SILVERMOON_HAWKSTRIDER      = 33323,
+    NPC_FORSAKEN_WARHORSE           = 33324,
+    NPC_ARGENT_WARHORSE             = 33782,
+    NPC_ARGENT_STEED_ASPIRANT       = 33844,
+    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33845,
+};
+
+class spell_gen_on_tournament_mount : public SpellScriptLoader
+{
+    public:
+        spell_gen_on_tournament_mount() : SpellScriptLoader("spell_gen_on_tournament_mount") { }
+
+        class spell_gen_on_tournament_mountAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_on_tournament_mountAuraScript);
+
+            uint32 _pennantSpellId;
+
+            bool Load()
+            {
+                _pennantSpellId = 0;
+                return (GetCaster()->GetTypeId() == TYPEID_PLAYER);
+            }
+
+            void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && caster->GetVehicleBase())
+                {
+                    _pennantSpellId = GetPennatSpellId(caster->ToPlayer(), caster->GetVehicleBase());
+                    caster->CastSpell(caster, _pennantSpellId,true);
+                }
+            }
+
+            void HandleRemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster)
+                    caster->RemoveAurasDueToSpell(_pennantSpellId);
+            }
+
+            uint32 GetPennatSpellId(Player* player, Unit* mount)
+            {
+                switch (mount->GetEntry())
+                {
+                    case NPC_ARGENT_STEED_ASPIRANT:
+                    case NPC_STORMWIND_STEED:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2781)) // Champion of Stormwind
+                            return SPELL_PENNANT_STORMWIND_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13593) || player->GetQuestRewardStatus(13684)) // Valiant of Stormwind
+                            return SPELL_PENNANT_STORMWIND_VALIANT;
+                        else
+                            return SPELL_PENNANT_STORMWIND_ASPIRANT;
+                    }
+                    case NPC_GNOMEREGAN_MECHANOSTRIDER:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2779)) // Champion of Gnomeregan
+                            return SPELL_PENNANT_GNOMEREGAN_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13704) || player->GetQuestRewardStatus(13688)) // Valiant of Gnomeregan
+                            return SPELL_PENNANT_GNOMEREGAN_VALIANT;
+                        else
+                            return SPELL_PENNANT_GNOMEREGAN_ASPIRANT;
+                    }
+                    case NPC_DARK_SPEAR_RAPTOR:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2784)) // Champion of Sen'Jin
+                            return SPELL_PENNANT_SEN_JIN_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13693) || player->GetQuestRewardStatus(13708)) // Valiant of Sen'Jin
+                            return SPELL_PENNANT_SEN_JIN_VALIANT;
+                        else
+                            return SPELL_PENNANT_SEN_JIN_ASPIRANT;
+                    }
+                    case NPC_ARGENT_HAWKSTRIDER_ASPIRANT:
+                    case NPC_SILVERMOON_HAWKSTRIDER:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2785))  // Champion of Silvermoon
+                            return SPELL_PENNANT_SILVERMOON_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13696) || player->GetQuestRewardStatus(13711)) // Valiant of Silvermoon
+                            return SPELL_PENNANT_SILVERMOON_VALIANT;
+                        else
+                            return SPELL_PENNANT_SILVERMOON_ASPIRANT;
+                    }
+                    case NPC_DARNASSIAN_NIGHTSABER:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2777)) // Champion of Darnassus
+                            return SPELL_PENNANT_DARNASSUS_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13689) || player->GetQuestRewardStatus(13706)) // Valiant of Darnassus
+                            return SPELL_PENNANT_DARNASSUS_VALIANT;
+                        else
+                            return SPELL_PENNANT_DARNASSUS_ASPIRANT;
+                    }
+                    case NPC_EXODAR_ELEKK:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2778)) // Champion of Exodar
+                            return SPELL_PENNANT_EXODAR_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13690) || player->GetQuestRewardStatus(13705)) // Valiant of Exodar
+                            return SPELL_PENNANT_EXODAR_VALIANT;
+                        else
+                            return SPELL_PENNANT_EXODAR_ASPIRANT;
+                    }
+                    case NPC_IRONFORGE_RAM:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2780)) // Champion of Ironforge
+                            return SPELL_PENNANT_IRONFORGE_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13685) || player->GetQuestRewardStatus(13703)) // Valiant of Ironforge
+                            return SPELL_PENNANT_IRONFORGE_VALIANT;
+                        else
+                            return SPELL_PENNANT_IRONFORGE_ASPIRANT;
+                    }
+                    case NPC_FORSAKEN_WARHORSE:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2787)) // Champion of Undercity
+                            return SPELL_PENNANT_UNDERCITY_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13695) || player->GetQuestRewardStatus(13710)) // Valiant of Undercity
+                            return SPELL_PENNANT_UNDERCITY_VALIANT;
+                        else
+                            return SPELL_PENNANT_UNDERCITY_ASPIRANT;
+                    }
+                    case NPC_ORGRIMMAR_WOLF:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2783)) // Champion of Orgrimmar
+                            return SPELL_PENNANT_ORGRIMMAR_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13691) || player->GetQuestRewardStatus(13707)) // Valiant of Orgrimmar
+                            return SPELL_PENNANT_ORGRIMMAR_VALIANT;
+                        else
+                            return SPELL_PENNANT_ORGRIMMAR_ASPIRANT;
+                    }
+                    case NPC_THUNDER_BLUFF_KODO:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2786)) // Champion of Thunder Bluff
+                            return SPELL_PENNANT_THUNDER_BLUFF_CHAMPION;
+                        else if (player->GetQuestRewardStatus(13694) || player->GetQuestRewardStatus(13709)) // Valiant of Thunder Bluff
+                            return SPELL_PENNANT_THUNDER_BLUFF_VALIANT;
+                        else
+                            return SPELL_PENNANT_THUNDER_BLUFF_ASPIRANT;
+                    }
+                    case NPC_ARGENT_WARHORSE:
+                    {
+                        if (player->GetAchievementMgr().HasAchieved(2782) || player->GetAchievementMgr().HasAchieved(2788)) // Champion of the Alliance || Champion of the Horde
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_CHAMPION : SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION;
+                        else if (player->GetAchievementMgr().HasAchieved(2758)) // Argent Valor
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_VALIANT : SPELL_PENNANT_ARGENT_CRUSADE_VALIANT;
+                        else
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_ASPIRANT : SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT;
+                    }
+                    default:
+                        return 0;
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_gen_on_tournament_mountAuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_on_tournament_mountAuraScript::HandleRemoveEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_on_tournament_mountAuraScript();
+        }
+};
+
+class spell_gen_tournament_pennant : public SpellScriptLoader
+{
+    public:
+        spell_gen_tournament_pennant() : SpellScriptLoader("spell_gen_tournament_pennant") { }
+
+        class spell_gen_tournament_pennantAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_tournament_pennantAuraScript);
+
+            void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && caster->GetTypeId() == TYPEID_PLAYER && !caster->GetVehicleBase())
+                    caster->RemoveAurasDueToSpell(GetId());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_tournament_pennantAuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_tournament_pennantAuraScript();
         }
 };
 
@@ -2089,5 +2334,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_break_shield();
     new spell_gen_mounted_charge();
     new spell_gen_defend();
-    new spell_gen_summon_argent_mount();
+    new spell_gen_summon_tournament_mount();
+    new spell_gen_on_tournament_mount();
+    new spell_gen_tournament_pennant();
 }
