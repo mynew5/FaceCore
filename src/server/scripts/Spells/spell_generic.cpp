@@ -2003,6 +2003,52 @@ class spell_gen_defend : public SpellScriptLoader
         }
 };
 
+enum ArgentMounts
+{
+    SPELL_LANCE_EQUIPPED = 62853,
+};
+
+class spell_gen_summon_argent_mount : public SpellScriptLoader
+{
+    public:
+        spell_gen_summon_argent_mount() : SpellScriptLoader("spell_gen_summon_argent_mount") { }
+
+        class spell_gen_summon_argent_mount_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_summon_argent_mount_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_LANCE_EQUIPPED))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckIfLanceEquiped()
+            {
+                Unit* caster = GetCaster();
+
+                if (!caster->HasAura(SPELL_LANCE_EQUIPPED))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_LANCE_EQUIPPED);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_summon_argent_mount_SpellScript::CheckIfLanceEquiped);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_summon_argent_mount_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2043,4 +2089,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_break_shield();
     new spell_gen_mounted_charge();
     new spell_gen_defend();
+    new spell_gen_summon_argent_mount();
 }
