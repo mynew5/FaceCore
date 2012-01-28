@@ -1722,6 +1722,287 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
         }
 };
 
+enum BreakShieldSpells
+{
+    SPELL_BREAK_SHIELD_DAMAGE_2K                 = 62626,
+    SPELL_BREAK_SHIELD_DAMAGE_10K                = 64590,
+
+    SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS    = 62575, // Also on ToC5 mounts
+    SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE = 64595,
+    SPELL_BREAK_SHIELD_TRIGGER_UNK               = 66480,
+};
+
+class spell_gen_break_shield: public SpellScriptLoader
+{
+public:
+    spell_gen_break_shield() : SpellScriptLoader("spell_gen_break_shield") { }
+
+    class spell_gen_break_shield_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_break_shield_SpellScript)
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetTargetUnit();
+
+            if (!caster || !target)
+                return;
+
+            switch (effIndex)
+            {
+                case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                    uint32 spellId;
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case SPELL_BREAK_SHIELD_TRIGGER_UNK:
+                        case SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE:
+                            spellId = SPELL_BREAK_SHIELD_DAMAGE_10K;
+                            break;
+                        case SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS:
+                            spellId = SPELL_BREAK_SHIELD_DAMAGE_2K;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    if (Unit* rider = caster->GetCharmer())
+                        rider->CastSpell(target, spellId, false);
+                    else
+                        caster->CastSpell(target, spellId, false);
+                    break;
+                case EFFECT_1: // On damaging spells, for removing the a defend layer
+                    Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        Aura* aura = itr->second->GetBase();
+                        SpellInfo const* auraInfo = aura->GetSpellInfo();
+                        if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                    }
+                    break;
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_break_shield_SpellScript();
+    }
+};
+
+enum ChargeSpells
+{
+    SPELL_CHARGE_DAMAGE_8K5             = 62874,
+    SPELL_CHARGE_DAMAGE_20K             = 68498,
+    SPELL_CHARGE_DAMAGE_45K             = 64591,
+
+    SPELL_CHARGE_CHARGING_EFFECT_8K5    = 63661,
+    SPELL_CHARGE_CHARGING_EFFECT_20K_1  = 68284,
+    SPELL_CHARGE_CHARGING_EFFECT_20K_2  = 68501,
+    SPELL_CHARGE_CHARGING_EFFECT_45K_1  = 62563,
+    SPELL_CHARGE_CHARGING_EFFECT_45K_2  = 66481,
+
+    SPELL_CHARGE_TRIGGER_FACTION_MOUNTS = 62960,
+    SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION = 68282,
+
+    SPELL_CHARGE_MISS_EFFECT            = 62977,
+};
+
+class spell_gen_mounted_charge: public SpellScriptLoader
+{
+public:
+    spell_gen_mounted_charge() : SpellScriptLoader("spell_gen_mounted_charge") { }
+
+    class spell_gen_mounted_charge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_mounted_charge_SpellScript)
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetTargetUnit();
+
+            if (!caster || !target)
+                return;
+
+            switch (effIndex)
+            {
+                case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                    uint32 spellId;
+
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION:
+                            spellId = SPELL_CHARGE_CHARGING_EFFECT_20K_1;
+                        case SPELL_CHARGE_TRIGGER_FACTION_MOUNTS:
+                            spellId = SPELL_CHARGE_CHARGING_EFFECT_8K5;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    if (Unit* vehicle = caster->GetVehicleBase())
+                        vehicle->CastSpell(target, spellId, false);
+                    else
+                        caster->CastSpell(target, spellId, false);
+                    break;
+                case EFFECT_1: // On damaging spells, for removing the a defend layer
+                case EFFECT_2:
+                    Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        Aura* aura = itr->second->GetBase();
+                        SpellInfo const* auraInfo = aura->GetSpellInfo();
+                        if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                    }
+                    break;
+            }
+        }
+
+        void HandleChargeEffect(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetTargetUnit();
+
+            if (!caster || !target)
+                return;
+
+            uint32 spellId;
+
+            switch (GetSpellInfo()->Id)
+            {
+                case SPELL_CHARGE_CHARGING_EFFECT_8K5:
+                    spellId = SPELL_CHARGE_DAMAGE_8K5;
+                    break;
+                case SPELL_CHARGE_CHARGING_EFFECT_20K_1:
+                case SPELL_CHARGE_CHARGING_EFFECT_20K_2:
+                    spellId = SPELL_CHARGE_DAMAGE_20K;
+                    break;
+                case SPELL_CHARGE_CHARGING_EFFECT_45K_1:
+                case SPELL_CHARGE_CHARGING_EFFECT_45K_2:
+                    spellId = SPELL_CHARGE_DAMAGE_45K;
+                    break;
+                default:
+                    return;
+            }
+
+            // If target isn't a training dummy there's a chance of failing the charge
+            if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && urand(0,7) == 0)
+                spellId = SPELL_CHARGE_MISS_EFFECT;
+
+            if (Unit* rider = caster->GetCharmer())
+                rider->CastSpell(target, spellId, false);
+            else
+                caster->CastSpell(target, spellId, false);
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_mounted_charge_SpellScript();
+    }
+};
+
+enum DefendVisuals
+{
+    SPELL_VISUAL_SHIELD_1 = 63130,
+    SPELL_VISUAL_SHIELD_2 = 63131,
+    SPELL_VISUAL_SHIELD_3 = 63132,
+};
+
+class spell_gen_defend : public SpellScriptLoader
+{
+    public:
+        spell_gen_defend() : SpellScriptLoader("spell_gen_defend") { }
+
+        class spell_gen_defendAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_defendAuraScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_2))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_3))
+                    return false;
+                return true;
+            }
+
+            void RefreshVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+
+                if(!target)
+                    return;
+
+                if (!caster)
+                {
+                    target->RemoveAurasDueToSpell(GetId());
+                    return;
+                }
+
+                for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
+                    target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
+
+                target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1);
+            }
+
+            void RemoveVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                if(!target)
+                    return;
+
+                for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
+                    target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
+            }
+
+            void RemoveDummyFromDriver(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && caster->ToTempSummon())
+                    if (Unit* rider = caster->ToTempSummon()->GetSummoner())
+                        rider->RemoveAurasDueToSpell(GetId());
+            }
+
+            void Register()
+            {
+                // Defend spells casted by NPCs (add visuals)
+                AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                // Defend spells casted by players (add/remove visuals)
+                AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                // Remove Defend spell from player when he dismounts
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_defendAuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1759,4 +2040,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_luck_of_the_draw();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
     new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
+    new spell_gen_break_shield();
+    new spell_gen_mounted_charge();
+    new spell_gen_defend();
 }

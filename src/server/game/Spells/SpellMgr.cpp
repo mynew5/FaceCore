@@ -1134,7 +1134,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             break;
         }
         case 58730: // No fly Zone - Wintergrasp
-            {
+        {
                 if (!player)
                     return false;
 
@@ -3032,6 +3032,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 break;
+            case 63665: // Charge (Argent Tournament emote on riders)
             case 31447: // Mark of Kaz'rogal (needs target selection script)
             case 31298: // Sleep (needs target selection script)
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
@@ -3042,6 +3043,10 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 break;
             case 50317: // Summon Disco Ball
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                break;
+            case 68282: // Charge (Trial of the champion)
+            case 62960: // Charge (Argent tournament fields)
                 spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
                 break;
             case 31344: // Howl of Azgalor
@@ -3409,6 +3414,24 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // ENDOF ULDUAR SPELLS
             //
+            // TRIAL OF THE CHAMPION SPELLS
+            case 68284: // ToC5 Charge
+                spellInfo->Effect[1] = SPELL_EFFECT_SCHOOL_DAMAGE;
+                spellInfo->EffectBasePoints[1] = 20000;
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 67705: // Raise Arelas Birhgtstar
+            case 67715: // Raise Jaeren Sunworn
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
+                break;
+            case 67782: // Desecration
+                spellInfo->rangeIndex = EFFECT_RADIUS_2_YARDS;
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 66545:
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_CASTER;
+                break;
+            // END OF TRIAL OF THE CHAMPION SPELLS
             // TRIAL OF THE CRUSADER SPELLS
             //
             case 66258: // Infernal Eruption (10N)
