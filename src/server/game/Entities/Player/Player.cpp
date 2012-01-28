@@ -2320,14 +2320,19 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
-bool Player::TeleportToBGEntryPoint()
+bool Player::TeleportToBGEntryPoint(bool disbandGroup /*= true*/)
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
         return false;
 
-    Group* group = GetGroup();
-    if (group && group->isLFGGroup() && group->GetMembersCount() == 1)
-        group->Disband();
+    if (disbandGroup)
+    {
+        Group* group = GetGroup();
+        if (group && group->isLFGGroup() && group->GetMembersCount() == 1)
+            group->Disband();
+        else
+            ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
+    }
     else
         ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
 
