@@ -30,3 +30,6 @@ INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES
 (65147,'spell_gen_break_shield'),
 (66480,'spell_gen_break_shield'),
 (68504,'spell_gen_break_shield');
+DELETE FROM `spell_script_names` WHERE `spell_id`=62863;
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES
+(62863 ,'spell_gen_tournament_duel');

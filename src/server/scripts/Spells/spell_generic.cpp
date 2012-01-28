@@ -1786,8 +1786,7 @@ public:
 
         void Register()
         {
-            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);  
         }
     };
 
@@ -1906,8 +1905,11 @@ public:
 
         void Register()
         {
-            OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
-            OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId); 
+            if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT)) 
+                OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT); 
+            if (spell->Effects[EFFECT_0].Effect == SPELL_EFFECT_CHARGE) 
+                OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE); 
         }
     };
 
@@ -1986,14 +1988,25 @@ class spell_gen_defend : public SpellScriptLoader
 
             void Register()
             {
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+
                 // Defend spells casted by NPCs (add visuals)
-                AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
-                // Defend spells casted by players (add/remove visuals)
-                AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+                {
+                    AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                }
+
                 // Remove Defend spell from player when he dismounts
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                if (spell->Effects[EFFECT_2].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveDummyFromDriver, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+
+                // Defend spells casted by players (add/remove visuals)
+                if (spell->Effects[EFFECT_1].ApplyAuraName == SPELL_AURA_DUMMY)
+                {
+                    AfterEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RemoveVisualShields, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                }
             }
         };
 
@@ -2085,8 +2098,8 @@ enum ArgentPennantSpells
     SPELL_PENNANT_ARGENT_CRUSADE_VALIANT  = 63500,
     SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION = 63501,
     SPELL_PENNANT_EBON_BLADE_ASPIRANT     = 63607,
-    SPELL_PENNANT_EBON_BLADE_VALIANT      = 63508,
-    SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63509,
+    SPELL_PENNANT_EBON_BLADE_VALIANT      = 63608,
+    SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63609,
 };
 
 enum ArgentMounts
@@ -2102,8 +2115,8 @@ enum ArgentMounts
     NPC_SILVERMOON_HAWKSTRIDER      = 33323,
     NPC_FORSAKEN_WARHORSE           = 33324,
     NPC_ARGENT_WARHORSE             = 33782,
-    NPC_ARGENT_STEED_ASPIRANT       = 33844,
-    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33845,
+    NPC_ARGENT_STEED_ASPIRANT       = 33845,
+    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33844,
 };
 
 class spell_gen_on_tournament_mount : public SpellScriptLoader
@@ -2294,6 +2307,68 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
         }
 };
 
+enum MountedDuelSpells
+{
+    SPELL_ON_TOURNAMENT_MOUNT = 63034,
+    SPELL_MOUNTED_DUEL        = 62875,
+};
+
+class spell_gen_tournament_duel : public SpellScriptLoader
+{
+    public:
+        spell_gen_tournament_duel() : SpellScriptLoader("spell_gen_tournament_duel") { }
+
+        class spell_gen_tournament_duel_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_tournament_duel_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ON_TOURNAMENT_MOUNT))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MOUNTED_DUEL))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex effIndex)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTargetUnit();
+                Unit* player = GetCaster()->GetCharmer();
+
+                if (!caster || !target || !player)
+                    return;
+
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                {
+
+                    if (!target->HasAura(SPELL_ON_TOURNAMENT_MOUNT) || !target->GetVehicleBase())
+                        return;
+
+                    player->CastSpell(target, SPELL_MOUNTED_DUEL, true);
+                }
+                else if (target->GetTypeId() == TYPEID_UNIT)
+                {
+                    if (!target->GetCharmer() || target->GetCharmer()->GetTypeId() != TYPEID_PLAYER || !target->GetCharmer()->HasAura(SPELL_ON_TOURNAMENT_MOUNT))
+                        return;
+
+                    player->CastSpell(target->GetCharmer(), SPELL_MOUNTED_DUEL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_gen_tournament_duel_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_tournament_duel_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2337,4 +2412,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_summon_tournament_mount();
     new spell_gen_on_tournament_mount();
     new spell_gen_tournament_pennant();
+    new spell_gen_tournament_duel();
+
 }
