@@ -1451,120 +1451,6 @@ public:
 };
 
 /*######
-## Free Your Mind Quest 12893
-######*/
-
-enum YourMind
-{
-    QUEST_FREE_YOUR_MIND                = 12893,
-    SPELL_SOVEREIGN_ROD                 = 29070,
-    NPC_VILE_CREDIT_BUNNY               = 29845,
-    NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY    = 29846,
-    NPC_LEAPER_BUNNY                    = 29847
-};
-
-class npc_vile : public CreatureScript
-{
-public:
-    npc_vile() : CreatureScript("npc_vile") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_vileAI (pCreature);
-    }
-
-    struct npc_vileAI : public ScriptedAI
-    {
-        npc_vileAI(Creature *c) : ScriptedAI(c) {}
-
-        bool spellHit;
-
-        void Reset()
-        {
-            spellHit = false;
-        }
-
-        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
-        {
-            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
-                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
-            {
-                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_VILE_CREDIT_BUNNY, 0);
-                spellHit = true;
-            }
-        }
-    };
-};
-
-class npc_lady_nightswood : public CreatureScript
-{
-public:
-    npc_lady_nightswood() : CreatureScript("npc_lady_nightswood") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_lady_nightswoodAI (pCreature);
-    }
-
-    struct npc_lady_nightswoodAI : public ScriptedAI
-    {
-        npc_lady_nightswoodAI(Creature *c) : ScriptedAI(c) {}
-
-        bool spellHit;
-
-        void Reset()
-        {
-            spellHit = false;
-        }
-
-        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
-        {
-            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
-                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
-            {
-                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY, 0);
-                spellHit = true;
-            }
-        }
-    };
-
-};
-
-class npc_leaper : public CreatureScript
-{
-public:
-    npc_leaper() : CreatureScript("npc_leaper") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_leaperAI (pCreature);
-    }
-
-    struct npc_leaperAI : public ScriptedAI
-    {
-        npc_leaperAI(Creature *c) : ScriptedAI(c) {}
-
-        bool spellHit;
-
-        void Reset()
-        {
-            spellHit = false;
-        }
-
-        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
-        {
-            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
-                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
-            {
-                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LEAPER_BUNNY, 0);
-                spellHit = true;
-            }
-        }
-    };
-
-};
-
-/*######
 ## The Grand Melee Quests 
 ## 13665-13745-13750-13756-13761-13767-13772-13777-13782-13787.- http://www.wowhead.com/search?q=The+Grand+Melee SELECT entry,title FROM quest_template WHERE title LIKE 'The Grand Melee%'
 ######*/
@@ -2963,6 +2849,178 @@ public:
     }
 };
 
+/*########
+## npc_free_your_mind   // UPDATE `creature_template` SET ScriptName = 'npc_free_your_mind' WHERE `entry` IN (29769,29770,29840);
+#########*/
+
+enum eFreeYourMindNPCSpells
+{
+    SPELL_SOVEREIGN_ROD             = 29070,
+    SPELL_SOVEREIGN_ROD_TRIGGERED   = 29071,
+    // Vile Abilities
+    SPELL_VILE_ENRAGE               = 56646,
+    SPELL_VILE_BACKHAND             =  6253,
+    // Lady Nightswood Abilities
+    SPELL_BANSHEE_CURSE             = 5884,
+    SPELL_BANSHEE_SHRIEK            = 16838,
+    // The Leaper Abilities
+    SPELL_LEAPER_SNISTER_STRIKE     = 60195,
+    SPELL_LEAPER_HUNGER_FOR_BLOOD   = 60177,
+};
+
+enum eFreeYourMindNPCEntrys
+{
+    ENTRY_FYM_VILE          = 29769,
+    ENTRY_FYM_LADY          = 29770,
+    ENTRY_FYM_LEAPER        = 29840
+};
+
+#define SAY_VILE_AGGRO              "Crush... maim... DESTROY!"
+#define SAY_VILE_FREED              "Vile free? Vile love %n"
+
+#define SAY_LADY_NIGHTSWOOD_AGGRO   "Who intrudes upon my ritual?"
+#define SAY_LADY_NIGHTSWOOD_FREED   " You dare? Where is Baron Sliver? I would have words with him!"
+
+#define SAY_THE_LEAPER_AGGRO        "Mrrfrmrfrmrrrrr!"
+#define SAY_THE_LEAPER_FREED        "Mrmrmmrmrmrmrm... mrmrmrmr?!"
+
+
+class npc_free_your_mind : public CreatureScript
+{
+public:
+    npc_free_your_mind() : CreatureScript("npc_free_your_mind") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_free_your_mindAI (pCreature);
+    }
+
+    struct npc_free_your_mindAI : public ScriptedAI
+    {
+        npc_free_your_mindAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+
+        bool Enraged;
+
+        uint32 uiSpell1Entry_Timer;
+        uint32 uiSpell2Entry_Timer;
+        uint32 uiSpell1Entry;
+        uint32 uiSpell2Entry;
+
+        void Reset()
+        {
+            switch(me->GetEntry())
+            {
+            case ENTRY_FYM_VILE:
+                uiSpell1Entry = SPELL_VILE_BACKHAND;
+                uiSpell1Entry_Timer = urand (4000,6000);
+                uiSpell2Entry = SPELL_VILE_ENRAGE;
+                break;
+            case ENTRY_FYM_LADY:
+                uiSpell1Entry = SPELL_BANSHEE_CURSE;
+                uiSpell1Entry_Timer = urand (5000,6000);
+                uiSpell2Entry = SPELL_BANSHEE_SHRIEK;
+                uiSpell2Entry_Timer = urand (10000,12000);
+                break;
+            case ENTRY_FYM_LEAPER:
+                uiSpell1Entry = SPELL_LEAPER_SNISTER_STRIKE;
+                uiSpell1Entry_Timer = urand (4000,6000);
+                uiSpell2Entry = SPELL_LEAPER_HUNGER_FOR_BLOOD;
+                break;
+            }
+
+            me->RestoreFaction();
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            Enraged = false;
+            switch(me->GetEntry())
+            {
+            case ENTRY_FYM_VILE:
+                me->MonsterSay(SAY_VILE_AGGRO,LANG_UNIVERSAL,who->GetGUID());
+                break;
+            case ENTRY_FYM_LEAPER:
+                me->MonsterSay(SAY_THE_LEAPER_AGGRO,LANG_UNIVERSAL,who->GetGUID());
+                break;
+            case ENTRY_FYM_LADY:
+                me->MonsterSay(SAY_LADY_NIGHTSWOOD_AGGRO,LANG_UNIVERSAL,who->GetGUID());
+                break;
+            }
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_SOVEREIGN_ROD_TRIGGERED)
+            {
+                if(caster && caster->ToPlayer())
+                {
+                    me->setDeathState(ALIVE);
+                    me->setFaction(35);
+                    me->DespawnOrUnsummon(4000);
+
+                    switch(me->GetEntry())
+                    {
+                    case ENTRY_FYM_VILE:
+                        me->MonsterSay(SAY_VILE_FREED,LANG_UNIVERSAL,caster->GetGUID());
+                        caster->ToPlayer()->KilledMonsterCredit(29845,0);
+                        break;
+                    case ENTRY_FYM_LEAPER:
+                        me->MonsterSay(SAY_THE_LEAPER_FREED,LANG_UNIVERSAL,caster->GetGUID());
+                        caster->ToPlayer()->KilledMonsterCredit(29847,0);
+                        break;
+                    case ENTRY_FYM_LADY:
+                        me->MonsterSay(SAY_LADY_NIGHTSWOOD_FREED,LANG_UNIVERSAL,caster->GetGUID());
+                        caster->ToPlayer()->KilledMonsterCredit(29846,0);
+                        break;
+                    }
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiSpell1Entry_Timer <= uiDiff)
+            {
+                DoCastVictim(uiSpell1Entry);
+                switch(me->GetEntry())
+                {
+                case ENTRY_FYM_VILE:
+                case ENTRY_FYM_LEAPER:
+                    uiSpell1Entry_Timer = (urand (7000,9000));
+                    break;
+                case ENTRY_FYM_LADY:
+                     uiSpell1Entry_Timer = (urand (10000,15000));
+                     break;
+                }
+            }
+            else uiSpell1Entry_Timer -= uiDiff;
+
+            if(me->GetEntry() == ENTRY_FYM_VILE)
+            {
+                if (!Enraged && HealthBelowPct(30))
+                {
+                    DoCast(me, uiSpell2Entry, true);
+                    Enraged = true;
+                }
+            }
+            else
+            {
+                if (uiSpell2Entry_Timer <= uiDiff)
+                {
+                    DoCastVictim(uiSpell2Entry);
+                    uiSpell2Entry_Timer = (urand (8000,10000));
+                }
+                else uiSpell2Entry_Timer -= uiDiff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
 void AddSC_Argen_Tournament()
 {
     new npc_chillmaw;
@@ -2983,9 +3041,6 @@ void AddSC_Argen_Tournament()
     new npc_jeran_lockwood;
     new npc_keritose;
     new npc_valiant;
-    new npc_vile;
-    new npc_lady_nightswood;
-    new npc_leaper;
     new npc_ValiantGrandMelee;
     new npc_squire_danny;
     new npc_argent_champion;
@@ -2997,4 +3052,5 @@ void AddSC_Argen_Tournament()
     new npc_lake_frog;
     new npc_maiden_of_ashwood_lake;
     new npc_maiden_of_drak_mar;
+    new npc_free_your_mind;
 }
