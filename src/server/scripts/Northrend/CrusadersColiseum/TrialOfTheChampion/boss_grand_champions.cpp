@@ -1214,63 +1214,6 @@ class spell_toc5_ride_mount : public SpellScriptLoader
         }
 };
 
-class spell_toc5_defend : public SpellScriptLoader
-{
-    public:
-        spell_toc5_defend() : SpellScriptLoader("spell_toc5_defend") { }
-
-        class spell_toc5_defendAuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_toc5_defendAuraScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_2))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_3))
-                    return false;
-                return true;
-            }
-
-            void RefreshVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* caster = GetCaster();
-
-                if(!caster)
-                    return;
-
-                if(Unit* rider = caster->GetCharmer())
-                {
-                    for(uint8 i=0; i < 3; ++i)
-                        rider->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
-
-                    if(Aura* defend = caster->GetAura(GetId()))
-                        rider->CastSpell(rider, SPELL_VISUAL_SHIELD_1 + (defend->GetStackAmount()-1), true);
-                }else
-                {
-                    for(uint8 i=0; i < 3; ++i)
-                        caster->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
-
-                    if(Aura* defend = caster->GetAura(GetId()))
-                        caster->CastSpell(caster, SPELL_VISUAL_SHIELD_1 + (defend->GetStackAmount()-1), true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_toc5_defendAuraScript::RefreshVisualShields, EFFECT_FIRST_FOUND, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK);
-                OnEffectRemove += AuraEffectRemoveFn(spell_toc5_defendAuraScript::RefreshVisualShields, EFFECT_FIRST_FOUND, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_toc5_defendAuraScript();
-        }
-};
-
 class player_hex_mendingAI : public PlayerAI
 {
     public:
@@ -1343,6 +1286,5 @@ void AddSC_boss_grand_champions()
     new boss_hunter_toc5();
     new boss_rouge_toc5();
     new spell_toc5_ride_mount();
-    new spell_toc5_defend();
     new spell_toc5_hex_mending();
 }
