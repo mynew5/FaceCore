@@ -1541,7 +1541,8 @@ enum eSquireDanny
     NPC_ARGENT_CHAMPION_CREDIT                          = 33708,
     NPC_ARGENT_CHAMPION                                 = 33707,
     SAY_START_VALIANT                                   = -1850013,//"You believe you are ready to be a champion? Defend yourself!"  
-    SAY_END_VALIANT                                     = -1850014//"Most impressive. You are worthy to gain the rank of champion"
+    SAY_END_VALIANT                                     = -1850014,//"Most impressive. You are worthy to gain the rank of champion"
+    GOSSIP_TEXTID_SQUIRE                                = 14407
 };
 
 struct QUEST_THE_VALIANT_CHALLENGE
