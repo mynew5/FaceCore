@@ -2133,17 +2133,17 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
             bool Load()
             {
                 _pennantSpellId = 0;
-                return (GetCaster()->GetTypeId() == TYPEID_PLAYER);
+                return true;
             }
 
             void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* caster = GetCaster();
 
-                if (caster && caster->GetVehicleBase())
+                if (caster && GetCaster()->GetTypeId() == TYPEID_PLAYER && caster->GetVehicleBase())
                 {
                     _pennantSpellId = GetPennatSpellId(caster->ToPlayer(), caster->GetVehicleBase());
-                    caster->CastSpell(caster, _pennantSpellId,true);
+                    caster->CastSpell(caster, _pennantSpellId, true);
                 }
             }
 
@@ -2151,7 +2151,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
 
-                if (caster)
+                if (caster && _pennantSpellId)
                     caster->RemoveAurasDueToSpell(_pennantSpellId);
             }
 
