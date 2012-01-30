@@ -675,32 +675,6 @@ public:
     }
 };
 
-class npc_moonlight : public CreatureScript
-{
-public:
-    npc_moonlight() : CreatureScript("npc_moonlight") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_moonlightAI (creature);
-    }
-
-    struct npc_moonlightAI : public Scripted_NoMovementAI
-    {
-        npc_moonlightAI(Creature *c) : Scripted_NoMovementAI(c)
-        {
-            DoCast(me, SPELL_ELUNE_S_BLESSING, true);
-        }
-
-        void MoveInLineOfSight(Unit *who)
-        {
-            if (who->ToPlayer() && !who->ToPlayer()->isGameMaster() && who->IsWithinDist(me, 20.0f))
-                if (who->ToPlayer()->GetQuestStatus(8868) == QUEST_STATUS_INCOMPLETE)
-                    who->CastSpell(who, SPELL_ELUNE_QUEST_CREDIT, true);
-        }
-    };
-};
-
 class npc_giant_spotlight : public CreatureScript
 {
 public:
@@ -752,6 +726,5 @@ void AddSC_moonglade()
     new npc_clintar_dreamwalker();
     new npc_clintar_spirit();
     new npc_omen();
-    new npc_moonlight();
     new npc_giant_spotlight();
 }
