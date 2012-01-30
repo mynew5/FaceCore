@@ -1814,7 +1814,6 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
           or "Spells casted by NPCs on players" so we'll search for the first defend layer and drop it.
 */
 
->>>>>>> 0fbb86f2215461c04105766b0508519ec5bb4fc7
 enum BreakShieldSpells
 {
     SPELL_BREAK_SHIELD_DAMAGE_2K                 = 62626,
