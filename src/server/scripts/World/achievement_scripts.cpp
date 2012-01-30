@@ -285,15 +285,16 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
         }
 };
 
-class achievement_tilted : public AchievementCriteriaScript 
-{ 
-    public: 
-        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") {} 
-        bool OnCheck(Player* player, Unit* /*target*/) 
-        { 
-            return player && player->duel && player->duel->isMounted; 
-        } 
-}; 
+class achievement_tilted : public AchievementCriteriaScript
+{
+    public:
+        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") {}
+
+        bool OnCheck(Player* player, Unit* /*target*/)
+        {
+            return player && player->duel && player->duel->isMounted;
+        }
+};
 
 void AddSC_achievement_scripts()
 {
