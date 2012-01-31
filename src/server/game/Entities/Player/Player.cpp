@@ -2320,24 +2320,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
-bool Player::TeleportToBGEntryPoint(bool disbandGroup /*= true*/)
+bool Player::TeleportToBGEntryPoint()
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
         return false;
 
-    if (disbandGroup)
-    {
-        Group* group = GetGroup();
-        if (group && group->isLFGGroup() && group->GetMembersCount() == 1)
-            group->Disband();
-        else
-            ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-    }
-    else
-        ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
+    ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
     return TeleportTo(m_bgData.joinPos);
 }
 
@@ -12121,7 +12111,7 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
 
         lastItem = _StoreItem(pos, pItem, count, true, update);
     }
-    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, entry);
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, entry, 1);
     return lastItem;
 }
 

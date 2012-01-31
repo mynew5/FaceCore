@@ -1145,7 +1145,7 @@ class Player : public Unit, public GridObject<Player>
         // VISTAWOW ANTICHEAT
         AntiCheat* GetAntiCheat() { return m_anticheat; };
 
-        bool TeleportToBGEntryPoint(bool disbandGroup = true);
+        bool TeleportToBGEntryPoint();
 
         void SetSummonPoint(uint32 mapid, float x, float y, float z)
         {
