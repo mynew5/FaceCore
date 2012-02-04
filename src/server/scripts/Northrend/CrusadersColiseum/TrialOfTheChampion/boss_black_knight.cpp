@@ -126,7 +126,7 @@ public:
             summons.DespawnAll();
             me->SetDisplayId(me->GetNativeDisplayId());
             SetEquipmentSlots(true);
-            me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+            me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
             instance->SetData(DATA_I_VE_HAD_WORSE, (uint32)true);
 
             resurrectInProgress = false;
@@ -213,7 +213,7 @@ public:
                     uiPhase++;
                     uiResurrectTimer = 4000;
                     resurrectInProgress = false;
-                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                 } else uiResurrectTimer -= diff;
                 return;
             }
@@ -258,7 +258,7 @@ public:
                             if (!bSummonArmy)
                             {
                                 bSummonArmy = true;
-                                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                 DoCast(me, SPELL_ARMY_DEAD);
                             }
                             if (!bDeathArmyDone)
@@ -266,7 +266,7 @@ public:
                                 if (uiDeathArmyCheckTimer <= diff)
                                 {
                                     me->GetMotionMaster()->MoveChase(me->getVictim());
-                                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                     uiDeathArmyCheckTimer = 0;
                                     bDeathArmyDone = true;
                                 } else uiDeathArmyCheckTimer -= diff;
@@ -321,7 +321,7 @@ public:
             {
                 damage = 0;
                 me->SetHealth(0);
-                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                 me->GetMotionMaster()->MoveIdle();
                 resurrectInProgress = true;
                 ExplodeAliveGhouls();

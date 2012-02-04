@@ -611,7 +611,7 @@ class npc_rotting_frost_giant : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -809,7 +809,7 @@ class boss_sister_svalna : public CreatureScript
                     case ACTION_START_GAUNTLET:
                         me->setActive(true);
                         _isEventInProgress = true;
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         events.ScheduleEvent(EVENT_SVALNA_START, 25000);
                         break;
                     case ACTION_RESURRECT_CAPTAINS:
@@ -843,7 +843,7 @@ class boss_sister_svalna : public CreatureScript
 
                 _isEventInProgress = false;
                 me->setActive(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                 me->SetFlying(false);
             }
 
@@ -874,7 +874,7 @@ class boss_sister_svalna : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -1134,7 +1134,7 @@ class npc_crok_scourgebane : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -1357,7 +1357,7 @@ class npc_captain_arnath : public CreatureScript
 
                 Events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = Events.ExecuteEvent())
@@ -1438,7 +1438,7 @@ class npc_captain_brandon : public CreatureScript
 
                 Events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = Events.ExecuteEvent())
@@ -1506,7 +1506,7 @@ class npc_captain_grondel : public CreatureScript
 
                 Events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = Events.ExecuteEvent())
@@ -1571,7 +1571,7 @@ class npc_captain_rupert : public CreatureScript
 
                 Events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = Events.ExecuteEvent())
@@ -1684,7 +1684,7 @@ class spell_icc_stoneform : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     target->SetReactState(REACT_PASSIVE);
-                    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
                 }
             }
@@ -1694,7 +1694,7 @@ class spell_icc_stoneform : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     target->SetReactState(REACT_AGGRESSIVE);
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                 }
             }
