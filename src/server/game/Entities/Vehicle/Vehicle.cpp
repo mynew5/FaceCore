@@ -427,8 +427,8 @@ void Vehicle::RemovePassenger(Unit* unit)
 
         unit->SetUnitMovementFlags(0);
         unit->SetExtraUnitMovementFlags(0);
-        if (unit->HasUnitState(UNIT_STAT_NOT_MOVE))
-            unit->ClearUnitState(UNIT_STAT_NOT_MOVE);
+        if (unit->HasUnitState(UNIT_STATE_NOT_MOVE))
+            unit->ClearUnitState(UNIT_STATE_NOT_MOVE);
 
         /* ### REMOVE IT ONCE #4847 IS SOLVED ### */
     }
