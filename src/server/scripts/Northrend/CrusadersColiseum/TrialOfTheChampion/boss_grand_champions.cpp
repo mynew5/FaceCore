@@ -574,7 +574,7 @@ public:
             if(defeated)
                 return;
 
-            if(me->HasUnitState(UNIT_STAT_CASTING))
+            if(me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (polymorphTimer <= diff)
@@ -735,7 +735,7 @@ public:
             if(defeated)
                 return;
 
-            if(me->HasUnitState(UNIT_STAT_CASTING))
+            if(me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (chainLightningTimer <= diff)
@@ -921,7 +921,7 @@ public:
             if(defeated)
                 return;
 
-            if(me->HasUnitState(UNIT_STAT_CASTING))
+            if(me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if(me->GetDistance(me->getVictim()) >= 30.0f)

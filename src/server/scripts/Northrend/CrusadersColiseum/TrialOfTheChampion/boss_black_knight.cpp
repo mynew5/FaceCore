@@ -188,7 +188,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             //Return since we have no target or we are casting
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (resurrectInProgress)
@@ -383,7 +383,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (uiLeapTimer <= diff)
