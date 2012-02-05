@@ -311,7 +311,7 @@ public:
                 }
             }
 
-            if (!me->HasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
+            if (!me->HasUnitState(UNIT_STATE_ROOT) && !me->HealthBelowPct(1))
                 DoMeleeAttackIfReady();
         }
 
