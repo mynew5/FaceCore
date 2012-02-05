@@ -272,10 +272,10 @@ struct npc_mounted_championAI : ScriptedAI
         // Use Thrust instead of melee attack
         if (me->isAttackReady() && me->IsWithinMeleeRange(me->getVictim()))
         {
-            me->AddUnitState(UNIT_STAT_ONVEHICLE);
+            me->AddUnitState(UNIT_STATE_ONVEHICLE);
             DoCast(me->getVictim(), SPELL_THRUST);
             me->resetAttackTimer();
-            me->ClearUnitState(UNIT_STAT_ONVEHICLE);
+            me->ClearUnitState(UNIT_STATE_ONVEHICLE);
         }
     }
 };

@@ -592,7 +592,7 @@ public:
         {
             if (uiCheckTimer < diff)
             {
-                if (!me->HasUnitState(UNIT_STAT_ONVEHICLE))
+                if (!me->HasUnitState(UNIT_STATE_ONVEHICLE))
                 {
                     // return home
                     if (me->GetDistance(me->GetHomePosition()) > 30.0f)
