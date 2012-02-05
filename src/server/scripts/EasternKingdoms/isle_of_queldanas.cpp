@@ -256,7 +256,7 @@ public:
                     if (Creature* pMorlen = me->SummonCreature(37542, 11776.8f, -7050.72f, 25.2394f, 5.13752f, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                                              pMorlen->Mount(25678);
-                                         pMorlen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                         pMorlen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         pMorlen->SetPhaseMask(2,true);
                         pMorlen->SetReactState(REACT_PASSIVE);
                         uiMorlen = pMorlen->GetGUID();

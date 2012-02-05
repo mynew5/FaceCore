@@ -860,7 +860,7 @@ public:
                                     boss->SetFacingToObject(tirion);
                                 boss->SetHomePosition(boss->GetPositionX(), boss->GetPositionY(), boss->GetPositionZ() + 1.0f, boss->GetOrientation());
                                 boss->SetReactState(REACT_AGGRESSIVE);
-                                boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                             }
                         events.ScheduleEvent(4, 10000);
                         break;

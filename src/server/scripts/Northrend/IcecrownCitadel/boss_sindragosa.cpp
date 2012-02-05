@@ -528,7 +528,7 @@ class boss_sindragosa : public CreatureScript
 
                             if (TempSummon* summon = me->SummonCreature(NPC_FROST_BOMB, pos, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
-                                summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                                 DoCast(summon, SPELL_FROST_BOMB_TRIGGER);
                             }
                             break;

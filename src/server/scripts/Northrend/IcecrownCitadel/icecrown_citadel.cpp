@@ -886,7 +886,7 @@ class boss_sister_svalna : public CreatureScript
                             break;
                         case EVENT_SVALNA_RESURRECT:
                             me->setActive(false);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PASSIVE);
                             me->SetFlying(false);
                             me->SetPosition(4356.33f, 2484.21f, 358.43f, 1.54f);
                             Talk(SAY_SVALNA_RESURRECT_CAPTAINS);
