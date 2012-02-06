@@ -885,7 +885,7 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_INTRO_TALK_1:
                             Talk(SAY_LK_INTRO_2);
                             // for some reason blizz sends 2 emotes in row here so (we handle one in Talk)
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
                             events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 7000, 0, PHASE_INTRO);
                             events.ScheduleEvent(EVENT_INTRO_EMOTE_1, 13000, 0, PHASE_INTRO);
                             events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 18000, 0, PHASE_INTRO);
@@ -895,7 +895,7 @@ class boss_the_lich_king : public CreatureScript
                             DoCast(me, SPELL_EMOTE_SHOUT_NO_SHEATH, false);
                             break;
                         case EVENT_INTRO_EMOTE_1:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
                             break;
                         case EVENT_INTRO_CAST_FREEZE:
                             Talk(SAY_LK_INTRO_3);
@@ -1046,7 +1046,7 @@ class boss_the_lich_king : public CreatureScript
                             DoCastAOE(SPELL_EMOTE_QUESTION_NO_SHEATH);
                             break;
                         case EVENT_OUTRO_EMOTE_TALK:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
                             break;
                         case EVENT_OUTRO_TALK_3:
                             if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
@@ -1271,7 +1271,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                             _events.ScheduleEvent(EVENT_INTRO_CHARGE, 5000, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_EMOTE_1:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
                             break;
                         case EVENT_INTRO_CHARGE:
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
