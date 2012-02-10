@@ -517,22 +517,27 @@ bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint
     return false;
 }
 
-bool Unit::HasBreakableByDamageAuraType(AuraType type) const
+bool Unit::HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura) const
 {
     AuraEffectList const& auras = GetAuraEffectsByType(type);
     for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-        if ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE)
+        if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
+            ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
             return true;
     return false;
 }
 
-bool Unit::HasBreakableByDamageCrowdControlAura() const
+bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) const
 {
-    return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT)
-            || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM));
+    uint32 excludeAura = 0;
+    if (Spell* currentChanneledSpell = excludeCasterChannel ? excludeCasterChannel->GetCurrentSpell(CURRENT_CHANNELED_SPELL) : NULL)
+        excludeAura = currentChanneledSpell->GetSpellInfo()->Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
+
+    return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
+            || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
 void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
@@ -12738,14 +12743,6 @@ void Unit::setDeathState(DeathState s)
     }
     else if (s == JUST_ALIVED)
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
-
-    if (oldDeathState != ALIVE && s == ALIVE)
-    {
-        // Reset display id on resurection - needed by corpse explosion to cleanup after display change
-        // TODO: fix this
-        if (!HasAuraType(SPELL_AURA_TRANSFORM))
-            SetDisplayId(GetNativeDisplayId());
-    }
 }
 
 /*########################################
@@ -14677,7 +14674,7 @@ void Unit::SendMovementFlagUpdate()
 {
     WorldPacket data;
     BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, true);
+    SendMessageToSet(&data, false);
 }
 
 bool Unit::IsSitState() const
@@ -17088,9 +17085,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     if (Player* player = ToPlayer())
         player->ResummonPetTemporaryUnSummonedIfAny();
 
-    WorldPacket data2;
-    BuildHeartBeatMsg(&data2);
-    SendMessageToSet(&data2, true);
+    SendMovementFlagUpdate();
 
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
         if (((Minion*)vehicle->GetBase())->GetOwner() == this)
