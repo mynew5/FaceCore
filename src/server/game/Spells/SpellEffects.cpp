@@ -4683,11 +4683,13 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                 // Shield-Breaker - Argent Tournament
                 case 64595:
+                {
                     if(m_caster->GetOwner())
                         m_caster->GetOwner()->CastSpell(unitTarget, 64590, true);
                     else
                         m_caster->CastSpell(unitTarget, 64590, true);
-                        return;
+                    return;
+                }
                 case 62575:
                 {
                     if(m_caster->GetOwner())
@@ -4701,7 +4703,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 {
                     if (!unitTarget)
                         return;
-                    m_caster->CastSpell(unitTarget, 62563, true);
+                    m_caster->CastSpell(unitTarget, 63661, true);
                     m_caster->CastSpell(unitTarget, 68321, true);
                     return;
                 }
@@ -7352,23 +7354,6 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
     float radius = 5.0f;
     int32 duration = m_spellInfo->GetDuration();
-
-    switch (m_spellInfo->Id)
-    {
-        case 1122:  // Inferno
-        case 4073:  // Mechanical Dragonling
-        case 12749: // Mithril Mechanical Dragonling
-        case 18662: // Curse of Doom
-        case 19804: // Arcanite Dragonling
-        case 48739: // Winterfin First Responder
-        case 65783: // Ogre Pinata
-            amount = 1;
-            break;
-        case 49028: // Dancing Rune Weapon
-            if (AuraEffect* aurEff = m_originalCaster->GetAuraEffect(63330, 0)) // glyph of Dancing Rune Weapon
-                duration += aurEff->GetAmount();
-            break;
-    }
 
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);

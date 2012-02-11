@@ -40,7 +40,6 @@ npc_sayge               100%    Darkmoon event fortune teller, buff player based
 npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
 npc_locksmith            75%    list of keys needs to be confirmed
-npc_argent_squire       100%    Script for the Argent Squire/Gruntling
 npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 EndContentData */
 
@@ -1885,78 +1884,6 @@ public:
     }
 };
 
-//UPDATE `creature_template` SET `ScriptName` = 'npc_spring_rabbit' WHERE `entry` = 32791;
-enum eSpringRabbit
-{
-    NPC_SPRING_RABBIT           = 32791,
-    NPC_SPRING_RABBIT_BABBY     = 32793,
-    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
-    SPELL_SPRING_RABBIT_JUMP    = 61724,
-    SPELL_SPRING_RABBIT_FLING   = 61875,
-};
-
-class npc_spring_rabbit : public CreatureScript
-{
-public:
-    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
-
-    struct npc_spring_rabbitAI : public ScriptedAI
-    {
-        npc_spring_rabbitAI(Creature *c) : ScriptedAI(c) {Reset();}
-        bool m_bIsLove;
-        uint32 uiCheckTimer;
-
-        void Reset()
-        {
-            uiCheckTimer = 5000;
-            m_bIsLove = false;
-
-            if (Unit* own = me->GetOwner())
-                me->GetMotionMaster()->MoveFollow(own,0,0);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (uiCheckTimer <= diff)
-            {
-                if (!m_bIsLove)
-                {
-                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 7, true))
-                    {
-                        if (rabbit->GetGUID() == me->GetGUID())
-                            return;
-                            
-                        if (!rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
-                        {
-                            me->CastSpell(me, SPELL_SPRING_RABBIT_IN_LOVE, true);
-                            rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_IN_LOVE, true);
-
-                            if (Unit* owner = me->GetOwner())
-                                owner->CastSpell(owner, SPELL_SPRING_RABBIT_FLING, true);
-
-                            if (Unit* owner = rabbit->GetOwner())
-                                owner->CastSpell(owner, SPELL_SPRING_RABBIT_FLING, true);
-
-                            m_bIsLove = true;
-                        }
-                    }
-                }
-  
-                DoCast(me, SPELL_SPRING_RABBIT_JUMP);
-
-                uiCheckTimer = urand(5000, 8000);
-            }
-            else
-                uiCheckTimer -= diff;
-        }
-    };
-
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new npc_spring_rabbitAI(creature);
-    }
-};
-
 class npc_mirror_image : public CreatureScript
 {
 public:
@@ -2226,11 +2153,17 @@ public:
     {
         npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) {}
 
+        void Reset()
+        {
+            if (!me->HasAura(28305))
+                me->CastSpell(me, 28305, false);
+        }
+
         void DamageTaken(Unit* /*killer*/, uint32& damage)
         {
-            if (me->isSummon())
-                if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                    if (owner->HasAura(GLYPH_OF_SHADOWFIEND) && damage >= me->GetHealth())
+            if (damage >= me->GetHealth())
+                if (Unit* owner = me->GetOwner())
+                    if (owner->HasAura(GLYPH_OF_SHADOWFIEND))
                         owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
         }
 
@@ -3445,7 +3378,7 @@ void AddSC_npcs_special()
     new npc_mirror_image;
     new npc_ebon_gargoyle;
     new npc_lightwell;
-    new npc_spring_rabbit();
+    new npc_spring_rabbit;
     new mob_mojo;
     new npc_training_dummy;
     new npc_shadowfiend;
