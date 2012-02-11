@@ -3378,7 +3378,6 @@ void AddSC_npcs_special()
     new npc_mirror_image;
     new npc_ebon_gargoyle;
     new npc_lightwell;
-    new npc_spring_rabbit;
     new mob_mojo;
     new npc_training_dummy;
     new npc_shadowfiend;
@@ -3391,6 +3390,6 @@ void AddSC_npcs_special()
     new npc_fire_elemental;
     new npc_earth_elemental;
     new npc_firework;
-    new npc_spring_rabbit();
+    new npc_spring_rabbit;
 }
 

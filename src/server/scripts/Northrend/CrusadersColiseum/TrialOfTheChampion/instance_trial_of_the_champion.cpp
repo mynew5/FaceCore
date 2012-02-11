@@ -15,11 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance Trial of the Champion
-SDCategory: Trial Of the Champion
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 

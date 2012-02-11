@@ -15,14 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Reordenada, trinity codestyle y limpieza de CRLF por Eilo
-/* ScriptData
-SDName: Argent Challenge Encounter.
-SD%Complete: 80%
-SDComment: Hay que mirar bien las habilidades de las memorias y mejorarlas
-SDCategory: Trial of the Champion
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 #include "ScriptedEscortAI.h"

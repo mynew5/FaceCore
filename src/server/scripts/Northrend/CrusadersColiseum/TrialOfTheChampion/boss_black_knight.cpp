@@ -18,13 +18,6 @@
 // Reordenada, trinity codestyle y limpieza de CRLF por Eilo
 // Waypoints mejorados y varios detalles en el movimiento
 
-/* ScriptData
-SDName: Boss Black Knight
-SD%Complete: 95%
-SDCategory: Trial of the Champion
-SDComment: Editada toda la parte del vuelo del Caballero Negro para que se vea mejor
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "Vehicle.h"
 #include "ScriptedEscortAI.h"
