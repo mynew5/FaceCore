@@ -84,7 +84,17 @@ class SmartScript
             return obj && obj->GetTypeId() == TYPEID_GAMEOBJECT;
         }
 
-        bool ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3);
+        bool ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3)
+        {
+            if (c == 0) return true;
+            if (!u || !u->ToPlayer()) return false;
+            Condition cond;
+            cond.mConditionType = ConditionType(uint32(c));
+            cond.mConditionValue1 = uint32(v1);
+            cond.mConditionValue1 = uint32(v2);
+            cond.mConditionValue1 = uint32(v3);
+            return cond.Meets(u->ToPlayer());
+        }
 
         void OnUpdate(const uint32 diff);
         void OnMoveInLineOfSight(Unit* who);
