@@ -861,6 +861,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
 
+    m_ConditionErrorMsgId = 0;
+
     isDebugAreaTriggers = false;
 
     SetPendingBind(0, 0);
