@@ -266,7 +266,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     if (!condMeets)
         sourceInfo.mLastFailedCondition = this;
 
-    bool script = sScriptMgr->OnConditionCheck(this, object, invoker); // Returns true by default.
+    bool script = sScriptMgr->OnConditionCheck(this, sourceInfo); // Returns true by default.
     return condMeets && script;
 }
 
