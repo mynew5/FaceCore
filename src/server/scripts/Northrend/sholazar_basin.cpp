@@ -581,7 +581,7 @@ public:
                 return;
 
             QuestStatusMap::const_iterator itr = caster->ToPlayer()->getQuestStatusMap().find(QUEST_ENTRY);
-            if (itr->second.m_status != QUEST_STATUS_INCOMPLETE)
+            if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
                 return;
 
             for (uint8 i=0; i<3; i++)
@@ -605,7 +605,7 @@ public:
                            break;
                 }
 
-                if (itr->second.m_creatureOrGOcount[i] != 0)
+                if (itr->second.CreatureOrGOCount[i] != 0)
                     continue;
 
                 caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), 0);
