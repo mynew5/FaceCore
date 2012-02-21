@@ -382,6 +382,7 @@ public:
     {
         return new spell_warl_shadow_bite_SpellScript();
     }
+};
 
 enum Soulshatter
 {
