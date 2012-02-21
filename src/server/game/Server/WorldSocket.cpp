@@ -766,74 +766,6 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
     ACE_NOTREACHED (return 0);
 }
 
-// DO NOT FORGET TO CREATE THE DEBUG TABLE IN REALMD DATABASE FIRST
-// sql/debug_realmd_debugauthhack_reports.sql
-
-void _DebugAuthHack_RegisterReport(const char* current_ip, std::string report)
-{
-    std::string safe_address = current_ip;
-    std::string safe_report  = report;
-    LoginDatabase.EscapeString(safe_address);
-    LoginDatabase.EscapeString(safe_report);
-    LoginDatabase.PExecute("INSERT INTO debugauthhack_reports VALUES (UNIX_TIMESTAMP(), '%s', '%s')", safe_address.c_str(), safe_report.c_str());
-}
-
-char* _DebugAuthHack_PacketToHex(WorldPacket& recvPacket)
-{
-    uint32 size = recvPacket.size();
-    char* buffer = (char*)malloc(size * 2 + 1);
-    for (uint32 i = 0; i < size; ++i)
-        sprintf(&buffer[i<<1], "%02X", recvPacket.read<uint8>(i));
-    return buffer;
-}
-
-bool DebugAuthHack_FilterA(WorldPacket& recvPacket, const char* current_ip)
-{
-    sLog->outError("recvPacket size = %d", recvPacket.size());
-    if (recvPacket.size() < 58)
-    {
-        char* hexdata = _DebugAuthHack_PacketToHex(recvPacket);
-        std::string report = "CMSG_AUTH_SESSION Packet body is too short to be valid -- ";
-        report.append(hexdata);
-        free(hexdata);
-
-        _DebugAuthHack_RegisterReport(current_ip, report);
-        return false;
-    }
-    return true;
-}
-
-bool DebugAuthHack_FilterB(WorldPacket& recvPacket, const char* current_ip, const char* authserver_ip)
-{
-    if (strcmp(current_ip, authserver_ip))
-    {
-        char* hexdata = _DebugAuthHack_PacketToHex(recvPacket);
-        std::string report = "CMSG_AUTH_SESSION Client IP address differed from AuthAerver to WorldServer authentication. The client IP address should be ";
-        report.append(authserver_ip);
-        report.append(" -- ");
-        report.append(hexdata);
-        free(hexdata);
-
-        _DebugAuthHack_RegisterReport(current_ip, report);
-        return false;
-    }
-    return true;
-}
-
-void DebugAuthHack_BuildReport(WorldPacket& recvPacket, const char* current_ip, const char* username, const char* reason)
-{
-    char* hexdata = _DebugAuthHack_PacketToHex(recvPacket);
-    std::string report = "CMSG_AUTH_SESSION User ";
-    report.append(username);
-    report.append(" failed to authenticate in WorldServer despite he should already have sucessfully authenticated in AuthServer at this point -- Reason: ");
-    report.append(reason);
-    report.append(" -- ");
-    report.append(hexdata);
-    free(hexdata);
-
-    _DebugAuthHack_RegisterReport(current_ip, report);
-}
-
 int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 {
     // NOTE: ATM the socket is singlethread, have this in mind ...
@@ -850,7 +782,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     BigNumber v, s, g, N;
     WorldPacket packet, SendAddonPacked;
 
-    BigNumber K;
+    BigNumber k;
 
     if (sWorld->IsClosed())
     {
@@ -861,9 +793,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         sLog->outError ("WorldSocket::HandleAuthSession: World closed, denying client (%s).", GetRemoteAddress().c_str());
         return -1;
     }
-
-    if (!DebugAuthHack_FilterA(recvPacket, GetRemoteAddress().c_str()))
-        return -1;
 
     // Read the content of the packet
     recvPacket >> BuiltNumberClient;                        // for now no use
@@ -887,22 +816,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     LoginDatabase.EscapeString (safe_account);
     // No SQL injection, username escaped.
 
-    QueryResult result =
-          LoginDatabase.PQuery ("SELECT "
-                                "id, "                      //0
-                                "sessionkey, "              //1
-                                "last_ip, "                 //2
-                                "locked, "                  //3
-                                "v, "                       //4
-                                "s, "                       //5
-                                "expansion, "               //6
-                                "mutetime, "                //7
-                                "locale, "                  //8
-                                "recruiter, "               //9
-                                "os "                       //10
-                                "FROM account "
-                                "WHERE username = '%s'",
-                                safe_account.c_str());
+    //                                                 0       1          2       3     4  5      6          7       8         9      10
+    QueryResult result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os FROM account "
+                                               "WHERE username = '%s'", safe_account.c_str());
 
     // Stop if the account is not found
     if (!result)
@@ -911,8 +827,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         packet << uint8 (AUTH_UNKNOWN_ACCOUNT);
 
         SendPacket (packet);
-
-        DebugAuthHack_BuildReport(recvPacket, GetRemoteAddress().c_str(), account.c_str(), "Unknown account");
 
         sLog->outError ("WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
         return -1;
@@ -954,11 +868,14 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
             return -1;
         }
     }
-    else if (!DebugAuthHack_FilterB(recvPacket, GetRemoteAddress().c_str(), fields[2].GetCString()))
-        return -1;
 
     id = fields[0].GetUInt32();
-    K.SetHexStr (fields[1].GetCString());
+    /*
+    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
+        security = SEC_ADMINISTRATOR;
+        */
+
+    k.SetHexStr (fields[1].GetCString());
 
     int64 mutetime = fields[7].GetInt64();
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
@@ -1031,7 +948,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     }
 
     // Check that Key and account name are the same on client and server
-
     uint32 t = 0;
     uint32 seed = m_Seed;
 
@@ -1039,7 +955,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     sha.UpdateData ((uint8 *) & t, 4);
     sha.UpdateData ((uint8 *) & clientSeed, 4);
     sha.UpdateData ((uint8 *) & seed, 4);
-    sha.UpdateBigNumbers (&K, NULL);
+    sha.UpdateBigNumbers (&k, NULL);
     sha.Finalize();
 
     if (memcmp (sha.GetDigest(), digest, 20))
@@ -1048,8 +964,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         packet << uint8 (AUTH_FAILED);
 
         SendPacket (packet);
-
-        DebugAuthHack_BuildReport(recvPacket, GetRemoteAddress().c_str(), account.c_str(), "Authentication failed");
 
         sLog->outError ("WorldSocket::HandleAuthSession: Sent Auth Response (authentification failed).");
         return -1;
@@ -1080,7 +994,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     // NOTE ATM the socket is single-threaded, have this in mind ...
     ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
-    m_Crypt.Init(&K);
+    m_Crypt.Init(&k);
 
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
@@ -1088,7 +1002,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
-        m_Session->InitWarden(&K, os);
+        m_Session->InitWarden(&k, os);
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
