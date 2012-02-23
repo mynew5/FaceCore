@@ -51,8 +51,17 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 
     player->SendDuelCountdown(3000);
     plTarget->SendDuelCountdown(3000);
-    player->RemoveAllSpellCooldown();
-    plTarget->RemoveAllSpellCooldown();
+
+    player->RemoveArenaSpellCooldowns(true);
+    player->RemoveArenaAuras();
+    if (Pet* pet = player->GetPet())
+        pet->RemoveArenaAuras();
+
+    plTarget->RemoveArenaSpellCooldowns(true);
+    plTarget->RemoveArenaAuras();
+    if (Pet* pet = plTarget->GetPet())
+        pet->RemoveArenaAuras();
+
     player->SetHealth(player->GetMaxHealth());
     player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
     plTarget->SetHealth(plTarget->GetMaxHealth());
