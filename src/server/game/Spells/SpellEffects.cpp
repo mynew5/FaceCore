@@ -1187,10 +1187,6 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    // VISTAWOW ANTICHEAT
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
-
     float x, y, z;
     unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
 
@@ -1209,10 +1205,6 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 
     if (!m_targets.HasDst())
         return;
-
-    // VISTAWOW ANTICHEAT
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
 
     // Init dest coordinates
     float x, y, z;
@@ -5731,10 +5723,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         if (!unitTarget)
             return;
 
-        // VISTAWOW ANTICHEAT
-        if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-            unitTarget->ToPlayer()->GetAntiCheat()->SetSleep(3000);
-
         float x, y, z;
         unitTarget->GetContactPoint(m_caster, x, y, z);
         m_caster->GetMotionMaster()->MoveCharge(x, y, z);
@@ -5744,10 +5732,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     {
         if (!unitTarget)
             return;
-
-        // VISTAWOW ANTICHEAT
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
 
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -5762,10 +5746,6 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
 
     if (m_targets.HasDst())
     {
-        // VISTAWOW ANTICHEAT
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
-
         float x, y, z;
         m_targets.GetDst()->GetPosition(x, y, z);
         m_caster->GetMotionMaster()->MoveCharge(x, y, z);
@@ -5834,10 +5814,6 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    // VISTAWOW ANTICHEAT
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(4000);
-
     float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue)/10;
     float speedz = float(damage/10);
     //1891: Disengage
@@ -5899,10 +5875,6 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
 
     if (!unitTarget)
         return;
-
-    // VISTAWOW ANTICHEAT
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
 
     float speedZ = (float)(m_spellInfo->Effects[effIndex].CalcValue() / 10);
     float speedXY = (float)(m_spellInfo->Effects[effIndex].MiscValue/10);
