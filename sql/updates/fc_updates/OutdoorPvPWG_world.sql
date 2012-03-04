@@ -154,7 +154,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_start_active`, 
 (57940, 4603, 0, 0, 0, 0, 0, 2, 1),
 (58045, 4197, 0, 0, 0, 0, 0, 2, 1);
 
-//Spell target conditions for spawning WG siege machines in proper place while building it
+/* Spell target conditions for spawning WG siege machines in proper place while building it */
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (56575,56661,56663,61408);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 56575, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL),
