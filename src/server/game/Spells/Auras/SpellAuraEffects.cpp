@@ -5635,6 +5635,10 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     caster->CastCustomSpell(66153, SPELLVALUE_MAX_TARGETS, urand(1, 6), target, true);
                     break;
                 }
+                case 53520: // Carrion Beetles
+                    for (uint8 i = 0; i < 2; ++i)
+                        caster->CastSpell(caster, 53521, true);
+                    break;
                 case 54798: // FLAMING Arrow Triggered Effect
                 {
                     if (!caster || !target || !target->ToCreature() || !caster->GetVehicle() || target->HasAura(54683))
