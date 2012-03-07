@@ -283,7 +283,7 @@ public:
                 case EVENT_START_INTRO:
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     me->GetMotionMaster()->MovePoint(0, MoveThronePos);
-                    // Begining of intro is differents between factions as the speech sequence and timers are differents.
+                    // Begining of intro is differents between fActions as the speech sequence and timers are differents.
                     if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         events.ScheduleEvent(EVENT_INTRO_A2_1, 0);
                     else
