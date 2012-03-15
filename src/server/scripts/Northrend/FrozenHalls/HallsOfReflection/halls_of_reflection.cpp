@@ -748,7 +748,9 @@ public:
 
     struct npc_ghostly_priestAI: public ScriptedAI
     {
-        npc_ghostly_priestAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_ghostly_priestAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
 
         EventMap events;
 
@@ -837,7 +839,9 @@ public:
 
     struct npc_phantom_mageAI: public ScriptedAI
     {
-        npc_phantom_mageAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_phantom_mageAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
 
         EventMap events;
 
@@ -945,7 +949,9 @@ public:
 
     struct npc_shadowy_mercenaryAI: public ScriptedAI
     {
-        npc_shadowy_mercenaryAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_shadowy_mercenaryAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
 
         EventMap events;
 
@@ -1016,7 +1022,9 @@ public:
 
     struct npc_spectral_footmanAI: public ScriptedAI
     {
-        npc_spectral_footmanAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_spectral_footmanAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
 
         EventMap events;
 
@@ -1077,7 +1085,9 @@ public:
 
     struct npc_tortured_riflemanAI  : public ScriptedAI
     {
-        npc_tortured_riflemanAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_tortured_riflemanAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
 
         EventMap events;
 
