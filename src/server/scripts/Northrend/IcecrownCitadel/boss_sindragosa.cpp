@@ -1232,6 +1232,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                     {
                         go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
                         summon->AddGameObject(go);
+                        go->EnableCollision(false);
                     }
                 }
             }
