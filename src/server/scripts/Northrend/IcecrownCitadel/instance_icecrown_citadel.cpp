@@ -453,15 +453,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_DRINK_ME:
                         PutricideTableGUID = go->GetGUID();
                         break;
-                    case GO_DREAMWALKER_CACHE_10_N:
-                    case GO_DREAMWALKER_CACHE_25_N:
-                    case GO_DREAMWALKER_CACHE_10_H:
-                    case GO_DREAMWALKER_CACHE_25_H:
-                        DreamwalkersCacheGUID = go->GetGUID();
                     case GO_CACHE_OF_THE_DREAMWALKER_10N:
                     case GO_CACHE_OF_THE_DREAMWALKER_25N:
                     case GO_CACHE_OF_THE_DREAMWALKER_10H:
                     case GO_CACHE_OF_THE_DREAMWALKER_25H:
+                        DreamwalkersCacheGUID = go->GetGUID();
                         if (Creature* valithria = instance->GetCreature(ValithriaDreamwalkerGUID))
                             go->SetLootRecipient(valithria->GetLootRecipient());
                         go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
