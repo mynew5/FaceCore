@@ -7133,6 +7133,8 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool pvpt
             //  [15..28] Horde honor titles and player name
             //  [29..38] Other title and player name
             //  [39+]    Nothing
+            uint32 victim_title = victim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
+                                                        // Get Killer titles, CharTitlesEntry::bit_index
             // PLAYER__FIELD_KNOWN_TITLES describe which titles player can use,
             // so we must find biggest pvp title , even for killer to find extra honor value
             uint32 vtitle = victim->GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES);
@@ -7156,9 +7158,6 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool pvpt
                 }
             }
             // Get Killer titles, CharTitlesEntry::bit_index
-
-            uint32 victim_title = victim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
-                                                        // Get Killer titles, CharTitlesEntry::bit_index
             // Ranks:
             //  title[1..14]  -> rank[5..18]
             //  title[15..28] -> rank[5..18]
