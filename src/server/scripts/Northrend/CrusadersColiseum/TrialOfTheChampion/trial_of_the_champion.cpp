@@ -413,8 +413,8 @@ public:
                             tirion->AI()->Talk(SAY_TIRION_INTRO_CHAMPS_2);
 
                         // Open door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                            instance->HandleGameObject(pGO->GetGUID(), true);
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                            instance->HandleGameObject(go->GetGUID(), true);
 
                         events.ScheduleEvent(9, 7000);
                         break;
@@ -627,8 +627,8 @@ public:
                         break;
                     case 19:
                         //Close Door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                            instance->HandleGameObject(pGO->GetGUID(), false);
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                            instance->HandleGameObject(go->GetGUID(), false);
 
                         events.Reset();
                         SetData(EVENT_INTRO, DONE);
@@ -897,8 +897,8 @@ public:
                         if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_ARGENT_1);
                         // Open door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                            instance->HandleGameObject(pGO->GetGUID(), true);
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                            instance->HandleGameObject(go->GetGUID(), true);
                         events.ScheduleEvent(2, 2000);
                         break;
                     case 2:
@@ -1136,8 +1136,8 @@ public:
                         break;
                     case 14:
                         //Close Door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                            instance->HandleGameObject(pGO->GetGUID(), false);
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                            instance->HandleGameObject(go->GetGUID(), false);
 
                         if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_ARGENT_2);

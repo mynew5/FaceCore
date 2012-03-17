@@ -143,10 +143,10 @@ public:
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         SummonList Summons;
         std::list<uint64> m_vBurrowGUID;
@@ -197,8 +197,8 @@ public:
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
-                if (m_instance)
-                    m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                if (instance)
+                    instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
         }
 
@@ -213,8 +213,8 @@ public:
 
         void JustReachedHome()
         {
-            if (m_instance)
-                m_instance->SetData(TYPE_ANUBARAK, FAIL);
+            if (instance)
+                instance->SetData(TYPE_ANUBARAK, FAIL);
             //Summon Scarab Swarms neutral at random places
             for (int i=0; i < 10; i++)
                 if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
@@ -225,8 +225,8 @@ public:
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH, me);
-            if (m_instance)
-                m_instance->SetData(TYPE_ANUBARAK, DONE);
+            if (instance)
+                instance->SetData(TYPE_ANUBARAK, DONE);
         }
 
         void JustSummoned(Creature* summoned)
@@ -262,8 +262,8 @@ public:
             DoScriptText(SAY_AGGRO, me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetInCombatWithZone();
-            if (m_instance)
-                m_instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
             //Despawn Scarab Swarms neutral
             Summons.DoAction(NPC_SCARAB, ACTION_SCARAB_SUBMERGE);
             //Spawn Burrow
@@ -428,10 +428,10 @@ public:
     {
         mob_swarm_scarabAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         uint32 m_uiDeterminationTimer;
 
@@ -495,10 +495,10 @@ public:
     {
         mob_nerubian_burrowerAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         uint32 m_uiSpiderFrenzyTimer;
         uint32 m_uiSubmergeTimer;
@@ -641,10 +641,10 @@ public:
     {
         mob_anubarak_spikeAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
         uint32 m_uiIncreaseSpeedTimer;
         uint8  m_uiSpeed;
         uint64 m_uiTargetGUID;
@@ -676,7 +676,7 @@ public:
             Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
             if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
             {
-                if (Creature* pAnubarak = Unit::GetCreature((*me), m_instance->GetData64(NPC_ANUBARAK)))
+                if (Creature* pAnubarak = Unit::GetCreature((*me), instance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
                 return;

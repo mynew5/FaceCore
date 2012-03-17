@@ -145,10 +145,10 @@ struct boss_twin_baseAI : public ScriptedAI
     {
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
         me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-        m_instance = (InstanceScript*)creature->GetInstanceScript();
+        instance = creature->GetInstanceScript();
     }
 
-    InstanceScript* m_instance;
+    InstanceScript* instance;
     SummonList Summons;
 
     AuraStateType  m_uiAuraState;
@@ -192,8 +192,8 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (m_instance)
-            m_instance->SetData(TYPE_VALKIRIES, FAIL);
+        if (instance)
+            instance->SetData(TYPE_VALKIRIES, FAIL);
 
         Summons.DespawnAll();
         me->DespawnOrUnsummon();
@@ -206,7 +206,7 @@ struct boss_twin_baseAI : public ScriptedAI
         switch (uiId)
         {
             case 1:
-                m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
@@ -218,8 +218,8 @@ struct boss_twin_baseAI : public ScriptedAI
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
-            if (m_instance)
-                m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+            if (instance)
+                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
         }
     }
 
@@ -233,12 +233,12 @@ struct boss_twin_baseAI : public ScriptedAI
         switch (summoned->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                m_instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
-                m_instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
                 break;
             case NPC_DARK_ESSENCE:
-                m_instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
-                m_instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
                 break;
             case NPC_BULLET_CONTROLLER:
                 me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
@@ -250,7 +250,7 @@ struct boss_twin_baseAI : public ScriptedAI
     void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
-        if (m_instance)
+        if (instance)
         {
             if (Creature* pSister = GetSister())
             {
@@ -259,13 +259,13 @@ struct boss_twin_baseAI : public ScriptedAI
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                    m_instance->SetData(TYPE_VALKIRIES, DONE);
+                    instance->SetData(TYPE_VALKIRIES, DONE);
                     Summons.DespawnAll();
                 }
                 else
                 {
                     me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    m_instance->SetData(TYPE_VALKIRIES, SPECIAL);
+                    instance->SetData(TYPE_VALKIRIES, SPECIAL);
                 }
             }
         }
@@ -275,20 +275,20 @@ struct boss_twin_baseAI : public ScriptedAI
     // Called when sister pointer needed
     Creature* GetSister()
     {
-        return Unit::GetCreature((*me), m_instance->GetData64(m_uiSisterNpcId));
+        return Unit::GetCreature((*me), instance->GetData64(m_uiSisterNpcId));
     }
 
     void EnterCombat(Unit* /*who*/)
     {
         me->SetInCombatWithZone();
-        if (m_instance)
+        if (instance)
         {
             if (Creature* pSister = GetSister())
             {
                 me->AddAura(m_uiMyEmphatySpellId, pSister);
                 pSister->SetInCombatWithZone();
             }
-            m_instance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+            instance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
         }
 
         DoScriptText(SAY_AGGRO, me);
@@ -317,7 +317,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_instance || !UpdateVictim())
+        if (!instance || !UpdateVictim())
             return;
 
         switch (m_uiStage)
@@ -408,10 +408,10 @@ public:
     {
         boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         void Reset() {
             boss_twin_baseAI::Reset();
@@ -431,17 +431,17 @@ public:
             m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
             m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
 
-            if (m_instance)
+            if (instance)
             {
-                m_instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
         }
 
         void EnterCombat(Unit* who)
         {
-            if (m_instance)
+            if (instance)
             {
-                m_instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
 
             me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
@@ -450,14 +450,14 @@ public:
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
             boss_twin_baseAI::EnterEvadeMode();
         }
 
         void JustReachedHome()
         {
-            if (m_instance)
-                m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            if (instance)
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
 
             boss_twin_baseAI::JustReachedHome();
         }
@@ -554,10 +554,10 @@ struct mob_unleashed_ballAI : public ScriptedAI
 {
     mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
-        m_instance = (InstanceScript*)creature->GetInstanceScript();
+        instance = creature->GetInstanceScript();
     }
 
-    InstanceScript* m_instance;
+    InstanceScript* instance;
     uint32 m_uiRangeCheckTimer;
 
     void MoveToNextPoint()

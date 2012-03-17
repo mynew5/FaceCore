@@ -125,10 +125,10 @@ public:
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         uint32 m_uiImpaleTimer;
         uint32 m_uiStaggeringStompTimer;
@@ -153,7 +153,7 @@ public:
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -165,7 +165,7 @@ public:
             switch (pointId)
             {
                 case 0:
-                    m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
@@ -175,16 +175,16 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (m_instance)
-                m_instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
+            if (instance)
+                instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
         }
 
         void JustReachedHome()
         {
-            if (m_instance)
+            if (instance)
             {
-                m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
-                m_instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
             }
             me->DespawnOrUnsummon();
         }
@@ -192,7 +192,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->SetInCombatWithZone();
-            m_instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
+            instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
         }
 
         void JustSummoned(Creature* summon)
@@ -265,12 +265,12 @@ public:
     {
         mob_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
-            if (m_instance)
-                m_instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
+            instance = creature->GetInstanceScript();
+            if (instance)
+                instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
         uint32 m_uiFireBombTimer;
         uint32 m_uiBatterTimer;
         uint32 m_uiHeadCrackTimer;
@@ -286,15 +286,15 @@ public:
 
             m_uiTargetGUID = 0;
             m_bTargetDied = false;
-            if (m_instance)
-                m_uiBossGUID = m_instance->GetData64(NPC_GORMOK);
+            if (instance)
+                m_uiBossGUID = instance->GetData64(NPC_GORMOK);
             //Workaround for Snobold
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -330,8 +330,8 @@ public:
             if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (target->isAlive())
                     target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
-            if (m_instance)
-                m_instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+            if (instance)
+                instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
         }
 
         void UpdateAI(uint32 const diff)
@@ -343,9 +343,9 @@ public:
             {
                 if (!target->isAlive())
                 {
-                    if (m_instance)
+                    if (instance)
                     {
-                        Unit* gormok = ObjectAccessor::GetCreature(*me, m_instance->GetData64(NPC_GORMOK));
+                        Unit* gormok = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_GORMOK));
                         if (gormok && gormok->isAlive())
                         {
                             SetCombatMovement(false);
@@ -763,10 +763,10 @@ public:
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            m_instance = (InstanceScript*)creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         uint32 m_uiFerociousButtTimer;
         uint32 m_uiArticBreathTimer;
@@ -800,8 +800,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (m_instance)
-                m_instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
+            if (instance)
+                instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
         }
 
         void MovementInform(uint32 type, uint32 pointId)
@@ -832,7 +832,7 @@ public:
                     m_bMovementFinish = true;
                     break;
                 case 2:
-                    m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
@@ -842,16 +842,16 @@ public:
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
         void JustReachedHome()
         {
-            if (m_instance)
+            if (instance)
             {
-                m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
-                m_instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
             }
             me->DespawnOrUnsummon();
         }
@@ -860,15 +860,15 @@ public:
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
-                if (m_instance)
-                    m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                if (instance)
+                    instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (m_instance)
-                m_instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
             me->SetInCombatWithZone();
         }
 
