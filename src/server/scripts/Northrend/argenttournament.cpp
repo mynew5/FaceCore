@@ -1394,11 +1394,11 @@ SELECT * FROM quest_template WHERE title LIKE 'The Valiant%s Challenge'
 
 enum eSquireDanny
 {
+    GOSSIP_TEXTID_SQUIRE                                = 14407,
     NPC_ARGENT_CHAMPION_CREDIT                          = 33708,
     NPC_ARGENT_CHAMPION                                 = 33707,
     SAY_START_VALIANT                                   = -1850013,//"You believe you are ready to be a champion? Defend yourself!"  
-    SAY_END_VALIANT                                     = -1850014,//"Most impressive. You are worthy to gain the rank of champion"
-    GOSSIP_TEXTID_SQUIRE                                = 14407
+    SAY_END_VALIANT                                     = -1850014//"Most impressive. You are worthy to gain the rank of champion"
 };
 
 struct QUEST_THE_VALIANT_CHALLENGE
@@ -1680,7 +1680,7 @@ public:
 enum Maloric
 {
     SPELL_INCAPACITATE_MALORIC              = 63124,
-    SPELL_SEARCH_MALORIC_CREDIT             = 63126,
+    SPELL_SEARCH_MALORIC_CREDIT             = 63126, // instead it should be triggered by dummy effect of 63125
     QUEST_THERES_SOMETHING_ABOUT_THE_SQUIRE = 13654
 };
 
@@ -1691,26 +1691,34 @@ public:
 
     struct npc_maloricAI : public ScriptedAI
     {
-        npc_maloricAI(Creature *c) : ScriptedAI(c) {}
-        
-        void Reset() {}
+       npc_maloricAI(Creature *c) : ScriptedAI(c) {}
 
         void SpellHit(Unit* pCaster, const SpellEntry* spell)
         {
-            if (pCaster->GetTypeId() == TYPEID_PLAYER)
+           if (pCaster->GetTypeId() == TYPEID_PLAYER)
             {
-                if (spell->Id == SPELL_INCAPACITATE_MALORIC && CAST_PLR(pCaster)->GetQuestStatus(QUEST_THERES_SOMETHING_ABOUT_THE_SQUIRE) == QUEST_STATUS_INCOMPLETE)
+                if (spell->Id == SPELL_INCAPACITATE_MALORIC)
                 {
-                    DoCast(pCaster, SPELL_SEARCH_MALORIC_CREDIT, true);
-                    me->DespawnOrUnsummon();
-                }        
-            }           
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
         }
     };
 
     CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_maloricAI(creature);
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (player->GetQuestStatus(QUEST_THERES_SOMETHING_ABOUT_THE_SQUIRE) == QUEST_STATUS_INCOMPLETE && creature->HasAura(SPELL_INCAPACITATE_MALORIC))
+        {
+            player->CastSpell(player, SPELL_SEARCH_MALORIC_CREDIT, true);
+            creature->AI()->AttackStart(player);
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+        return true;
     }
 };
 
@@ -2685,6 +2693,51 @@ public:
     };
 };
 
+/*######
+## npc_squire_cavin
+######*/
+
+enum eSquireCavin
+{
+    QUEST_THE_BLACK_KNIGHT_FALL = 13664,
+    NPC_BLACK_KNIGHT = 33785,
+    //SPELL_RIDING_ARGENT_CHARGER = 63663  need fix
+};
+
+#define GOSSIP_SQUIRE_C_ITEM_1 "Ask Cavian to summon the black knight"
+#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
+#define GOSSIP_TEXTID_SQUIRE "Are you prepared to fight a valiant of the Argent Crusade?"
+#define SQUIRE_CAVIN_YELL "$N challenges the Black Knight to trial by combat!"
+#define SQUIRE_CAVIN_SAY "Good luck, $N"
+
+class npc_squire_cavin : public CreatureScript
+{
+public:
+    npc_squire_cavin(): CreatureScript("npc_squire_cavin"){}
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (player->GetQuestStatus(QUEST_THE_BLACK_KNIGHT_FALL) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            if (Creature* knight = creature->SummonCreature(NPC_BLACK_KNIGHT, 8462.94f, 962.13f, 545.5f, 3.13f, TEMPSUMMON_DEAD_DESPAWN)) 
+                knight->Attack(player, true);
+            creature->MonsterYell(SQUIRE_CAVIN_YELL, LANG_UNIVERSAL, player->GetGUID());
+            creature->MonsterSay(SQUIRE_CAVIN_SAY, LANG_UNIVERSAL, player->GetGUID());
+        }
+        return true;
+    }
+};
+
 void AddSC_Argen_Tournament()
 {
     new npc_chillmaw;
@@ -2714,4 +2767,6 @@ void AddSC_Argen_Tournament()
     new npc_maiden_of_ashwood_lake;
     new npc_maiden_of_drak_mar;
     new npc_free_your_mind;
+    new npc_squire_cavin;
+    new npc_black_knight_gryphon;
 }
