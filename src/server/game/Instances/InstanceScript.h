@@ -50,8 +50,6 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_UPDATE_OBJECTIVE    = 5,
     ENCOUNTER_FRAME_DISABLE_OBJECTIVE   = 6,
     ENCOUNTER_FRAME_UNK7                = 7,    // Seems to have something to do with sorting the encounter units
-    ENCOUNTER_FRAME_ADD                 = 8,
-    ENCOUNTER_FRAME_REMOVE              = 9,
 };
 
 enum EncounterState
