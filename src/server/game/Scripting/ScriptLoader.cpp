@@ -498,9 +498,9 @@ void AddSC_instance_icecrown_citadel();
 void AddSC_icecrown_citadel();
 void AddSC_instance_ruby_sanctum();      // Ruby Sanctum
 void AddSC_ruby_sanctum();
-void AddSC_boss_baltharus();
-void AddSC_boss_ragefire();
-void AddSC_boss_zarithrian();
+void AddSC_boss_baltharus_the_warborn();
+void AddSC_boss_saviana_ragefire();
+void AddSC_boss_general_zarithrian();
 void AddSC_boss_halion();
 
 void AddSC_dalaran();
@@ -1212,9 +1212,9 @@ void AddNorthrendScripts()
     AddSC_icecrown_citadel();
     AddSC_instance_ruby_sanctum();      // Ruby Sanctum
     AddSC_ruby_sanctum();
-    AddSC_boss_baltharus();
-    AddSC_boss_ragefire();
-    AddSC_boss_zarithrian();
+    AddSC_boss_baltharus_the_warborn();
+    AddSC_boss_saviana_ragefire();
+    AddSC_boss_general_zarithrian();
     AddSC_boss_halion();
 
     AddSC_dalaran();
