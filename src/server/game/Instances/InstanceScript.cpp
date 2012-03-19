@@ -431,6 +431,8 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             data << uint8(param2);
             break;
         case ENCOUNTER_FRAME_UNK7:
+        case ENCOUNTER_FRAME_ADD:
+        case ENCOUNTER_FRAME_REMOVE:
         default:
             break;
     }
