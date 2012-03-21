@@ -18,6 +18,7 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedFollowerAI.h"
 
 /*######
 ## Quest 12027: Mr. Floppy's Perilous Adventure
@@ -162,7 +163,7 @@ public:
                         player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
                         DoScriptText(SAY_QUEST_COMPLETE, me, player);
                     }
-                    me->SetWalk(false);
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     break;
                 case 25:
                     DoScriptText(SAY_VICTORY4, me);
@@ -194,7 +195,9 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
                 if (m_uiChatTimer <= uiDiff)
+                {
                     m_uiChatTimer = 12000;
+                }
                 else
                     m_uiChatTimer -= uiDiff;
             }
@@ -207,7 +210,9 @@ public:
         {
             DoScriptText(SAY_QUEST_ACCEPT, creature);
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(creature, NPC_MRFLOPPY, 180.0f))
+            {
                 Mrfloppy->GetMotionMaster()->MoveFollow(creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+            }
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
                 pEscortAI->Start(true, false, player->GetGUID());
@@ -313,8 +318,8 @@ public:
 
         void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
-             if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
-             {
+            if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
+            {
                 ++m_counter;
                 if (m_counter < 5)
                     DoCast(pCaster, SPELL_CAMERA_SHAKE, true);
@@ -493,7 +498,7 @@ public:
 
         uint32 DespawnTimer;
 
-        void Reset()
+        void Reset ()
         {
             DespawnTimer = 5000;
             uiPlayerGUID = 0;
@@ -526,7 +531,6 @@ public:
         {
             if (!UpdateVictim())
                 return;
-
             DoMeleeAttackIfReady();
         }
     };
@@ -709,89 +713,214 @@ public:
     };
 };
 
-/*####
-## npc_grizzly_lake_frog
-####*/
+/*######
+## Quest 13666 & 13673:  A blade fit for a champion!
+######*/
 
 enum eLakeFrog
 {
-    SPELL_WARTS                 = 62581,
-    SPELL_WARTS_B_GONE          = 62574,
-    SPELL_TRANSFORM             = 62550,
-    SPELL_SUMMON_ASHWOOD_BRAND  = 62554,
-    SPELL_FROG_LOVE             = 62537,
-
-    ENTRY_NOT_MAIDEN_FROG       = 33211,
-    ENTRY_MAIDEN_FROG           = 33224,
+    SPELL_WARTSBGONE_LIP_BALM = 62574,
+    SPELL_FROG_LOVE = 62537,
+    SPELL_WARTS = 62581,
+    NPC_MAIDEN_OF_ASHWOOD_LAKE = 33220,
+    MAIDEN_SPAWN
 };
 
-#define SAY_FREED               "Can it really be? Free after all these years?"
-#define GOSSIP_TEXT_GET_WEAPON  "Glad to help, my lady. I'm told you were once the guardian of a fabled sword. Do you know where I might find it?"
-
-class npc_grizzly_lake_frog : public CreatureScript
+//Script for Lake Frog
+class npc_lake_frog : public CreatureScript
 {
 public:
-    npc_grizzly_lake_frog() : CreatureScript("npc_grizzly_lake_frog") { }
+    npc_lake_frog(): CreatureScript("npc_lake_frog"){}
 
-    struct npc_grizzly_lake_frogAI : public ScriptedAI
+    struct npc_lake_frogAI : public FollowerAI // FollowerAI: Allows the npc to follow a target
     {
-        npc_grizzly_lake_frogAI(Creature* c) : ScriptedAI(c) { alreadykissed = false;}
+        npc_lake_frogAI(Creature *c) : FollowerAI(c) {}
 
-        bool alreadykissed;
+        uint32 uiFollowTimer; // Follow time (15 sec)
+        bool following;	//Whether the frog is going to follow the player
 
-        void ReceiveEmote(Player* player, uint32 emote)
+        void Reset ()
         {
-            if (emote == TEXT_EMOTE_KISS)
+            following=false;
+            uiFollowTimer=15000; // 15 sec
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if(following)
             {
-                alreadykissed = true;
-
-                if(urand(0,3) == 0)
+                if(uiFollowTimer <= diff)
                 {
-                    DoCast(me,SPELL_TRANSFORM,true);
-                    me->MonsterSay(SAY_FREED,LANG_UNIVERSAL,player->GetGUID());
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                }else
-                {
-                    if (!player->HasAura(SPELL_WARTS_B_GONE))
-                    {
-                        me->CastSpell(player,SPELL_WARTS);
-                    }else
-                        player->RemoveAurasDueToSpell(SPELL_WARTS_B_GONE);
-
-                        me->CastSpell(me,SPELL_FROG_LOVE,true);
-                        me->GetMotionMaster()->MoveFollow(player,1,float(rand_norm()*2*M_PI));
+                    SetFollowComplete();
+                    me->DisappearAndDie();		//despawn
+                    me->Respawn(true);
+                    Reset();
                 }
+                else uiFollowTimer-=diff;
+            }
+        }
 
-                me->DespawnOrUnsummon(15000);
+        void ReceiveEmote(Player* pPlayer, uint32 emote)
+        {
+            if(following) // If the frog has already received a /kiss, nothing happens
+                return;
+
+            if(emote==TEXT_EMOTE_KISS) // If player use emote /kiss
+            {
+                if(!pPlayer->HasAura(SPELL_WARTSBGONE_LIP_BALM))
+                    pPlayer->AddAura(SPELL_WARTS,pPlayer);
+                else if(roll_chance_i(10)) // 10% chance spawn Maiden
+                {
+                    pPlayer->SummonCreature(NPC_MAIDEN_OF_ASHWOOD_LAKE,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
+                    me->DisappearAndDie();		//Despawn
+                    me->Respawn(true);
+                }
+                else
+                {
+                    pPlayer->RemoveAura(SPELL_WARTSBGONE_LIP_BALM);	//It removes the buff set by the object of quest
+                    me->AddAura(SPELL_FROG_LOVE,me); //It adds the aura of a frog (hearts)
+                    StartFollow(pPlayer, 35, NULL); //The frog following the player
+                    following=true;
+                }
+            }
+        }
+
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_lake_frogAI(pCreature);
+    }
+};
+
+//Script for Maiden Ashwood
+#define MAIDEN_DEFAULT_TEXTID 14319
+#define MAIDEN_REWARD_TEXTID 14320
+#define GOSSIP_HELLO_MAIDEN "Delighted to have helped, ma'am. Were you once the guardian of a Send legendary. Would you know From where I could find it?"
+#define SPELL_SUMMON_ASHWOOD_BRAND 62554
+
+class npc_maiden_of_ashwood_lake : public CreatureScript
+{
+public:
+    npc_maiden_of_ashwood_lake(): CreatureScript("npc_maiden_of_ashwood_lake"){}
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if(!pPlayer->HasItemCount(44981,1,true))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_MAIDEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->SEND_GOSSIP_MENU(MAIDEN_DEFAULT_TEXTID, pCreature->GetGUID());
+            pCreature->ForcedDespawn(10000);
+            return true;
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(MAIDEN_DEFAULT_TEXTID, pCreature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->CastSpell(pPlayer,SPELL_SUMMON_ASHWOOD_BRAND,true);
+                pPlayer->SEND_GOSSIP_MENU(MAIDEN_REWARD_TEXTID, pCreature->GetGUID());
+                break;
+        }
+        return true;
+    }
+};
+
+// Quest: A Worthy weapon
+// When using the item:
+// Spawn gameobject 194239 <<
+// Spawn NPC 33723
+
+// Spawn gob 194238
+#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_01 -1850000
+#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_02 -1850001
+#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_03 -1850002
+#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_04 -1850003
+#define MAIDEN_OF_DRAK_MAR_TIMER_00 2000
+#define MAIDEN_OF_DRAK_MAR_TIMER_01 5000
+#define MAIDEN_OF_DRAK_MAR_TIMER_02 6000
+#define MAIDEN_OF_DRAK_MAR_TIMER_03 7000
+#define MAIDEN_OF_DRAK_MAR_TIMER_04 25000
+#define MAIDEN_OF_DRAK_MAR_GOB_01 194239
+#define MAIDEN_OF_DRAK_MAR_GOB_02 194238
+//Summon maiden :X: 4602.977 Y: -1600.141 Z: 156.7834 O: 0.7504916
+
+class npc_maiden_of_drak_mar : public CreatureScript
+{
+public:
+    npc_maiden_of_drak_mar(): CreatureScript("npc_maiden_of_drak_mar"){}
+
+    struct npc_maiden_of_drak_marAI : public ScriptedAI
+    {
+        uint32 phase;
+        uint32 uiPhaseTimer;
+        uint64 firstGobGuid;
+        uint64 secondGobGuid;
+
+        npc_maiden_of_drak_marAI(Creature *c) : ScriptedAI(c)
+        {
+            phase = 0;
+            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_00;
+            if(GameObject* go = me->SummonGameObject(MAIDEN_OF_DRAK_MAR_GOB_01,4602.977f,-1600.141f,156.7834f,0.7504916f,0,0,0,0,0))
+                firstGobGuid = go->GetGUID(); //Spawn leaf
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if(uiPhaseTimer <= diff)
+            {
+                phase++;
+                    switch(phase)
+                    {
+                        case 1:
+                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_01, me);
+                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_01;
+                            break;
+                        case 2:
+                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_02, me);
+                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_02;
+                            break;
+                        case 3:
+                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_03, me);
+                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_03;
+                            break;
+                        case 4:
+                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_04, me);
+                            if(GameObject* go = me->SummonGameObject(MAIDEN_OF_DRAK_MAR_GOB_02,4603.351f,-1599.288f,156.8822f,2.234018f,0,0,0,0,0))
+                                secondGobGuid = go->GetGUID(); //Spawn Blade GO
+                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_04;
+                            break;
+                        case 5:
+                            if(GameObject* go = GameObject::GetGameObject(*me,firstGobGuid))
+                                go->RemoveFromWorld();// Despawn leaf
+                            if(GameObject* go = GameObject::GetGameObject(*me,secondGobGuid))
+                                go->RemoveFromWorld();// Despawn Blade GO
+                            me->ForcedDespawn();// Despawn maiden
+                            break;
+                        default:
+                            if(GameObject* go = GameObject::GetGameObject(*me,firstGobGuid))
+                                go->RemoveFromWorld();
+                            if(GameObject* go = GameObject::GetGameObject(*me,secondGobGuid))
+                                go->RemoveFromWorld();
+                            me->ForcedDespawn();
+                            break;
+                    }
+            }
+            else
+            {
+                uiPhaseTimer -= diff;
             }
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_TEXT_GET_WEAPON , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        player->CLOSE_GOSSIP_MENU();
-
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            creature->CastSpell(player,SPELL_SUMMON_ASHWOOD_BRAND,true);
-        }
-
-        return true;
-    }
-
-
-    CreatureAI *GetAI(Creature* creature) const
-    {
-        return new npc_grizzly_lake_frogAI(creature);
+        return new npc_maiden_of_drak_marAI(pCreature);
     }
 };
 
@@ -805,5 +934,7 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
-    new npc_grizzly_lake_frog();
+    new npc_lake_frog();
+    new npc_maiden_of_ashwood_lake;
+    new npc_maiden_of_drak_mar;
 }
