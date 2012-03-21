@@ -557,6 +557,7 @@ class npc_tournament_training_dummy : public CreatureScript
 
 /*######
 * quest_givers_argent_tournament
+UPDATE `creature_template` SET `ScriptName`='quest_givers_argent_tournament' WHERE `entry` IN (33593, 33592, 33225, 33312, 33335, 33379, 33373, 33361, 33403, 33372);
 ######*/
 
 class quest_givers_argent_tournament : public CreatureScript
@@ -647,7 +648,7 @@ public:
 };
 
 /*######
-* npc_quest_givers_for_crusaders
+* npc_quest_givers_for_crusaders UPDATE `creature_template` SET `ScriptName`='npc_quest_givers_for_crusaders' WHERE `entry` IN (34882, 35094);
 ######*/
 
 enum eQuestGiversforCrusader
