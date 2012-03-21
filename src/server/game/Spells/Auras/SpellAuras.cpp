@@ -1339,7 +1339,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             break;
                         // it will attempt to jump to a nearby friend when removed
                         std::list<Unit*> unitList;
-                        target->GetRaidMember(unitList, 10);
+                        // target->GetRaidMember(unitList, 10);
+                        Trinity::AnyGroupedUnitInObjectRangeCheck u_check(target, target, 10, true);
+                        Trinity::UnitListSearcher<Trinity::AnyGroupedUnitInObjectRangeCheck> searcher(target, unitList, u_check);
+                        GetUnitOwner()->VisitNearbyObject(10, searcher);
                         for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                         {
                             Unit* pUnit = *itr;
