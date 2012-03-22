@@ -724,8 +724,6 @@ OutdoorPvPWGCreType OutdoorPvPWG::GetCreatureType(uint32 entry) const
     // Entries like Case A: Case: B have their own despawn function
     switch(entry)
     {
-        case 27852: // Robotic Arms
-            return CREATURE_ROBOTIC_ARMS;
         case 27881: // Catapult
         case 28094: // Demolisher
         case 28312: // Alliance Siege Engine
@@ -834,7 +832,6 @@ void OutdoorPvPWG::OnCreatureCreate(Creature *creature)
             }
             creature->CastSpell(creature, SPELL_SPIRITUAL_IMMUNITY, true);
         }
-        case CREATURE_ROBOTIC_ARMS:
         case CREATURE_SPIRIT_HEALER:
         case CREATURE_TURRET:
         case CREATURE_OTHER:
@@ -1100,8 +1097,6 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
                 creature->SetVisible(false);
             return false;
         }
-        case CREATURE_ROBOTIC_ARMS:
-            return false;
         case CREATURE_SPIRIT_HEALER:
             creature->SetVisible(isWarTime() ? false : true);
             return false;
