@@ -482,9 +482,6 @@ struct MovementInfo
     // spline
     float   splineElevation;
 
-    //! Server side only:
-    bool Violated;
-
     MovementInfo()
     {
         pos.Relocate(0, 0, 0, 0);
@@ -497,7 +494,6 @@ struct MovementInfo
         t_guid = 0;
         t_pos.Relocate(0, 0, 0, 0);
         t_seat = -1;
-        Violated = false;
     }
 
     uint32 GetMovementFlags() { return flags; }

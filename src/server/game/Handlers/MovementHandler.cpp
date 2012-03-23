@@ -279,14 +279,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         return;
     }
 
-    //! If some anti-cheat checks in WorldSession::ReadMovementInfo failed, do not process
-    //! the change of movement server-sided.
-    if (movementInfo.Violated)
-    {
-        recv_data.rfinish();
-        return;
-    }
-
     /* handle special cases */
     if (movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
     {
@@ -503,14 +495,6 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
 
     MovementInfo mi;
     ReadMovementInfo(recv_data, &mi);
-
-    if (mi.Violated)
-    {
-        recv_data.rfinish();
-        return;
-    }
-
-    mi.guid = old_mover_guid;
 
     _player->m_movementInfo = mi;
 }

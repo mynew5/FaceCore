@@ -2860,16 +2860,21 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
             return;
     }
 
-    //! Not entirely sure if this should be sent for creatures as well, but I don't think so.
-    target->SetCanFly(apply);
-    if (!apply)
-        target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-    Player* player = target->ToPlayer();
-    if (!player)
-        player = target->m_movedPlayer;
+    if (target->GetTypeId() == TYPEID_UNIT)
+        target->SetCanFly(apply);
 
-    if (player)
-        player->SendMovementCanFlyChange();
+    if (Player* player = target->m_movedPlayer)
+    {
+        // allow flying
+        WorldPacket data;
+        if (apply)
+            data.Initialize(SMSG_MOVE_SET_CAN_FLY, 12);
+        else
+            data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
+        data.append(target->GetPackGUID());
+        data << uint32(0);                                      // movement counter
+        player->SendDirectMessage(&data);
+    }
 }
 
 void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2887,12 +2892,15 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
     }
 
     if (apply)
+    {
         target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-     else
+        target->SendMovementWaterWalking();
+    }
+    else
+    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-
-    target->SendMovementWaterWalking();
-
+        target->SendMovementFlagUpdate();
+    }
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2910,11 +2918,15 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
     }
 
     if (apply)
+    {
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        target->SendMovementFeatherFall();
+    }
     else
+    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-
-    target->SendMovementFeatherFall();
+        target->SendMovementFlagUpdate();
+    }
 
     // start fall from current height
     if (!apply && target->GetTypeId() == TYPEID_PLAYER)
@@ -2936,7 +2948,10 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
     }
 
     target->SetHover(apply);    //! Sets movementflags
-    target->SendMovementHover();
+    if (apply)
+        target->SendMovementHover();
+    else
+        target->SendMovementFlagUpdate();
 }
 
 void AuraEffect::HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3242,24 +3257,25 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
 
     Unit* target = aurApp->GetTarget();
 
-    //! Update ability to fly
+    // Enable Fly mode for flying mounts
     if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
-            target->SetCanFly(apply);
-            if (!apply)
-                target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-            Player* player = target->ToPlayer();
-            if (!player)
-                player = target->m_movedPlayer;
-
-            if (player)
-                player->SendMovementCanFlyChange();
+            if (Player* player = target->m_movedPlayer)
+            {
+                WorldPacket data;
+                if (apply)
+                    data.Initialize(SMSG_MOVE_SET_CAN_FLY, 12);
+                else
+                    data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
+                data.append(player->GetPackGUID());
+                data << uint32(0);                                      // unknown
+                player->SendDirectMessage(&data);
+            }
         }
 
-        //! Someone should clean up these hacks and remove it from this function. It doesn't even belong here.
         if (mode & AURA_EFFECT_HANDLE_REAL)
         {
             //Players on flying mounts must be immune to polymorph
