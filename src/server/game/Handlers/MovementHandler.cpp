@@ -522,12 +522,6 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
 
-    if (movementInfo.Violated)
-    {
-        recv_data.rfinish();
-        return;
-    }
-
     _player->m_movementInfo = movementInfo;
 
     WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
