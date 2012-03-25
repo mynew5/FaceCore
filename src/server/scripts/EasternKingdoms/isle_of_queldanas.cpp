@@ -464,6 +464,6 @@ void AddSC_isle_of_queldanas()
 {
     new npc_converted_sentry();
     new npc_greengill_slave();
-  new npc_thalorien();
+    new npc_thalorien();
     new npc_sunwell_warder();
 }

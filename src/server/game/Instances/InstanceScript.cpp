@@ -385,7 +385,7 @@ void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
 // Complete Achievement for all players in instance
 void InstanceScript::DoCompleteAchievement(uint32 achievement)
 {
-    AchievementEntry const * AE = GetAchievementStore()->LookupEntry(achievement);
+    AchievementEntry const * AE = sAchievementStore.LookupEntry(achievement);
     Map::PlayerList const & PlayerList = instance->GetPlayers();
 
     if (!AE)

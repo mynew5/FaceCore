@@ -338,6 +338,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         plMover->SetInWater(!plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
+    /*----------------------*/
+
     if (plMover)
         sAnticheatMgr->StartHackDetection(plMover, movementInfo, opcode);
 
@@ -384,12 +386,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             }
         }
         else if (movementInfo.pos.GetPositionZ() < -50.0f)
-        {
             if (plMover->InBattleground())
                 if (Battleground* bg = plMover->GetBattleground())
                     if (bg->isArena())
                         bg->HandlePlayerUnderMap(_player);
-        }
     }
 }
 
@@ -495,6 +495,8 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
 
     MovementInfo mi;
     ReadMovementInfo(recv_data, &mi);
+
+    mi.guid = old_mover_guid;
 
     _player->m_movementInfo = mi;
 }

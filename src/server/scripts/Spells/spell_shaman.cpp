@@ -205,22 +205,20 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SHAMAN_TOTEM_SPELL_EARTHEN_POWER))
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM) || !sSpellMgr->GetSpellInfo(SHAMAN_TOTEM_SPELL_EARTHEN_POWER))
                     return false;
                 return true;
             }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
-                Unit* target = GetTarget();
-                if (Unit* caster = aurEff->GetBase()->GetCaster())
-                    if (TempSummon* summon = caster->ToTempSummon())
-                        if (Unit* owner = summon->GetOwner())
-                            if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
-                                if (roll_chance_i(aur->GetBaseAmount()) && target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
-                                    caster->CastSpell(caster, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);
+                if (Unit* target = GetTarget())
+                    if (Unit* caster = aurEff->GetBase()->GetCaster())
+                        if (TempSummon* summon = caster->ToTempSummon())
+                            if (Unit* owner = summon->GetOwner())
+                                if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
+                                    if (roll_chance_i(aur->GetBaseAmount()) && target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
+                                        caster->CastSpell(caster, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);
             }
 
             void Register()

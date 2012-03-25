@@ -2901,7 +2901,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
-                // ToC Spells
+            // ToC Spells
             case 65767: // Light Surge
             case 66013: // Penetrating Cold
             case 66059: // Dark Vortex
