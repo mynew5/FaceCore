@@ -31,8 +31,8 @@
 #define MAX_VEHICLE_PER_WORKSHOP    4
 
 //Creature faction. Needed for proper displaying data(count) about summoned siege machines by teams
-const uint32 WintergraspFaction[3] = {1802, 1801, 35}; //YTDB
-//const uint32 WintergraspFaction[3] = {1732, 1735, 35}; //TDB
+//const uint32 WintergraspFaction[3] = {1802, 1801, 35}; //YTDB
+const uint32 WintergraspFaction[3] = {1732, 1735, 35}; //TDB
 
 const uint32 WG_MARK_OF_HONOR = 43589;
 const uint32 VehNumWorldState[2] = {3680,3490};
