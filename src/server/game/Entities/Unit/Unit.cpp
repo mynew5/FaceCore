@@ -17603,8 +17603,12 @@ void Unit::SendMovementCanFlyChange()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetCanFly(CanFly());
 
+    /* 
+
     WorldPacket data(MSG_MOVE_UPDATE_CAN_FLY, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
     SendMessageToSet(&data, true);
+
+    */
 }
