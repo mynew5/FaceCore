@@ -2862,19 +2862,17 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
 
     //! Not entirely sure if this should be sent for creatures as well, but I don't think so.
     target->SetCanFly(apply);
-    if (!apply)
+    if (apply)
+        target->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+    else
     {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        target->m_movementInfo.SetFallTime(0);
     }
 
-    Player* player = target->ToPlayer();
-    if (!player)
-        player = target->m_movedPlayer;
-
-    if (player)
-        player->SendMovementCanFlyChange();
+    target->SendMovementFlagUpdate();
+    if (Player* player = target->m_movedPlayer)
+        player->SendMovementSetCanFly(apply);
 
     //! We still need to initiate a server-side MoveFall here,
     //! which requires MSG_MOVE_FALL_LAND on landing.
@@ -2894,16 +2892,17 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
             return;
     }
 
-    if (apply) {
+    if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-        target->SendMovementWaterWalking();
-    }
     else
     {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        target->SendMovementFlagUpdate();
     }
+
+    target->SendMovementFlagUpdate();
+    if (Player* player = target->m_movedPlayer)
+        player->SendMovementSetWaterWalk(apply);
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2920,14 +2919,16 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
             return;
     }
 
-    if (apply) {
+    if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-        target->SendMovementFeatherFall();
-    }
-    else {
+    else
+    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-        target->SendMovementFlagUpdate();
+        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
     }
+    target->SendMovementFlagUpdate();
+    if (Player* player = target->m_movedPlayer)
+        player->SendMovementSetFeatherFall(apply);
 
     // start fall from current height
     if (!apply && target->GetTypeId() == TYPEID_PLAYER)
@@ -2949,10 +2950,9 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
     }
 
     target->SetHover(apply);    //! Sets movementflags
-    if (apply)
-        target->SendMovementHover();
-    else
-        target->SendMovementFlagUpdate();
+    target->SendMovementFlagUpdate();
+    if (Player* player = target->m_movedPlayer)
+        player->SendMovementSetHover(apply);
 }
 
 void AuraEffect::HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3265,19 +3265,17 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
             target->SetCanFly(apply);
-            if (!apply)
+            if (apply)
+                target->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+            else
             {
                 target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
                 target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-                target->m_movementInfo.SetFallTime(0);
             }
 
-            Player* player = target->ToPlayer();
-            if (!player)
-                player = target->m_movedPlayer;
-
-            if (player)
-                player->SendMovementCanFlyChange();
+            target->SendMovementFlagUpdate();
+            if (Player* player = target->m_movedPlayer)
+                player->SendMovementSetCanFly(apply);
 
             //! We still need to initiate a server-side MoveFall here,
             //! which requires MSG_MOVE_FALL_LAND on landing.

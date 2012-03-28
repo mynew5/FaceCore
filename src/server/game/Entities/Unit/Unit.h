@@ -1636,11 +1636,6 @@ class Unit : public WorldObject
             which are sent with movementinfo. Furthermore, these packets are broadcast to nearby players as well
             as the current unit.
         */
-        void SendMovementHover();
-        void SendMovementFeatherFall();
-        void SendMovementWaterWalking();
-        void SendMovementGravityChange();
-        void SendMovementCanFlyChange();
 
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}

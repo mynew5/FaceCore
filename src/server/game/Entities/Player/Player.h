@@ -2508,6 +2508,9 @@ class Player : public Unit, public GridObject<Player>
             These methods are only sent to the current unit.
         */
         void SendMovementSetCanFly(bool apply);
+        void SendMovementSetHover(bool apply);
+        void SendMovementSetWaterWalk(bool apply);
+        void SendMovementSetFeatherFall(bool apply);
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
