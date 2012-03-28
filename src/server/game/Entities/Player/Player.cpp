@@ -18626,27 +18626,31 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
 
 bool Player::CheckInstanceLoginValid()
 {
-    if (!GetMap())
+    Map* map = GetMap();
+    if (!map)
         return false;
 
-    if (!GetMap()->IsDungeon() || isGameMaster())
+    if (!map->IsDungeon() || isGameMaster())
         return true;
 
-    if (GetMap()->IsRaid())
+    // recheck for full instance
+    if (InstanceMap* instance = map->ToInstanceMap())
+        if (instance->GetMaxPlayers() < map->GetPlayersCountExceptGMs())
+            return false;
+
+    if (!GetGroup())
     {
         // cannot be in raid instance without a group
-        if (!GetGroup())
+        if (map->IsRaid())
             return false;
-    }
-    else
-    {
+
         // cannot be in normal instance without a group and more players than 1 in instance
-        if (!GetGroup() && GetMap()->GetPlayersCountExceptGMs() > 1)
+        if (map->GetPlayersCountExceptGMs() > 1)
             return false;
     }
 
     // do checks for satisfy accessreqs, instance full, encounter in progress (raid), perm bind group != perm bind player
-    return sMapMgr->CanPlayerEnter(GetMap()->GetId(), this, true);
+    return sMapMgr->CanPlayerEnter(map->GetId(), this, true);
 }
 
 bool Player::_LoadHomeBind(PreparedQueryResult result)
