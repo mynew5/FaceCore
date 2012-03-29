@@ -96,7 +96,6 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twiligh
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_phasing';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_clear_debuffs';
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_copy_damage';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
 (74562, 'spell_halion_fiery_combustion'),
@@ -112,7 +111,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (77844, 'spell_halion_twilight_cutter'),
 (77845, 'spell_halion_twilight_cutter'),
 (75396, 'spell_halion_clear_debuffs'),
-(74810, 'spell_halion_copy_damage'),
 (77846, 'spell_halion_twilight_cutter');
 
 -- Texts
@@ -214,3 +212,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13,3,75509,0,0,31,0,3,40142,0,0,0, "", "Twilight Mending can only target Halion"),
 (13,3,75509,0,0,31,0,3,39863,0,0,0, "", "Twilight Mending can only target Halion"),
 (13,1,74758,0,0,31,0,3,40091,0,0,0, "", "Track Rotation can only target Orb Rotation Focus");
+
+-- Not applicable for now (until merge), just found this randomly while re-parsing sniffs
+-- UPDATE creature_template SET HoverHeight=1.6 WHERE entry=40421;
