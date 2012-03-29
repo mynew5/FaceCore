@@ -209,6 +209,7 @@ bool World::RemoveSession(uint32 id)
     {
         if (itr->second->PlayerLoading())
             return false;
+
         itr->second->KickPlayer();
     }
 
@@ -220,8 +221,7 @@ void World::AddSession(WorldSession* s)
     addSessQueue.add(s);
 }
 
-void
-World::AddSession_(WorldSession* s)
+void World::AddSession_(WorldSession* s)
 {
     ASSERT (s);
 
@@ -274,11 +274,8 @@ World::AddSession_(WorldSession* s)
     }
 
     s->SendAuthResponse(AUTH_OK, true);
-
     s->SendAddonsInfo();
-
     s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-
     s->SendTutorialsData();
 
     UpdateMaxSessionCounters();

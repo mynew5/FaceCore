@@ -80,6 +80,7 @@ public:
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
+
             switch (i)
             {
                 case 9:
