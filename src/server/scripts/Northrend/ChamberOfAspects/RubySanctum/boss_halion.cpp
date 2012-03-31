@@ -112,7 +112,7 @@ enum Spells
     SPELL_TWILIGHT_MENDING              = 75509,
     SPELL_TWILIGHT_REALM                = 74807,
 
-    SPELL_COPY_DAMAGE                   = 74810, // Not in DBCs but found in sniffs. Not cast.
+    SPELL_COPY_DAMAGE                   = 74810, // Not in DBCs but found in sniffs.
 };
 
 enum Events
@@ -166,8 +166,11 @@ enum Actions
     ACTION_PHASE_THREE          = 5,
     ACTION_CLEANUP              = 6,
 
+    // Orb Rotation Focus
+    ACTION_BEGIN_ROTATION       = 7,
+
     // Orb Carrier
-    ACTION_SHOOT                = 7,
+    ACTION_SHOOT                = 8,
 };
 
 enum Phases
@@ -236,6 +239,7 @@ class boss_halion : public CreatureScript
             void Reset()
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 _Reset();
             }
 
@@ -280,28 +284,23 @@ class boss_halion : public CreatureScript
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                me->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
-
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->Reset();
+
+                // I strongly begin to believe that both Halions are spawned after Halion's intro is processed.
+                if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
+                    twilightHalion->DespawnOrUnsummon();
 
                 _JustReachedHome();
             }
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* spellProto)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                if ((me->GetHealth() - damage) > 0 && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)) && spellProto->Id != SPELL_COPY_DAMAGE)
-                {
+                if ((me->GetHealth() - damage) > 0 && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)))
                     if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
-                    {
-                        SpellNonMeleeDamage damageInfo(me, twilightHalion, SPELL_COPY_DAMAGE, spellProto->SchoolMask);
-                        damageInfo.damage = damage;
-                        me->SendSpellNonMeleeDamageLog(&damageInfo);
-                        me->DealSpellDamage(&damageInfo, false);
-                    }
-                }
+                        me->CastCustomSpell(SPELL_COPY_DAMAGE, SPELLVALUE_BASE_POINT0, damage, twilightHalion, true);
 
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
@@ -317,7 +316,7 @@ class boss_halion : public CreatureScript
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
                 }
 
-                if ((events.GetPhaseMask() & PHASE_THREE_MASK) && spellProto->Id != SPELL_COPY_DAMAGE)
+                if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(DATA_MATERIAL_DAMAGE_TAKEN, damage);
             }
@@ -433,7 +432,7 @@ class boss_twilight_halion : public CreatureScript
                 _instance(creature->GetInstanceScript())
             {
                 me->SetPhaseMask(0x20, true); // Should not be visible with phasemask 0x21, so only 0x20
-                events.SetPhase(PHASE_ONE);
+                me->SetHealth(uint32(0.75f * me->GetMaxHealth()));
             }
 
             void EnterCombat(Unit* who)
@@ -488,18 +487,11 @@ class boss_twilight_halion : public CreatureScript
                 ScriptedAI::JustReachedHome();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* spellProto)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                if (me->GetHealth() - damage > 0 && !(events.GetPhaseMask() & PHASE_ONE_MASK) && spellProto->Id != SPELL_COPY_DAMAGE)
-                {
-                    if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
-                    {
-                        SpellNonMeleeDamage damageInfo(me, halion, SPELL_COPY_DAMAGE, spellProto->SchoolMask);
-                        damageInfo.damage = damage;
-                        me->SendSpellNonMeleeDamageLog(&damageInfo);
-                        me->DealSpellDamage(&damageInfo, false);
-                    }
-                }
+                if (me->GetHealth() - damage > 0)
+                    if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                        me->CastCustomSpell(SPELL_COPY_DAMAGE, SPELLVALUE_BASE_POINT0, damage, twilightHalion, true);
 
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
@@ -514,7 +506,7 @@ class boss_twilight_halion : public CreatureScript
                     return;
                 }
 
-                if ((events.GetPhaseMask() & PHASE_THREE_MASK) && spellProto->Id != SPELL_COPY_DAMAGE)
+                if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(DATA_TWILIGHT_DAMAGE_TAKEN, damage);
             }
@@ -654,6 +646,8 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_TWO:
                     {
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 10000); // Fix the timer
+                        if (Creature* rotationFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
+                            rotationFocus->AI()->DoAction(ACTION_BEGIN_ROTATION);
                         break;
                     }
                     case ACTION_PHASE_THREE:
@@ -1080,7 +1074,7 @@ class npc_orb_carrier : public CreatureScript
                 me->setActive(true);
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 const diff)
             {
                 //! According to sniffs this spell is cast every 1 or 2 seconds.
                 //! However, refreshing it looks bad, so just cast the spell if
@@ -1766,6 +1760,38 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         }
 };
 
+class spell_halion_copy_damage : public SpellScriptLoader
+{
+    public:
+        spell_halion_copy_damage() : SpellScriptLoader("spell_halion_copy_damage") { }
+
+        class spell_halion_copy_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_copy_damage_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (!GetCaster()) // Probably useless
+                    return;
+
+                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                damageInfo.damage = GetSpellValue()->EffectBasePoints[0];
+                GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);
+                GetCaster()->DealSpellDamage(&damageInfo, false);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_halion_copy_damage_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halion_copy_damage_SpellScript();
+        }
+};
+
 void AddSC_boss_halion()
 {
     new boss_halion();
@@ -1788,4 +1814,5 @@ void AddSC_boss_halion()
     new spell_halion_twilight_phasing();
     new spell_halion_twilight_cutter();
     new spell_halion_clear_debuffs();
+    new spell_halion_copy_damage();
 }
