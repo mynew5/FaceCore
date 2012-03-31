@@ -769,9 +769,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
                 case 0:
                     IntroPhase = 1;
@@ -1065,13 +1065,13 @@ public:
             uiPhaseTimer = 0;
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 3:
                     SetEscortPaused(true);
@@ -1091,7 +1091,6 @@ public:
                     }
                     me->SetWalk(false);
                     break;
-
                 case 4:
                     SetEscortPaused(true);
                     uiPhase = 7;
@@ -1904,34 +1903,33 @@ public:
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 10:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                DoScriptText(SAY_2, me);
-                break;
-            case 12:
-                DoScriptText(SAY_3, me);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
-                break;
-            case 16:
-                DoScriptText(SAY_4, me);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                break;
-            case 20:
-                me->SetPhaseMask(1, true);
-                DoScriptText(SAY_5, me);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
-                SetRun(true);
-                break;
+                case 10:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    DoScriptText(SAY_2, me);
+                    break;
+                case 12:
+                    DoScriptText(SAY_3, me);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+                    break;
+                case 16:
+                    DoScriptText(SAY_4, me);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    break;
+                case 20:
+                    me->SetPhaseMask(1, true);
+                    DoScriptText(SAY_5, me);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
+                    SetRun(true);
+                    break;
             }
         }
     };
@@ -2004,14 +2002,13 @@ public:
             else Bonker_agro=0;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 29:
                     player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
