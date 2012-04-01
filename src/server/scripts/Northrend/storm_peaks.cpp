@@ -940,17 +940,17 @@ public:
 
 void AddSC_storm_peaks()
 {
-    new npc_agnetta_tyrsdottar;
-    new npc_frostborn_scout;
-    new npc_thorim;
-    new npc_victorious_challenger;
-    new npc_loklira_crone;
-    new npc_injured_goblin;
-    new npc_roxi_ramrocket;
-    new npc_brunnhildar_prisoner;
-    new npc_freed_protodrake;
-    new npc_icefang;
-    new npc_hyldsmeet_protodrake;
+    new npc_agnetta_tyrsdottar();
+    new npc_frostborn_scout();
+    new npc_thorim();
+    new npc_victorious_challenger();
+    new npc_loklira_crone();
+    new npc_injured_goblin();
+    new npc_roxi_ramrocket();
+    new npc_brunnhildar_prisoner();
+    new npc_freed_protodrake();
+    new npc_icefang();
+    new npc_hyldsmeet_protodrake();
     new npc_snowblind_follower();
-    new npc_exhausted_vrykul;
+    new npc_exhausted_vrykul();
 }
