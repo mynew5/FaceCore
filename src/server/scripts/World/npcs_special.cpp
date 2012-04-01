@@ -3335,7 +3335,7 @@ void AddSC_npcs_special()
     new npc_shadowfiend();
     new npc_wormhole();
     new npc_pet_trainer();
-    new npc_locksmith()
+    new npc_locksmith();
     new npc_tabard_vendor();
     new npc_experience();
     new npc_argent_squire();
