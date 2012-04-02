@@ -193,6 +193,8 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                             damage += aurEff->GetAmount() * (ticks - aurEff->GetTickNumber());
 
                         damage = damage / ticks;
+                        // prevent deep wound tick exceed 20000 damage, temp fix for really high damage when server has high diff
+                        damage = damage > 1 ? (damage < 20000 ? damage : 20000) : 1;
                         caster->CastCustomSpell(target, SPELL_DEEP_WOUNDS_RANK_PERIODIC, &damage, NULL, NULL, true);
                     }
             }
@@ -278,7 +280,15 @@ class spell_warr_slam : public SpellScriptLoader
             {
                 int32 bp0 = GetEffectValue();
                 if (GetHitUnit())
+                {
                     GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_SLAM, &bp0, NULL, NULL, true, 0);
+                    if (Aura * aura = GetCaster()->GetAura(46916))
+                        if (aura->GetCharges())
+                        {
+                            GetCaster()->ToPlayer()->RestoreSpellMods(GetSpell(), 46916);
+                            aura->DropCharge();
+                        }
+                }
             }
 
             void Register()
@@ -339,6 +349,13 @@ class spell_warr_execute : public SpellScriptLoader
 
                     int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
                     caster->CastCustomSpell(target,SPELL_EXECUTE,&bp,0,0,true,0,0,GetOriginalCaster()->GetGUID());
+                    // Item - Warrior T10 Melee 4P Bonus
+                    if (Aura * aura = caster->GetAura(52437))
+                        if (aura->GetCharges())
+                        {
+                            caster->ToPlayer()->RestoreSpellMods(GetSpell(), 52437);
+                            //aura->DropCharge();
+                        }
                 }
             }
 
