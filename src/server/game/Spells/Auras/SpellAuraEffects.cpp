@@ -2862,17 +2862,18 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
 
     //! Not entirely sure if this should be sent for creatures as well, but I don't think so.
     target->SetCanFly(apply);
-    if (apply)
-        target->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-    else
+    if (!apply)
     {
-        target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        target->RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING_FLY);
+        target->GetMotionMaster()->MoveFall();
     }
 
-    target->SendMovementFlagUpdate();
-    if (Player* player = target->m_movedPlayer)
-        player->SendMovementSetCanFly(apply);
+    Player* player = target->ToPlayer();
+    if (!player)
+        player = target->m_movedPlayer;
+
+    if (player)
+        player->SendMovementCanFlyChange();
 
     //! We still need to initiate a server-side MoveFall here,
     //! which requires MSG_MOVE_FALL_LAND on landing.
@@ -2895,14 +2896,9 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
     if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
     else
-    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    }
 
-    target->SendMovementFlagUpdate();
-    if (Player* player = target->m_movedPlayer)
-        player->SendMovementSetWaterWalk(apply);
+    target->SendMovementWaterWalking();
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2922,13 +2918,9 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
     if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
     else
-    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    }
-    target->SendMovementFlagUpdate();
-    if (Player* player = target->m_movedPlayer)
-        player->SendMovementSetFeatherFall(apply);
+
+    target->SendMovementFeatherFall();
 
     // start fall from current height
     if (!apply && target->GetTypeId() == TYPEID_PLAYER)
@@ -2950,9 +2942,7 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
     }
 
     target->SetHover(apply);    //! Sets movementflags
-    target->SendMovementFlagUpdate();
-    if (Player* player = target->m_movedPlayer)
-        player->SendMovementSetHover(apply);
+    target->SendMovementHover();
 }
 
 void AuraEffect::HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3265,17 +3255,19 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
             target->SetCanFly(apply);
-            if (apply)
-                target->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-            else
+            if (!apply)
             {
                 target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
                 target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+                target->m_movementInfo.SetFallTime(0);
             }
 
-            target->SendMovementFlagUpdate();
-            if (Player* player = target->m_movedPlayer)
-                player->SendMovementSetCanFly(apply);
+            Player* player = target->ToPlayer();
+            if (!player)
+                player = target->m_movedPlayer;
+
+            if (player)
+                player->SendMovementCanFlyChange();
 
             //! We still need to initiate a server-side MoveFall here,
             //! which requires MSG_MOVE_FALL_LAND on landing.
@@ -5738,7 +5730,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (targets.empty())
                         return;
 
-                    Unit* spellTarget = SelectRandomContainerElement(targets);
+                    Unit* spellTarget = Trinity::Containers::SelectRandomContainerElement(targets);
 
                     target->CastSpell(spellTarget, 57840, true);
                     target->CastSpell(spellTarget, 57841, true);
@@ -6284,7 +6276,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
 void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const
 {
-    if (!caster || !caster->isAlive() || !target->isAlive())
+    if (!caster || !target->isAlive())
         return;
 
     if (target->HasUnitState(UNIT_STATE_ISOLATED) || target->IsImmunedToDamage(GetSpellInfo()))
@@ -6337,15 +6329,19 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
     if (damage)
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
-    caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
+    if (caster->isAlive())
+        caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
     int32 new_damage = caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), false);
 
-    float gainMultiplier = GetSpellInfo()->Effects[GetEffIndex()].CalcValueMultiplier(caster);
+    if (caster->isAlive())
+    {
+        float gainMultiplier = GetSpellInfo()->Effects[GetEffIndex()].CalcValueMultiplier(caster);
 
-    uint32 heal = uint32(caster->SpellHealingBonus(caster, GetSpellInfo(), uint32(new_damage * gainMultiplier), DOT, GetBase()->GetStackAmount()));
+        uint32 heal = uint32(caster->SpellHealingBonus(caster, GetSpellInfo(), uint32(new_damage * gainMultiplier), DOT, GetBase()->GetStackAmount()));
 
-    int32 gain = caster->HealBySpell(caster, GetSpellInfo(), heal);
-    caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellInfo());
+        int32 gain = caster->HealBySpell(caster, GetSpellInfo(), heal);
+        caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellInfo());
+    }
 }
 
 void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const

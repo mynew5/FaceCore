@@ -265,7 +265,8 @@ public:
             if (instance)
                 instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
             //Despawn Scarab Swarms neutral
-            Summons.DoAction(NPC_SCARAB, ACTION_SCARAB_SUBMERGE);
+            EntryCheckPredicate pred(NPC_SCARAB);
+            Summons.DoAction(ACTION_SCARAB_SUBMERGE, pred);
             //Spawn Burrow
             for (int i=0; i < 4; i++)
                 me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
@@ -306,7 +307,8 @@ public:
 
                     if (IsHeroic() && m_uiNerubianShadowStrikeTimer <= uiDiff)
                     {
-                        Summons.DoAction(NPC_BURROWER, ACTION_SHADOW_STRIKE);
+                        EntryCheckPredicate pred(NPC_BURROWER);
+                        Summons.DoAction(ACTION_SHADOW_STRIKE, pred);
                         m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
                     } else m_uiNerubianShadowStrikeTimer -= uiDiff;
 

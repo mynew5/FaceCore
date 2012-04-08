@@ -4508,7 +4508,7 @@ float Unit::GetTotalAuraMultiplierByMiscValue(AuraType auratype, int32 misc_valu
             if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
                 AddPctN(multiplier, (*i)->GetAmount());
     }
-
+    
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         AddPctN(multiplier, itr->second);
 
@@ -4555,7 +4555,7 @@ int32 Unit::GetTotalAuraModifierByAffectMask(AuraType auratype, SpellInfo const*
             if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
                 modifier += (*i)->GetAmount();
     }
-
+    
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         modifier += itr->second;
 
@@ -8735,6 +8735,26 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 }
                 break;
             }
+            case SPELLFAMILY_ROGUE:
+            {
+                switch (auraSpellInfo->Id)
+                {
+                    // Rogue T10 2P bonus, should only proc on caster
+                    case 70805:
+                    {
+                        if (victim != this)
+                            return false;
+                        break;
+                    }
+                    // Rogue T10 4P bonus, should proc on victim
+                    case 70803:
+                    {
+                        target = victim;
+                        break;
+                    }
+                }
+                break;
+            }
             default:
                  break;
         }
@@ -12570,6 +12590,12 @@ bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
         if (seer->GetGUID() == guid)
             return true;
 
+    if (Player const* seerPlayer = seer->ToPlayer())
+        if (Unit* owner =  GetOwner())
+            if (Player* ownerPlayer = owner->ToPlayer())
+                if (ownerPlayer->IsGroupVisibleFor(seerPlayer))
+                    return true;
+
     return false;
 }
 
@@ -14994,7 +15020,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
         return NULL;
 
     // select random
-    return SelectRandomContainerElement(targets);
+    return Trinity::Containers::SelectRandomContainerElement(targets);
 }
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
@@ -17632,4 +17658,70 @@ bool Unit::SetHover(bool enable)
     }
 
     return true;
+}
+
+void Unit::SendMovementHover()
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->SendMovementSetHover(HasUnitMovementFlag(MOVEMENTFLAG_HOVER));
+
+    WorldPacket data(MSG_MOVE_HOVER, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+}
+
+void Unit::SendMovementWaterWalking()
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
+
+    WorldPacket data(MSG_MOVE_WATER_WALK, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+}
+
+void Unit::SendMovementFeatherFall()
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->SendMovementSetFeatherFall(HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW));
+
+    WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+}
+
+void Unit::SendMovementGravityChange()
+{
+    WorldPacket data(MSG_MOVE_GRAVITY_CHNG, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
+}
+
+void Unit::SendMovementCanFlyChange()
+{
+    /*!
+        if ( a3->MoveFlags & MOVEMENTFLAG_CAN_FLY )
+        {
+            v4->MoveFlags |= 0x1000000u;
+            result = 1;
+        }
+        else
+        {
+            if ( v4->MoveFlags & MOVEMENTFLAG_FLYING )
+                CMovement::DisableFlying(v4);
+            v4->MoveFlags &= 0xFEFFFFFFu;
+            result = 1;
+        }
+    */
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->SendMovementSetCanFly(CanFly());
+
+    WorldPacket data(MSG_MOVE_UPDATE_CAN_FLY, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, false);
 }

@@ -809,7 +809,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                     return;
                 }
 
-                _target = SelectRandomContainerElement(targetList);
+                Unit* target = Trinity::Containers::SelectRandomContainerElement(targetList);
                 targetList.clear();
                 targetList.push_back(_target);
             }
