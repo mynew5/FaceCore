@@ -811,7 +811,8 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
                 Unit* target = Trinity::Containers::SelectRandomContainerElement(targetList);
                 targetList.clear();
-                targetList.push_back(_target);
+                targetList.push_back(target);
+                _target = target;
             }
 
             void SetTarget(std::list<Unit*>& targetList)
