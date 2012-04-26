@@ -1353,7 +1353,7 @@ class npc_vampiric_fiend : public CreatureScript
                 if (m_uiLEECHING_Timer <= uiDiff)
                 {
                     DoCastAOE(SPELL_LEECHING_ROT);
-                    me->ForcedDespawn(3000); 
+                    me->DespawnOrUnsummon(3000); 
                     m_uiLEECHING_Timer = 10000;
                 }
                 else
