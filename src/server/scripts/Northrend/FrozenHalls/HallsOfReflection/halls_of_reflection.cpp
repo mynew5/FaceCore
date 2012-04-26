@@ -1580,7 +1580,7 @@ public:
                     {
                         if (WallTarget->isAlive())
                         {
-                            WallTarget->ForcedDespawn();
+                            WallTarget->DespawnOrUnsummon();
                             WallTargetGUID = 0;
                         }
                     }
@@ -1614,7 +1614,7 @@ public:
                     {
                         if (WallTarget->isAlive())
                         {
-                            WallTarget->ForcedDespawn();
+                            WallTarget->DespawnOrUnsummon();
                             WallTargetGUID = 0;
                         }
                     }
@@ -1648,7 +1648,7 @@ public:
                     {
                         if (WallTarget->isAlive())
                         {
-                            WallTarget->ForcedDespawn();
+                            WallTarget->DespawnOrUnsummon();
                             WallTargetGUID = 0;
                         }
                     }
@@ -1681,7 +1681,7 @@ public:
                     {
                         if (WallTarget->isAlive())
                         {
-                            WallTarget->ForcedDespawn();
+                            WallTarget->DespawnOrUnsummon();
                             WallTargetGUID = 0;
                         }
                     }
@@ -2139,7 +2139,7 @@ public:
                         player->DestroyItemCount(ITEM_GETEMPERTES_QUELDELAR, 1, true);
                     }
                     checktimer = 0;
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 }
         }
 
