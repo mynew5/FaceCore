@@ -3655,6 +3655,18 @@ void SpellMgr::LoadDbcDataCorrections()
             case 72405: // Broken Frostmourne
                 spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;   // 200yd
                 break;
+            //
+            // Ruby Sanctum Spells
+            //
+            case 74809: // Summon Twilight Portal
+                spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
+                break;
+            case 74769: // Twilight Cutter
+            case 77844: // Twilight Cutter
+            case 77845: // Twilight Cutter
+            case 77846: // Twilight Cutter
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS;
+                break;
             case 40055: // Introspection
             case 40165: // Introspection
             case 40166: // Introspection

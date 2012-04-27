@@ -1,201 +1,298 @@
--- immunities for trash
-UPDATE creature_template SET mechanic_immune_mask=534724095 WHERE entry IN(40417,40418,40419,40420,40421,40422,40423,40424);
--- immunities for bosses
-UPDATE creature_template SET mechanic_immune_mask=1071595519 WHERE entry IN(39747,39823,39751,39899,39920,39922,39863,39864,40142,39944,39945,40143,40144,40145,39746,49805);
--- zarithian elites
-UPDATE creature_template SET mechanic_immune_mask=534722559 WHERE entry IN(39815,39814);
--- template updates
-UPDATE creature_template SET unit_flags=2 WHERE entry IN(39751,39920,39746,39805);
-UPDATE creature_addon SET auras='',path_id=0 WHERE guid IN(SELECT guid FROM creature WHERE id IN(37951,39920));
-UPDATE creature_template SET flags_extra =130 WHERE entry =26712;
--- flags for zarithrian
-UPDATE creature_template SET unit_flags=2 WHERE entry IN(39746,39805);
-DELETE FROM creature WHERE id =39794;
-INSERT INTO creature VALUES
-(397941,39794,724,15,1,16925,0,3043.649170,452.039093,85.533585,0,604800,0,0,12600,0,0,0,0,0),
-(397942,39794,724,15,1,16925,0,3048.162109,601.734741,86.851151,0,604800,0,0,12600,0,0,0,0,0);
-UPDATE creature_template SET unit_flags=33554434 WHERE entry IN(39814,39815);
--- deathstate aura for sanctum wardens
-DELETE FROM creature_addon WHERE guid IN(112656,112661);
-INSERT INTO creature_addon VALUES 
-(112656,0,0,0,0,65,'29266'),
-(112661,0,0,0,0,65,'29266');
+-- !! TODO LIST
+-- !! * Fix all damage from all NPCs.
 
--- Ruby sanctum
-UPDATE `instance_template` SET `Script`='instance_ruby_sanctum' WHERE `map`=724;
--- Halion
-UPDATE `creature_template` SET `ScriptName`='boss_halion_real', `AIName` ='' WHERE `entry`=39863;
-UPDATE `creature_template` SET `ScriptName`='boss_halion_twilight', `AIName` ='' WHERE `entry`=40142;
-UPDATE `creature_template` SET `ScriptName`='mob_halion_meteor', `AIName` ='' WHERE `entry` = 40029;
-UPDATE `creature_template` SET `ScriptName`='mob_halion_flame', `AIName` ='' WHERE `entry` IN (40041);
-UPDATE `creature_template` SET `ScriptName`='mob_halion_control', `AIName` ='' WHERE `entry` IN (40146);
-UPDATE `creature_template` SET `ScriptName`='mob_halion_orb', `AIName` ='' WHERE `entry` IN (40083,40100);
-UPDATE `creature_template` SET `ScriptName`='mob_orb_rotation_focus', `AIName` ='' WHERE `entry` = 40091;
-UPDATE `creature_template` SET `ScriptName`='mob_orb_carrier', `AIName` ='' WHERE `entry` = 40081;
-UPDATE `creature_template` SET `ScriptName`='mob_fiery_combustion', `AIName` ='' WHERE `entry` = 40001;
-UPDATE `creature_template` SET `ScriptName`='mob_soul_consumption', `AIName` ='' WHERE `entry` = 40135;
-UPDATE `creature_template` SET `ScriptName`='', `AIName` ='' WHERE `entry` IN (40143, 40144, 40145);
+-- Combustion / Consumption scaling aura
+DELETE FROM `spell_dbc` WHERE `id`=70507;
+INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`CastingTimeIndex`,`ProcChance`,`DurationIndex`,`RangeIndex`,`StackAmount`,`Effect1`,`EffectBasePoints1`,`EffectImplicitTargetA1`,`EffectApplyAuraName1`,`DmgMultiplier1`,`Comment`) VALUES
+(70507,0x00000100,0x00000400,0x0,1,101,21,1,99,6,10,1,61,1, 'Halion - Combustion & Consumption Scale Aura');
 
--- spell_halion_fiery_combustion 74562
-DELETE FROM `spell_script_names` WHERE `spell_id`=74562 AND `ScriptName`='spell_halion_fiery_combustion';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (74562,'spell_halion_fiery_combustion');
+-- Copy damage spell
+-- Attr1 0x8|0x80|0x400|0x10000
+-- Attr2 0x20000000
+-- Attr3 0x40000|0x20000000
+-- Attr5 0x8|0x20000|0x40000
+-- Attr6 0x2000|0x1000000|0x20000000
+DELETE FROM `spell_dbc` WHERE `id`=74810;
+INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`AttributesEx3`,`AttributesEx4`,`AttributesEx5`,`AttributesEx6`,`AttributesEx7`,`CastingTimeIndex`,`Effect1`,`EffectImplicitTargetA1`,`MaxAffectedTargets`,`Comment`) VALUES
+(74810,0,0x00010488,0x20000000,0x2004000,0,0x00060008,0x21002000,0,1,3,25,1, 'Halion - Copy Damage');
 
--- spell_halion_soul_consumption 74792
-DELETE FROM `spell_script_names` WHERE `spell_id`=74792 AND `ScriptName`='spell_halion_soul_consumption';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (74792,'spell_halion_soul_consumption');
+-- Bosses respawn time
+UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
 
--- spell_baltharus_enervaring_brand 74502
-DELETE FROM `spell_script_names` WHERE `spell_id`= 74502 AND `ScriptName`='spell_baltharus_enervating_brand';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (74502,'spell_baltharus_enervating_brand');
+-- Trash mobs respawn time
+UPDATE `creature` SET `spawntimesecs`=1209600 WHERE `map`=724 AND `id` NOT IN (39751,39746,39747);
 
--- spell_baltharus_enervaring_brand_trigger 74505
-DELETE FROM `spell_script_names` WHERE `spell_id`= 74505 AND `ScriptName`='spell_baltharus_enervating_brand_trigger';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (74505,'spell_baltharus_enervating_brand_trigger');
+-- Difficulty entries
+UPDATE `creature_template` SET `difficulty_entry_1`=40143,`difficulty_entry_2`=40144,`difficulty_entry_3`=40145 WHERE `entry`=40142;
+UPDATE `creature_template` SET `difficulty_entry_1`=40470,`difficulty_entry_2`=40471,`difficulty_entry_3`=40472 WHERE `entry`=40081;
 
--- spell_intimdating_roar 74384
-DELETE FROM `spell_script_names` WHERE `spell_id`= 74384 AND `ScriptName`='spell_intimdating_roar';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (74384,'spell_intimdating_roar');
+-- ---------------------------------------------------------------- --
+-- ----------------------- Template updates ----------------------- --
+-- ---------------------------------------------------------------- --
 
-UPDATE `gameobject_template` SET `data10` = 74807, `faction` = '0', `ScriptName` = 'go_halion_portal_twilight' WHERE `gameobject_template`.`entry` IN (202794,202795);
-UPDATE `gameobject_template` SET `faction` = '0', `ScriptName` = 'go_halion_portal_real' WHERE `gameobject_template`.`entry` IN (202796);
-
--- Baltharus
-UPDATE `creature_template` SET `ScriptName`='boss_baltharus', `AIName` ='', `dmg_multiplier` = 80  WHERE `entry`=39751;
-UPDATE `creature_template` SET `ScriptName`='mob_baltharus_clone', `AIName` ='', `dmg_multiplier` = 80  WHERE `entry`=39899;
-
-
--- zarithrian
-UPDATE `creature_template` SET `ScriptName`='boss_zarithrian', `AIName` ='' WHERE `entry`=39746;
-UPDATE `creature` SET `position_x` = '3008.552734',`position_y` = '530.471680',`position_z` = '89.195290',`orientation` = '6.16' WHERE `id` = 39746;
-UPDATE `creature_template` SET `ScriptName`='npc_onyx_flamecaller', `AIName` ='' WHERE `entry`=39814;
-
--- Saviana Ragefire
-UPDATE `creature_template` SET `ScriptName`='boss_ragefire', `AIName` ='' WHERE `entry`=39747;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=74455 AND `ConditionTypeOrReference`=18 AND `ConditionValue2`=39747;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
-(13,0,74455,0,18,1,39747,0,0, '', 'Ragefire - Conflagration');
-
--- Xerestrasza
-UPDATE `creature_template` SET `ScriptName`='mob_xerestrasza', `AIName` ='' WHERE `entry`=40429;
-
--- trash mobs
-UPDATE `creature_template` SET `ScriptName`='npc_charscale_assaulter', `AIName` ='' WHERE `entry`=40417;
-UPDATE `creature_template` SET `ScriptName`='npc_charscale_invoker', `AIName` ='' WHERE `entry`=40419;
-UPDATE `creature_template` SET `ScriptName`='npc_charscale_elite', `AIName` ='' WHERE `entry`=40421;
-UPDATE `creature_template` SET `ScriptName`='npc_charscale_commander', `AIName` ='' WHERE `entry`=40423;
-
--- SOME TEXT and SOUND EFECTS
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1666406 AND -1666000;
-
--- xerestrasza
-INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
-('-1666000','Help! I am trapped within this tree! I require aid!','Спасите! Я под этим деревом. Мне нужна помощь!','17490','6','0','0','SAY_XERESTRASZA_YELL_1'),
-('-1666001','Thank you! I could have not held out for much longer. A terrible thing has happened here.','Спасибо! Без вас я бы долго не продержалась... Здесь произошли страшные события...','17491','6','0','0','SAY_XERESTRASZA_YELL_2'),
-('-1666002','We believed that the Sanctum was well fortified, but we were not prepareted for the nature of this assault.','Святилище считалось неприступным, но до сих пор оно не подвергалось такому штурму...','17492','0','0','0','SAY_XERESTRASZA_SAY_1'),
-('-1666003','The Black Dragonkin materialized from thin air, and set upon us before we could react.','Черные драконы явились из ниоткуда. Мы даже не успели понять что происходит...','17493','0','0','0','SAY_XERESTRASZA_SAY_2'),
-('-1666004','We did not stand a chance. As my brethren perished around me, I managed to retreat here and bar the entrance.','Силы были неравны, мои братья гибли один за другим. А я спряталась здесь и запечатала вход.','17494','0','0','0','SAY_XERESTRASZA_SAY_3'),
-('-1666005','They slaughtered us with cold efficiency, but the true focus of their interest seemed to be the eggs kept here in the sanctum.','Нас убивали с расчетливой жестокостью, но основной целью врага была кладка яиц в святилище.','17495','0','0','0','SAY_XERESTRASZA_SAY_4'),
-('-1666006','The commander of the forces on the ground here is a cruel brute named Zarithrian. But I fear there are greater powers at work.',' Атакой руководил кровожадный Заритриан, но, боюсь, тут замешано и более могущественное зло.','17496','0','0','0','SAY_XERESTRASZA_SAY_5'),
-('-1666007','In their initial assault I caught a glimpse of their true leader, a fearsome full-grown Twilight Dragon.','В самом начале я ощутила присутствие их настоящего лидера - огромного сумеречного дракона.','17497','0','0','0','SAY_XERESTRASZA_SAY_6'),
-('-1666008','I know not the extent of their plans heroes, but I know this: they cannot be allowed to succeed!','Герои, мне не ведомо чего добиваются эти захватчики. Одно я знаю точно - их нужно остановить!','17498','0','0','0','SAY_XERESTRASZA_SAY_7'),
+UPDATE `creature_template` SET `flags_extra`=130,`ScriptName`= 'npc_halion_controller', `faction_A`=35,`faction_H`=35,`exp`=2 WHERE `entry`=40146; -- 40146 - Halion Controller
 
 -- Halion
-('-1666100','Meddlesome insects, you\'re too late! The Ruby Sanctum is lost.','Назойливая мошкара! Вы опоздали. Рубиновое святилище пало!','17499','6','0','0','SAY_HALION_SPAWN'),
-('-1666101','Your world teeters on the brink of annihilation. You will all bear witness to the coming of a new age of destruction!','Этот мир вот-вот соскользнет в бездну. Вам выпала честь узреть начало эры РАЗРУШЕНИЯ!','17500','6','0','0','SAY_HALION_AGGRO'),
-('-1666102','Another hero falls.','Сколько еще таких героев?','17501','6','0','0','SAY_HALION_SLAY_1'),
-('-1666103','Ha Ha Ha!','','17502','6','0','0','SAY_HALION_SLAY_2'),
-('-1666104','Relish this victory mortals, for it will be your last. This world will burn with the Master\'s return!','Это ваша последняя победа. Насладитесь сполна ее вкусом. Ибо когда вернется мой господин, этот мир сгинет в огне!','17503','6','0','0','SAY_HALION_DEATH'),
-('-1666105','Not good enough!','Надоело!','17504','6','0','0','SAY_HALION_BERSERK'),
-('-1666106','The heavens burn!','Небеса в огне!','17505','6','0','0','SAY_HALION_SPECIAL_1'),
-('-1666107','Beware the shadow!','','17506','6','0','0','SAY_HALION_SPECIAL_2'),
-('-1666108','You will find only suffering within the realm of Twilight. Enter if you dare.','Вы найдете только тьму в мире Сумерек. Входите, если посмеете.','17507','6','0','0','SAY_HALION_PHASE_2'),
-('-1666109','I am the light AND the darkness! Cower mortals before the Herald of Deathwing!','Я есть свет и я есть тьма! Трепещите, ничтожные, перед посланником Смертокрыла!','17508','6','0','0','SAY_HALION_PHASE_3'),
-('-1666110','The orbiting spheres pulse with dark energy!','Во вращающихся сферах пульсирует темная энергия!','0','3','0','0',''),
-('-1666111','Your companions effort force Halion further into the physical realm!','Ваши союзники протолкнули Халиона дальше в физический мир!','0','3','0','0',''),
-('-1666112','Your companions effort force Halion further into the twilight realm!','Ваши союзники протолкнули Халиона дальше в реальный мир!','0','3','0','0',''),
-('-1666113','Your efforts force Halion further out of the physical realm!','','0','3','0','0',''),
-('-1666114','Your efforts force Halion further out of the twilight realm!','','0','3','0','0',''),
-('-1666115','<need translate>','Находясь в покое в одном из миров, Халион восстанавливает жизненные силы.','0','3','0','0',''),
+UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35,`faction_A`=14,`faction_H`=14, `exp`=2 WHERE `entry` IN (39863,39864,39944,39945,40142);
+UPDATE `creature_template` SET `ScriptName`= 'boss_halion',`flags_extra`=`flags_extra`|0x1 WHERE `entry`=39863;
 
--- Zarithrian
-('-1666200','Alexstrasza has chosen capable allies. A pity that I must END YOU!','Алекстраза выбрала достойных союзников... Жаль, что придется ПРИКОНЧИТЬ ВАС!','17512','6','0','0','SAY_ZARITHRIAN_AGGRO'),
-('-1666201','You thought you stood a chance?','Глупо было и надеяться!','17513','6','0','0','SAY_ZARITHRIAN_SLAY_1'),
-('-1666202','It\'s for the best.','Все только к лучшему!','17514','6','0','0','SAY_ZARITHRIAN_SLAY_2'),
-('-1666203','Halion! I\'m...aah!','ХАЛИОН! Я...','17515','6','0','0','SAY_ZARITHRIAN_DEATH'),
-('-1666204','Turn them to ash, minions!','Слуги! Обратите их в пепел!','17516','6','0','0','SAY_ZARITHRIAN_SPECIAL_1'),
+-- Trash mobs
+UPDATE `creature_template` SET `mindmg`=422,`maxdmg`=586,`attackpower`=642,`dmg_multiplier`=7.5 WHERE `entry` IN (40417,40418,40419,40420,40421,40422,40423,40424);
 
--- baltharus
-('-1666300','Ah, the entertainment has arrived...','А-а-а, цирк приехал.','17520','6','0','0','SAY_BALTHARUS_AGGRO'),
-('-1666301','Baltharus leaves no survivors!','Балтар не оставляет живых!','17521','6','0','0','SAY_BALTHARUS_SLAY_1'),
-('-1666302','This world has enough heroes!','В мире хватает героев и без тебя...','17522','6','0','0','SAY_BALTHARUS_SLAY_2'),
-('-1666303','I...didn\'t see that coming...','Как… это могло произойти?..','17523','1','0','0','SAY_BALTHARUS_DEATH'),
-('-1666304','Twice the pain and half the fun!','Вдвое сильнее страдание.','17524','6','0','0','SAY_BALTHARUS_SPECIAL_1'),
-('-1666305','Your power wanes, ancient one! Soon, you will join your friends!','Твоя сила на исходе, Древнейшая! Скоро ты присоединишься к своим друзьям!','17525','6','0','0','SAY_BALTHARUS_YELL'),
+-- Pre bosses
+UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry` IN (39751,39920,39747,39823,39746,39805);
 
--- saviana
-('-1666400','You will suffer for this intrusion...','Ваш-ш-ши муки с-cтанут платой за это вторжение!','17528','6','0','0','SAY_SAVIANA_AGGRO'),
-('-1666401','As it should be!','Так и должно быть!','17529','6','0','0','SAY_SAVIANA_SLAY_1'),
-('-1666402','Halion will be pleased...','Халион будет доволен!','17530','6','0','0','SAY_SAVIANA_SLAY_2'),
-('-1666403','Burn in the master\'s flame!','Горите в огне хозяина!','17532','6','0','0','SAY_SAVIANA_SPECIAL_1'),
-('-1666404','Saviana Ragefire becomes enraged !','|3-3(%s) впадает в исступление!','0','2','0','0','SAY_SAVIANA_ENRAGE');
+UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry` IN (40041, 40042, 40043, 40044); -- 40041, 40042, 40043 & 40044 - Meteor Strike
+UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40029; -- 40029 - Meteor Strike (Initial)
+UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- 40055 - Meteor Strike
+
+UPDATE `creature_template` SET `faction_A`=14,`faction_H`=14,`exp`=2,`mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry`=40142; -- 40142 - Halion     - The Twilight Destroyer
+UPDATE `creature_template` SET `faction_A`=14,`faction_H`=14,`exp`=2,`mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry`=40143; -- 40143 - Halion (1) - The Twilight Destroyer
+UPDATE `creature_template` SET `faction_A`=14,`faction_H`=14,`exp`=2,`mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry`=40144; -- 40144 - Halion (2) - The Twilight Destroyer
+UPDATE `creature_template` SET `faction_A`=14,`faction_H`=14,`exp`=2,`mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry`=40145; -- 40145 - Halion (3) - The Twilight Destroyer
+
+-- 40091 - Orb Rotation Focus
+UPDATE `creature_template` SET `modelid1`=11686,`modelid2`=169,`scale`=1,`unit_flags`=33554688 WHERE `entry`=40091;
+
+UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=718,`unit_flags`=33554688 WHERE `entry`=40081; -- 40081 - Orb Carrier 
+UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=718,`unit_flags`=33554688 WHERE `entry`=40470; -- 40470 - Orb Carrier (1)
+UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=746,`unit_flags`=33554688 WHERE `entry`=40471; -- 40471 - Orb Carrier (2)
+UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=746,`unit_flags`=33554688 WHERE `entry`=40472; -- 40472 - Orb Carrier (3)
+UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432 WHERE `entry` IN(40001, 40135); -- 40001 & 40135 - Combustion & Consumption
+
+-- 40469, 40468, 40083 & 40100 - Shadow Orb
+UPDATE `creature_template` SET `InhabitType`=7,`flags_extra`=2,`unit_flags`=33554432,`baseattacktime`=2000,`speed_walk`=2.4,`speed_run`=0.85714,`faction_A`=14,`faction_H`=14,`exp`=2,`maxlevel`=80,`minlevel`=80, unit_flags = unit_flags | 4 | 512, `type`=4, `HoverHeight`=0, `ScriptName`= '' WHERE `entry` IN (40469, 40468, 40083, 40100);
+
+-- Script Names
+UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142; -- Twilight Halion
+UPDATE `creature_template` SET `ScriptName`= 'npc_orb_carrier' WHERE `entry`=40081;
+UPDATE `creature_template` SET `ScriptName`= 'npc_combustion_consumption' WHERE `entry` IN(40001, 40135);
+UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial' WHERE `entry`=40029;
+UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike' WHERE `entry` IN (40041, 40042, 40043, 40044);
+
+-- Model info update
+UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
+
+-- Spell 75074 cannot be found in any DBC file and is not found in sniffs.
+-- thus leaving us with no other choice than editing a WDB field (kids, do not try this at home)
+UPDATE `gameobject_template` SET `data10`=74807,`WDBVerified`=-12340 WHERE `entry` IN (202794, 202795);
+UPDATE `gameobject_template` SET `flags`=`flags`|32 WHERE `entry`=202794;
+UPDATE `gameobject_template` SET `faction`=35, `flags`=`flags`|32,`ScriptName`='go_exit_twilight_realm',`WDBVerified`=-12340 WHERE `entry`=202796;
+
+-- Spell scripts
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_fiery_combustion';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_soul_consumption';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_combustion';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_consumption';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_summon';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_leave_twilight_realm';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twilight_realm';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_phasing';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_clear_debuffs';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_track_rotation';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(74641, 'spell_halion_meteor_strike_marker'),
+(74562, 'spell_halion_fiery_combustion'),
+(74792, 'spell_halion_soul_consumption'),
+(74567, 'spell_halion_mark_of_combustion'),
+(74795, 'spell_halion_mark_of_consumption'),
+(74610, 'spell_halion_combustion_consumption_summon'),
+(74800, 'spell_halion_combustion_consumption_summon'),
+(74812, 'spell_halion_leave_twilight_realm'),
+(74807, 'spell_halion_enter_twilight_realm'),
+(74808, 'spell_halion_twilight_phasing'),
+(74769, 'spell_halion_twilight_cutter'),
+(77844, 'spell_halion_twilight_cutter'),
+(77845, 'spell_halion_twilight_cutter'),
+(75396, 'spell_halion_clear_debuffs'),
+(77846, 'spell_halion_twilight_cutter'),
+(74758, 'spell_halion_track_rotation');
+
+-- Texts
+DELETE FROM `creature` WHERE `id`=40146;
+DELETE FROM `creature_text` WHERE `entry`=39863;
+DELETE FROM `creature_text` WHERE `entry`=40142;
+DELETE FROM `creature_text` WHERE `entry`=40146;
+DELETE FROM `creature_text` WHERE `entry`=40083;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
+(39863,0,0, 'Meddlesome insects! You are too late. The Ruby Sanctum is lost!',14,0,100,1,0,17499, 'Halion'),
+(39863,1,0, 'Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!',14,0,100,0,0,17500, 'Halion'),
+(39863,2,0, 'The heavens burn!',14,0,100,0,0,17505, 'Halion'),
+(39863,3,0, 'You will find only suffering within the realm of twilight! Enter if you dare!',14,0,100,0,0,17507, 'Halion'),
+(39863,4,0, 'Relish this victory, mortals, for it will be your last! This world will burn with the master''s return!',14,0,100,0,0,17503, 'Halion'),
+(39863,5,0, 'Another "hero" falls.',14,0,100,0,0,17501, 'Halion'),
+(39863,6,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion'),
+
+(40142,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
+(40142,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17508, 'Halion'),
+
+(40146,0,0, 'Your companion''s efforts have forced Halion further out of the Physical realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,1,0, 'Your efforts have forced Halion further into the Physical realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,2,0, 'Your companion''s efforts have forced Halion further out of the Twilight realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,3,0, 'Your efforts have forced Halion further into the Twilight realm!',42,0,100,0,0,0, 'Halion Controller'),
+(40146,4,0, 'Without pressure in both realms, Halion begins to regenerate.',42,0,100,0,0,0, 'Halion Controller'),
+
+(40083,0,0, 'The orbiting spheres pulse with dark energy!',41,0,100,0,0,0, 'Shadow Orb');
+
+-- Spawns
+SET @OGUID = 240110; -- Set guid (1 required)
+DELETE FROM `gameobject` WHERE `id`=203624;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+(@OGUID,203624,724,15,0x20,3157.372,533.9948,72.8887,1.034892,0,0,0.4946623,0.8690853,120,0,0); -- GO_TWILIGHT_FLAME_RING
+
+SET @GUID = 240111; -- Set guid (3 required)
+DELETE FROM `creature` WHERE `id` IN (40081,40091,40151);
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+(@GUID,40091,724,15,0x20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
+(@GUID+1,40081,724,15,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0), -- Orb Carrier
+(@GUID+2,40151,724,15,0x21,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Combat Stalker
+
+-- Pathing for Orb Rotation Focus Entry: 40091
+SET @PATH = @GUID * 10;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@GUID;
+DELETE FROM `creature_addon` WHERE `guid`=@GUID;
+INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes2`,`mount`,`auras`) VALUES (@GUID,@PATH,1,0, '');
+DELETE FROM `waypoint_data` WHERE `id`=@PATH;
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,3117.59,547.7952,72.96869,0,0,0,0,100,0),
+(@PATH,2,3127.461,558.7396,72.96869,0,0,0,0,100,0),
+(@PATH,3,3138.042,567.9514,72.98305,0,0,0,0,100,0),
+(@PATH,4,3154.09,574.9636,72.98305,0,0,0,0,100,0),
+(@PATH,5,3172.565,567.493,72.86058,0,0,0,0,100,0),
+(@PATH,6,3181.981,555.8889,72.9127,0,0,0,0,100,0),
+(@PATH,7,3189.923,533.3542,73.0377,0,0,0,0,100,0),
+(@PATH,8,3182.315,513.4202,72.9771,0,0,0,0,100,0),
+(@PATH,9,3177.168,504.3802,72.7271,0,0,0,0,100,0),
+(@PATH,10,3167.878,496.8368,72.50312,0,0,0,0,100,0),
+(@PATH,11,3152.238,490.4705,72.62009,0,0,0,0,100,0),
+(@PATH,12,3138.174,499.3056,72.87009,0,0,0,0,100,0),
+(@PATH,13,3126.83,506.0799,72.95515,0,0,0,0,100,0),
+(@PATH,14,3120.68,515.3524,72.95515,0,0,0,0,100,0),
+(@PATH,15,3113.711,533.5382,72.96869,0,0,0,0,100,0);
+
+-- Vehicle accessory for Orb Carrier
+DELETE FROM `vehicle_template_accessory` WHERE `entry` IN (40081,40470,40471,40472);
+INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`,`summontype`,`summontimer`) VALUES
+(40081,40083,0,1, 'Orb Carrier',6,30000),
+(40081,40100,1,1, 'Orb Carrier',6,30000),
+
+(40470,40083,0,1, 'Orb Carrier',6,30000),
+(40470,40100,1,1, 'Orb Carrier',6,30000),
+
+(40471,40083,0,1, 'Orb Carrier',6,30000),
+(40471,40100,1,1, 'Orb Carrier',6,30000),
+(40471,40468,2,1, 'Orb Carrier (seat guessed)',6,30000),
+(40471,40469,3,1, 'Orb Carrier (seat guessed)',6,30000),
+
+(40472,40083,0,1, 'Orb Carrier',6,30000),
+(40472,40100,1,1, 'Orb Carrier',6,30000),
+(40472,40468,2,1, 'Orb Carrier (seat guessed)',6,30000),
+(40472,40469,3,1, 'Orb Carrier (seat guessed)',6,30000);
+
+-- Vehicle spellclicks
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (40081,40470,40471,40472);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
+(40081,46598,0,1), -- Ride Vehicle Hardcoded
+(40470,46598,0,1),
+(40471,46598,0,1),
+(40472,46598,0,1);
+
+-- Conditions
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=74758;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75886;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13,1,75886,0,0,31,0,3,40683,0,0,0, "", "Blazing Aura can only target Living Embers"),
+(13,1,75886,0,1,31,0,3,40684,0,0,0, "", "Blazing Aura can only target Living Embers"),
+(13,1,74758,0,0,31,0,3,40091,0,0,0, "", "Track Rotation can only target Orb Rotation Focus");
+
+-- Not applicable for now (until merge), just found this randomly while re-parsing sniffs
+-- UPDATE creature_template SET HoverHeight=1.6 WHERE entry=40421;
 
 
--- Ruby sanctum bosses respawn time
-UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (39863,39751,39746,39747);
-UPDATE `creature_template` SET `rank` = 3 WHERE `entry` IN  (39863,39751,39746,39747);
+-- ------------------ Guessed Data (only to make it as close as blizzlike) ------------------ --
 
--- Ruby Sanctum bosses id saving
-UPDATE `creature_template` SET `flags_extra` = 1 WHERE `entry` IN
-(39863,39864,39944,39945, -- Halion
- 39751,39920, -- Baltharus
- 39746,39805, -- General Zarithrian
- 39747,39823); -- Saviana Ragefire
- 
+-- Halion and Twilight Halion
+-- Damage modifier
+UPDATE `creature_template` SET `dmg_multiplier`=95, `baseattacktime`=1500 WHERE `entry` IN (39863,40142);
+UPDATE `creature_template` SET `dmg_multiplier`=145, `baseattacktime`=1500 WHERE `entry` IN (39864,40143);
+UPDATE `creature_template` SET `dmg_multiplier`=145, `baseattacktime`=1500 WHERE `entry` IN (39944,40144);
+UPDATE `creature_template` SET `dmg_multiplier`=215, `baseattacktime`=1500 WHERE `entry` IN (39945,40145);
 
--- Charscale Invoker
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '7.5' WHERE entry =40417;
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '12.5' WHERE entry =40418;
- -- Charscale Assaulter
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '7.5' WHERE entry =40419;
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '12.5' WHERE entry =40420;
- -- Charscale Elite
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '7.5' WHERE entry =40421;
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '12.5' WHERE entry =40422;
- -- Charscale Commander
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '7.5' WHERE entry =40423;
- UPDATE creature_template SET mindmg = '422',maxdmg = '586',attackpower = '642',dmg_multiplier = '12.5' WHERE entry =40424;
+-- Other Stat
+UPDATE `creature_template` SET `speed_walk`=1.6, `speed_run`= 1.42857, `unit_flags` = 32832 WHERE `entry` IN (39864,39944,39945);
+UPDATE `creature_template` SET `minlevel`= 83, `maxlevel`=83, `speed_walk`=1.6, `speed_run`= 1.42857, `unit_flags` = 559168 WHERE `entry` IN (40143,40144,40145);
 
+-- Immunity
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 
+1|          -- charm
+2|          -- disorient
+4|          -- disarm
+8|          -- distract
+16|         -- fear
+32|         -- grip
+64|         -- root
+256|        -- silence
+512|        -- sleep
+1024|       -- snare
+2048|       -- stun
+4096|       -- freeze
+8192|       -- knockout
+65536|      -- polymorph
+131072|     -- banish
+524288|     -- shackle
+1048576|    -- mount
+4194304|    -- turn
+8388608|    -- horror
+33554432|   -- interrupt
+67108864|   -- daze
+536870912   -- sapped
+where `entry` IN (39863,40142,39864,40143,39944,40144,39945,40145);
+
+-- Mini Boss
 -- Baltharus the Warborn
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '35' WHERE entry =39751;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '45' WHERE entry =39920;
-
--- Baltharus Clone
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '35' WHERE entry =39899;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '45' WHERE entry =39922;
+UPDATE `creature_template` SET `dmg_multiplier`=75 WHERE `entry`=39751;
+UPDATE `creature_template` SET `dmg_multiplier`=110, `lootid`=39947, `speed_walk`=2.8, `scale`=1.5 WHERE `entry`=39920;
+-- Clone
+UPDATE `creature_template` SET `mindmg`=509, `maxdmg`=683, `attackpower`=805, `dmg_multiplier`=75 WHERE `entry`=39899;
+UPDATE `creature_template` SET `mindmg`=509, `maxdmg`=683, `attackpower`=805, `dmg_multiplier`=110, `baseattacktime`=2000, `unit_flags`=64, `flags_extra`=1 WHERE `entry`=39922;
 
 -- Saviana Ragefire
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '35' WHERE entry =39747;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '45' WHERE entry =39823;
+UPDATE `creature_template` SET `dmg_multiplier`=75 WHERE `entry`=39747;
+UPDATE `creature_template` SET `dmg_multiplier`=110, `exp`=2, `speed_walk`=2, `speed_run`=2.14286, `scale`=1.2, `lootid`=39948, `flags_extra`=1 WHERE `entry`=39823;
 
 -- General Zarithrian
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '35' WHERE entry =39746;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '45' WHERE entry =39805;
+UPDATE `creature_template` SET `dmg_multiplier`=75 WHERE `entry`=39746;
+UPDATE `creature_template` SET `dmg_multiplier`=110, `lootid`=39946, `exp`=2, `flags_extra`=1 WHERE `entry`=39805;
 
--- Halion
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '35' WHERE entry =39863;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '45' WHERE entry =39864;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '55' WHERE entry =39944;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '75' WHERE entry =39945;
-
--- Twilight Halion
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '35' WHERE entry =40142;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '45' WHERE entry =40143;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '55' WHERE entry =40144;
- UPDATE creature_template SET mindmg = '496',maxdmg = '674',attackpower = '783',dmg_multiplier = '75' WHERE entry =40145;
-
-UPDATE creature_template SET mechanic_immune_mask = 617299803 WHERE entry IN (39751,39920,39899,39922,39747,39823,39746,39805,39863,39864,39944,39945,40142,40143,40144,40145);
-
-UPDATE creature_template SET faction_A=103, faction_H=103, speed_walk=2, unit_flags=64 WHERE entry IN (39746,39805);
-
-DELETE FROM creature WHERE id = 39863;
-INSERT INTO creature VALUES ('250456', '39863', '724', '15', '1', '0', '0', '3144,93', '527,233', ' 72.887245', '0,110395', '604800', '0', '0', '11156000', '0', '0', '0', '0', '0');
+-- Immunity
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 
+1|          -- charm
+2|          -- disorient
+4|          -- disarm
+8|          -- distract
+16|         -- fear
+32|         -- grip
+64|         -- root
+256|        -- silence
+512|        -- sleep
+1024|       -- snare
+2048|       -- stun
+4096|       -- freeze
+8192|       -- knockout
+65536|      -- polymorph
+131072|     -- banish
+524288|     -- shackle
+1048576|    -- mount
+4194304|    -- turn
+8388608|    -- horror
+33554432|   -- interrupt
+67108864|   -- daze
+536870912   -- sapped
+where `entry` IN (
+39751, 39920,   -- Baltharus the Warborn
+39899, 39922,   -- Baltharus the Warborn Clone
+39747, 39823,   -- Saviana Ragefire
+39746, 39805    -- General Zarithrian
+);
