@@ -317,6 +317,9 @@ class instance_ruby_sanctum : public InstanceMapScript
 
                         SetBossState(i, EncounterState(tmpState));
                     }
+                    if (instance && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE && GetBossState(DATA_HALION) != DONE && HalionControllerGUID == 0)
+                        if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                            halionController->AI()->DoAction(ACTION_INTRO_HALION);
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;

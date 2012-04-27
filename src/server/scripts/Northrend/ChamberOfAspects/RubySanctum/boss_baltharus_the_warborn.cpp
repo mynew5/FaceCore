@@ -230,6 +230,8 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             npc_baltharus_the_warborn_cloneAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
             }
 
             void EnterCombat(Unit* /*who*/)

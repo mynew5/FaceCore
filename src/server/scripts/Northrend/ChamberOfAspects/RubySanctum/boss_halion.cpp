@@ -64,6 +64,7 @@ enum Spells
     SPELL_CLEAVE                        = 74524,
     SPELL_METEOR_STRIKE                 = 74637,
     SPELL_TAIL_LASH                     = 74531,
+    SPELL_TWILIGHT_PRECISION            = 78243,
 
     SPELL_FIERY_COMBUSTION              = 74562,
     SPELL_MARK_OF_COMBUSTION            = 74567,
@@ -82,6 +83,7 @@ enum Spells
     SPELL_SOUL_CONSUMPTION              = 74792,
     SPELL_SOUL_CONSUMPTION_EXPLOSION    = 74799,
     SPELL_SOUL_CONSUMPTION_SUMMON       = 74800,
+    SPELL_DUSK_SHROUD                   = 75476,
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
@@ -112,7 +114,7 @@ enum Spells
     SPELL_TWILIGHT_MENDING              = 75509,
     SPELL_TWILIGHT_REALM                = 74807,
 
-    SPELL_COPY_DAMAGE                   = 74810, // Not in DBCs but found in sniffs.
+    SPELL_COPY_DAMAGE                   = 74810, // Not in DBCs but found in sniffs. Not cast.
 };
 
 enum Events
@@ -150,6 +152,10 @@ enum Events
     // every two seconds and if they find out that either one of the NPCs lost aggro on any player, that would
     // mean that the encounter has to reset. Not yet implemented, this comment block is rather some way for me
     // to brain a bit about this fubarish stuff.
+
+    EVENT_TWILIGHT_MENDING      = 19,
+    EVENT_PHASE_THREE           = 20,
+    EVENT_TRACK_ROTATION        = 21,
 };
 
 enum Actions
@@ -166,11 +172,10 @@ enum Actions
     ACTION_PHASE_THREE          = 5,
     ACTION_CLEANUP              = 6,
 
-    // Orb Rotation Focus
-    ACTION_BEGIN_ROTATION       = 7,
-
     // Orb Carrier
-    ACTION_SHOOT                = 8,
+    ACTION_SHOOT                = 7,
+    ACTION_ROTATE               = 8,
+    ACTION_STOP_ROTATE          = 9,
 };
 
 enum Phases
@@ -191,6 +196,8 @@ enum Misc
     DATA_MATERIAL_DAMAGE_TAKEN   = 2,
     DATA_STACKS_DISPELLED        = 3,
     DATA_FIGHT_PHASE             = 4,
+    DATA_MENDING                 = 5,
+    RING_RADIUS                  = 45,
 };
 
 enum OrbCarrierSeats
@@ -248,6 +255,7 @@ class boss_halion : public CreatureScript
                 _EnterCombat();
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+                me->AddAura(SPELL_TWILIGHT_PRECISION,me);
 
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
@@ -280,27 +288,48 @@ class boss_halion : public CreatureScript
                         twilightHalion->Kill(twilightHalion);
             }
 
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_KILL);
+            }
+
             void JustReachedHome()
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
+                me->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
+
+                if (GameObject* go = me->FindNearestGameObject(GO_HALION_PORTAL_1,200.0f))
+                    go->RemoveFromWorld();
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->Reset();
-
-                // I strongly begin to believe that both Halions are spawned after Halion's intro is processed.
-                if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
-                    twilightHalion->DespawnOrUnsummon();
 
                 _JustReachedHome();
             }
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if ((me->GetHealth() - damage) > 0 && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)))
+                if ((me->GetHealth() - damage) > 0 && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)) && attacker->GetEntry() != NPC_TWILIGHT_HALION)
+                {
                     if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
-                        me->CastCustomSpell(SPELL_COPY_DAMAGE, SPELLVALUE_BASE_POINT0, damage, twilightHalion, true);
+                    {
+                        SpellNonMeleeDamage damageInfo(me, twilightHalion, SPELL_COPY_DAMAGE, SPELL_SCHOOL_MASK_NONE);
+                        damageInfo.damage = damage;
+                        me->SendSpellNonMeleeDamageLog(&damageInfo);
+                        me->DealSpellDamage(&damageInfo, false);
+                    }
+                }
+
+                // Check phase under 40% health, hackish way to prevent exploit
+                if (HealthBelowPct(40) && !(events.GetPhaseMask() & PHASE_THREE_MASK))
+                {
+                    events.SetPhase(PHASE_THREE);
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                        controller->AI()->DoAction(ACTION_PHASE_THREE);
+                }
 
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
@@ -312,11 +341,9 @@ class boss_halion : public CreatureScript
 
                     Talk(SAY_PHASE_TWO);
                     DoCast(me, SPELL_TWILIGHT_PHASING);
-                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                        controller->AI()->DoAction(ACTION_PHASE_TWO);
                 }
 
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                if ((events.GetPhaseMask() & PHASE_THREE_MASK) && attacker->GetEntry() != NPC_TWILIGHT_HALION)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(DATA_MATERIAL_DAMAGE_TAKEN, damage);
             }
@@ -325,7 +352,11 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if ((!UpdateVictim() && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK))) || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!(events.GetPhaseMask() & PHASE_TWO_MASK))
+                    if (!UpdateVictim())
+                        return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 // Events won't be updated under phase two.
@@ -378,6 +409,10 @@ class boss_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25000);
                             break;
                         }
+                        case EVENT_TWILIGHT_MENDING:
+                            DoCast(me, SPELL_TWILIGHT_MENDING, true);
+                            events.ScheduleEvent(EVENT_TWILIGHT_MENDING, 2000);
+                            break;
                         default:
                             break;
                     }
@@ -390,6 +425,13 @@ class boss_halion : public CreatureScript
             {
                 if (index == DATA_FIGHT_PHASE)
                     events.SetPhase(value);
+                else if (index == DATA_MENDING)
+                {
+                    if (value)
+                        events.ScheduleEvent(EVENT_TWILIGHT_MENDING, 1000);
+                    else
+                        events.CancelEvent(EVENT_TWILIGHT_MENDING);
+                }
             }
 
             uint32 GetData(uint32 index)
@@ -431,8 +473,22 @@ class boss_twilight_halion : public CreatureScript
             boss_twilight_halionAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
                 me->SetPhaseMask(0x20, true); // Should not be visible with phasemask 0x21, so only 0x20
-                me->SetHealth(uint32(0.75f * me->GetMaxHealth()));
+                events.SetPhase(PHASE_ONE);
+            }
+
+            void Reset()
+            {
+                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    halion->AI()->Reset();
+                if(GameObject* go = ObjectAccessor::GetGameObject(*me,_portal1))
+                    go->RemoveFromWorld();
+                if(GameObject* go = ObjectAccessor::GetGameObject(*me,_portal2))
+                    go->RemoveFromWorld();
+                if (Creature* orbCarrier = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_CARRIER)))
+                    orbCarrier->AI()->DoAction(ACTION_STOP_ROTATE);
             }
 
             void EnterCombat(Unit* who)
@@ -442,8 +498,14 @@ class boss_twilight_halion : public CreatureScript
                         return;
 
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+                me->AddAura(SPELL_TWILIGHT_PRECISION,me);
+                me->AddAura(SPELL_DUSK_SHROUD,me);
                 events.Reset();
                 events.SetPhase(PHASE_TWO);
+                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    me->SetHealth(halion->GetHealth());
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
+                    controller->AI()->DoAction(ACTION_PHASE_TWO);
                 //! All of Twilight Halion's abilities are not phase dependant as he is never on Phase One.
                 //! However, phasemasks are "needed" so that we know on which phase we are when Halion takes
                 //! damage, causing corporeality not to tick in phase two.
@@ -451,6 +513,8 @@ class boss_twilight_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
                 events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
                 events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
+                if (Creature* orbCarrier = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_CARRIER)))
+                    orbCarrier->AI()->DoAction(ACTION_ROTATE);
             }
 
             void KilledUnit(Unit* victim)
@@ -476,6 +540,8 @@ class boss_twilight_halion : public CreatureScript
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->CastSpell(controller, SPELL_CLEAR_DEBUFFS);
+                if (Creature* orbCarrier = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_CARRIER)))
+                    orbCarrier->AI()->DoAction(ACTION_STOP_ROTATE);
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
@@ -485,13 +551,22 @@ class boss_twilight_halion : public CreatureScript
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->CastSpell(controller, SPELL_CLEAR_DEBUFFS);
                 ScriptedAI::JustReachedHome();
+                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    halion->AI()->Reset();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (me->GetHealth() - damage > 0)
-                    if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
-                        me->CastCustomSpell(SPELL_COPY_DAMAGE, SPELLVALUE_BASE_POINT0, damage, twilightHalion, true);
+                if (me->GetHealth() - damage > 0 && !(events.GetPhaseMask() & PHASE_ONE_MASK) && attacker->GetEntry() != NPC_HALION)
+                {
+                    if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    {
+                        SpellNonMeleeDamage damageInfo(me, halion, SPELL_COPY_DAMAGE, SPELL_SCHOOL_MASK_NONE);
+                        damageInfo.damage = damage;
+                        me->SendSpellNonMeleeDamageLog(&damageInfo);
+                        me->DealSpellDamage(&damageInfo, false);
+                    }
+                }
 
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
@@ -506,7 +581,7 @@ class boss_twilight_halion : public CreatureScript
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                if ((events.GetPhaseMask() & PHASE_THREE_MASK) && attacker->GetEntry() != NPC_HALION)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(DATA_TWILIGHT_DAMAGE_TAKEN, damage);
             }
@@ -522,9 +597,20 @@ class boss_twilight_halion : public CreatureScript
                     halion->CastSpell(halion, corporealityReference[5].materialRealmSpell, false);
                     halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
                     halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    halion->AI()->SetData(DATA_FIGHT_PHASE, PHASE_THREE);
+                    if (GameObject* go = halion->FindNearestGameObject(GO_HALION_PORTAL_1,200.0f))
+                        go->RemoveFromWorld();
+                    if (GameObject* go = halion->SummonGameObject(GO_HALION_PORTAL_EXIT,HalionSpawnPos.GetPositionX()+40,HalionSpawnPos.GetPositionY(),HalionSpawnPos.GetPositionZ(),0.0f,0.0f,0.0f,0.0f,0.0f,0))
+                    {
+                        go->SetPhaseMask(0x20,true);
+                        _portal1 = go->GetGUID();
+                    }
+                    if (GameObject* go = halion->SummonGameObject(GO_HALION_PORTAL_EXIT,HalionSpawnPos.GetPositionX()-40,HalionSpawnPos.GetPositionY(),HalionSpawnPos.GetPositionZ(),0.0f,0.0f,0.0f,0.0f,0.0f,0))
+                    {
+                        go->SetPhaseMask(0x20,true);
+                        _portal2 = go->GetGUID();
+                    }
                 }
-
+                events.ScheduleEvent(EVENT_PHASE_THREE, 10000);
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->DoAction(ACTION_PHASE_THREE);
             }
@@ -538,6 +624,17 @@ class boss_twilight_halion : public CreatureScript
             {
                 if (action == ACTION_BERSERK)
                     DoCast(me, SPELL_BERSERK);
+            }
+
+            void SetData(uint32 index, uint32 value)
+            {
+                if (index == DATA_MENDING)
+                {
+                    if (value)
+                        events.ScheduleEvent(EVENT_TWILIGHT_MENDING, 1000);
+                    else
+                        events.CancelEvent(EVENT_TWILIGHT_MENDING);
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -575,6 +672,14 @@ class boss_twilight_halion : public CreatureScript
                             DoCastAOE(SPELL_TAIL_LASH);
                             events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
                             break;
+                        case EVENT_PHASE_THREE:
+                            if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                                halion->AI()->SetData(DATA_FIGHT_PHASE, PHASE_THREE);
+                            break;
+                        case EVENT_TWILIGHT_MENDING:
+                            DoCast(me, SPELL_TWILIGHT_MENDING, true);
+                            events.ScheduleEvent(EVENT_TWILIGHT_MENDING, 2000);
+                            break;
                         default:
                             break;
                     }
@@ -586,6 +691,8 @@ class boss_twilight_halion : public CreatureScript
         private:
             InstanceScript* _instance;
             EventMap events;
+            uint64 _portal1;
+            uint64 _portal2;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -646,8 +753,6 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_TWO:
                     {
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 10000); // Fix the timer
-                        if (Creature* rotationFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
-                            rotationFocus->AI()->DoAction(ACTION_BEGIN_ROTATION);
                         break;
                     }
                     case ACTION_PHASE_THREE:
@@ -724,6 +829,14 @@ class npc_halion_controller : public CreatureScript
                                     if (canUpdate)
                                         materialCorporealityValue += 10;
                                 }
+                                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                                {
+                                    if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                                    {
+                                        halion->AI()->SetData(DATA_MENDING,0);
+                                        twilightHalion->AI()->SetData(DATA_MENDING,0);
+                                    }
+                                }
                             }
                             else
                             {
@@ -731,7 +844,8 @@ class npc_halion_controller : public CreatureScript
                                 {
                                     if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                     {
-                                        twilightHalion->CastSpell(halion, SPELL_TWILIGHT_MENDING);
+                                        halion->AI()->SetData(DATA_MENDING,1);
+                                        twilightHalion->AI()->SetData(DATA_MENDING,1);
 
                                         Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
                                         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
@@ -1068,59 +1182,109 @@ class npc_orb_carrier : public CreatureScript
 
         struct npc_orb_carrierAI : public ScriptedAI
         {
-            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature)
             {
                 ASSERT(creature->GetVehicleKit());
                 me->setActive(true);
+                _shoot = false;
             }
 
             void UpdateAI(uint32 const diff)
             {
-                //! According to sniffs this spell is cast every 1 or 2 seconds.
-                //! However, refreshing it looks bad, so just cast the spell if
-                //! we are not channeling it.
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    if (Creature* rotationFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
-                        DoCast(rotationFocus, SPELL_TRACK_ROTATION, true);
+                if (_shoot)
+                {
+                    _events.RescheduleEvent(EVENT_TRACK_ROTATION, 10000);
+                    _shoot = false;
+                    return;
+                }
+
+                _events.Update(diff);
+                if (_events.ExecuteEvent() == EVENT_TRACK_ROTATION)
+                {
+                    me->CastSpell((Unit*)NULL, SPELL_TRACK_ROTATION, false);
+                    _events.ScheduleEvent(EVENT_TRACK_ROTATION, 500);
+                }
             }
 
             void DoAction(int32 const action)
             {
-                if (action == ACTION_SHOOT)
+                switch (action)
                 {
-                    Vehicle* vehicle = me->GetVehicleKit();
-                    Unit* southOrb = vehicle->GetPassenger(SEAT_SOUTH);
-                    Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH);
-                    if (southOrb && northOrb)
+                    case ACTION_SHOOT:
                     {
-                        if (northOrb->GetTypeId() != TYPEID_UNIT || southOrb->GetTypeId() != TYPEID_UNIT)
+                        _shoot = true;
+                        float x, y;
+                        Vehicle* vehicle = me->GetVehicleKit();
+                        Unit* southOrb = vehicle->GetPassenger(SEAT_SOUTH);
+                        Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH);
+
+                        // for some reason, passenger location always in same position with vehicle location
+                        // workaround, summon another orb to do spell damage
+                        if (southOrb && northOrb)
+                        {
+                            if (northOrb->GetTypeId() != TYPEID_UNIT || southOrb->GetTypeId() != TYPEID_UNIT)
+                                return;
+
+                            me->GetNearPoint2D(x, y, RING_RADIUS, me->GetOrientation() + M_PI/2);
+                            Creature* orb1 = me->SummonCreature(NPC_SHADOW_ORB_N,x,y,me->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,9000);
+                            me->GetNearPoint2D(x, y, RING_RADIUS, me->GetOrientation() + M_PI*1.5);
+                            Creature* orb2 = me->SummonCreature(NPC_SHADOW_ORB_S,x,y,me->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,9000);
+                            if (orb1 && orb2)
+                            {
+                                // set in combat and passive, because it will stop spell if deals damage in middle of channeling
+                                orb1->SetReactState(REACT_PASSIVE);
+                                orb2->SetReactState(REACT_PASSIVE);
+                                orb1->AI()->DoZoneInCombat();
+                                orb2->AI()->DoZoneInCombat();
+                                orb1->AI()->Talk(EMOTE_WARN_LASER);
+                                orb1->CastSpell(orb1, SPELL_TWILIGHT_PULSE_PERIODIC, true);
+                                orb2->CastSpell(orb2, SPELL_TWILIGHT_PULSE_PERIODIC, true);
+                                orb1->CastSpell(orb2, SPELL_TWILIGHT_CUTTER, false);
+                            }
+                        }
+
+                        if (!IsHeroic())
                             return;
 
-                        northOrb->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
-                        northOrb->CastSpell(northOrb, SPELL_TWILIGHT_PULSE_PERIODIC, true);
-                        southOrb->CastSpell(southOrb, SPELL_TWILIGHT_PULSE_PERIODIC, true);
-                        northOrb->CastSpell(southOrb, SPELL_TWILIGHT_CUTTER, false);
+                        Unit* eastOrb = vehicle->GetPassenger(SEAT_EAST);
+                        Unit* westOrb = vehicle->GetPassenger(SEAT_WEST);
+                        if (eastOrb && westOrb)
+                        {
+                            if (eastOrb->GetTypeId() != TYPEID_UNIT || westOrb->GetTypeId() != TYPEID_UNIT)
+                                return;
+
+                            me->GetNearPoint2D(x, y, RING_RADIUS, me->GetOrientation() + M_PI);
+                            Creature* orb3 = me->SummonCreature(NPC_SHADOW_ORB_E,x,y,me->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,9000);
+                            me->GetNearPoint2D(x, y, RING_RADIUS, me->GetOrientation());
+                            Creature* orb4 = me->SummonCreature(NPC_SHADOW_ORB_W,x,y,me->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,9000);
+                            if (orb3 && orb4)
+                            {
+                                orb3->SetReactState(REACT_PASSIVE);
+                                orb4->SetReactState(REACT_PASSIVE);
+                                orb3->AI()->DoZoneInCombat();
+                                orb4->AI()->DoZoneInCombat();
+                                orb3->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
+                                orb3->CastSpell(orb3, SPELL_TWILIGHT_PULSE_PERIODIC, true);
+                                orb4->CastSpell(orb4, SPELL_TWILIGHT_PULSE_PERIODIC, true);
+                                orb3->CastSpell(orb4, SPELL_TWILIGHT_CUTTER, false);
+                            }
+                        }
+                        break;
                     }
-
-                    if (!IsHeroic())
-                        return;
-
-                    Unit* eastOrb = vehicle->GetPassenger(SEAT_EAST);
-                    Unit* westOrb = vehicle->GetPassenger(SEAT_WEST);
-                    if (eastOrb && westOrb)
-                    {
-                        if (eastOrb->GetTypeId() != TYPEID_UNIT || westOrb->GetTypeId() != TYPEID_UNIT)
-                            return;
-
-                        eastOrb->CastSpell(eastOrb, SPELL_TWILIGHT_PULSE_PERIODIC, true);
-                        westOrb->CastSpell(westOrb, SPELL_TWILIGHT_PULSE_PERIODIC, true);
-                        eastOrb->CastSpell(westOrb, SPELL_TWILIGHT_CUTTER, false);
-                    }
+                    case ACTION_ROTATE:
+                        _events.ScheduleEvent(EVENT_TRACK_ROTATION, 2000);
+                        break;
+                    case ACTION_STOP_ROTATE:
+                        _events.CancelEvent(EVENT_TRACK_ROTATION);
+                        break;
+                    default:
+                        break;
                 }
             }
 
         private:
-            InstanceScript* _instance;
+            bool _shoot;
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1654,7 +1818,7 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                caster->CastSpell(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
+                caster->CastSpell(HalionSpawnPos.GetPositionX(), HalionSpawnPos.GetPositionY(), HalionSpawnPos.GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
             }
 
             void Register()
@@ -1689,8 +1853,8 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
-                if (GetHitUnit()->HasAura(GetSpellInfo()->Effects[effIndex].BasePoints))
-                    GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[effIndex].BasePoints);
+                if (GetHitUnit()->HasAura(GetSpellInfo()->Effects[effIndex].CalcValue()))
+                    GetHitUnit()->RemoveAurasDueToSpell(GetSpellInfo()->Effects[effIndex].CalcValue());
             }
 
             void Register()
@@ -1760,36 +1924,48 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         }
 };
 
-class spell_halion_copy_damage : public SpellScriptLoader
+class spell_halion_track_rotation : public SpellScriptLoader
 {
     public:
-        spell_halion_copy_damage() : SpellScriptLoader("spell_halion_copy_damage") { }
+        spell_halion_track_rotation() : SpellScriptLoader("spell_halion_track_rotation") { }
 
-        class spell_halion_copy_damage_SpellScript : public SpellScript
+        class spell_halion_track_rotation_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_halion_copy_damage_SpellScript);
+            PrepareAuraScript(spell_halion_track_rotation_AuraScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster()) // Probably useless
-                    return;
-
-                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
-                damageInfo.damage = GetSpellValue()->EffectBasePoints[0];
-                GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);
-                GetCaster()->DealSpellDamage(&damageInfo, false);
+                Unit* caster = GetCaster();
+                if (Unit* target = GetTarget())
+                {
+                    caster->SetOrientation(caster->GetAngle(target));
+                    caster->SendMovementFlagUpdate();
+                }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_halion_copy_damage_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectApply += AuraEffectApplyFn(spell_halion_track_rotation_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_halion_copy_damage_SpellScript();
+            return new spell_halion_track_rotation_AuraScript();
         }
+};
+
+
+class go_exit_twilight_realm : public GameObjectScript
+{
+    public:
+    go_exit_twilight_realm() : GameObjectScript("go_exit_twilight_realm") { }
+
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
+    {
+        player->CastSpell(player,SPELL_LEAVE_TWILIGHT_REALM,true);
+        return true;
+    }
 };
 
 void AddSC_boss_halion()
@@ -1814,5 +1990,6 @@ void AddSC_boss_halion()
     new spell_halion_twilight_phasing();
     new spell_halion_twilight_cutter();
     new spell_halion_clear_debuffs();
-    new spell_halion_copy_damage();
+    new go_exit_twilight_realm();
+    new spell_halion_track_rotation();
 }
