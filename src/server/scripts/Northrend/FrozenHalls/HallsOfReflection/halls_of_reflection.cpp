@@ -1499,7 +1499,6 @@ public:
         uint64 IceWallGUID;
         uint64 WallTargetGUID;
         uint64 CaptainGUID;
-        Creature* LichKing;
         //uint32 ChestID;
 
         void Reset()
@@ -1750,13 +1749,12 @@ public:
                 case 0:
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     LichKingGUID = instance->GetData64(DATA_LICHKING);
-                    LichKing = instance->instance->GetCreature(LichKingGUID);
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, LichKing->GetGUID());
+                    me->SetUInt64Value(UNIT_FIELD_TARGET, LichKingGUID);
                     JumpNextStep(100);
                     break;
                 case 1:
                     HoRQuestComplete(me->GetEntry());
-                    if (LichKing)
+                    if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
                     {
                         if (me->GetEntry() == NPC_JAINA_OUTRO)
                             DoScriptText(SAY_LICH_KING_AGGRO_A, LichKing);
@@ -1771,7 +1769,7 @@ public:
                     if (me->GetEntry() == NPC_SYLVANA_OUTRO)
                     {
                         Fight = false;
-                        if (LichKing)
+                        if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
                             me->GetMotionMaster()->MovePoint(0, (me->GetPositionX()-5)+rand()%10, (me->GetPositionY()-5)+rand()%10, me->GetPositionZ());
                         JumpNextStep(3000);
                     }
@@ -1786,7 +1784,7 @@ public:
                 case 4:
                     if (me->GetEntry() == NPC_SYLVANA_OUTRO)
                     {
-                        if (LichKing)
+                        if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
                             me->CastSpell(LichKing, SPELL_SYLVANA_STEP, false);
                         JumpNextStep(3000);
                     }
@@ -1797,7 +1795,7 @@ public:
                     if (me->GetEntry() == NPC_SYLVANA_OUTRO)
                     {
                         Fight = false;
-                        if (LichKing)
+                        if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
                             me->GetMotionMaster()->MovePoint(0, (me->GetPositionX()-5)+rand()%10, (me->GetPositionY()-5)+rand()%10, me->GetPositionZ());
                         JumpNextStep(3000);
                     }
@@ -1807,7 +1805,7 @@ public:
                 case 6:
                     Fight = true;
 
-                    if (LichKing)
+                    if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
                     {
                         if (me->GetEntry() == NPC_SYLVANA_OUTRO)
                             DoCast(SPELL_SYLVANA_JUMP);
@@ -1819,8 +1817,9 @@ public:
                 case 7:
                     me->RemoveAllAuras();
 
-                    if (LichKing && !LichKing->HasAura(SPELL_ICE_PRISON_VISUAL))
-                        LichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, LichKing);
+                    if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
+                        if (!LichKing->HasAura(SPELL_ICE_PRISON_VISUAL))
+                            LichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, LichKing);
 
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                     me->AttackStop();
@@ -1838,19 +1837,21 @@ public:
                     break;
                 case 8:
                     me->GetMotionMaster()->MovePoint(0, 5577.187f, 2236.003f, 733.012f);
-                    if (LichKing && !LichKing->HasAura(SPELL_ICE_PRISON_VISUAL))
-                    {
-                        LichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, LichKing);
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, LichKing->GetGUID());
-                    }
+                    if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
+                        if (!LichKing->HasAura(SPELL_ICE_PRISON_VISUAL))
+                        {
+                            LichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, LichKing);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, LichKing->GetGUID());
+                        }
                     JumpNextStep(10000);
                     break;
                 case 9:
-                    if (LichKing && (!LichKing->HasAura(SPELL_ICE_PRISON_VISUAL) || !LichKing->HasAura(SPELL_DARK_ARROW)))
-                    {
-                        LichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, LichKing);
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, LichKing->GetGUID());
-                    }
+                    if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
+                        if (!LichKing->HasAura(SPELL_ICE_PRISON_VISUAL) || !LichKing->HasAura(SPELL_DARK_ARROW))
+                        {
+                            LichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, LichKing);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, LichKing->GetGUID());
+                        }
                     me->RemoveAllAuras();
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     Count = 1;
@@ -1897,7 +1898,7 @@ public:
                         Cave->SetGoState(GO_STATE_READY);
                     me->RemoveAllAuras();
 
-                    if (LichKing)
+                    if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
                         LichKing->DespawnOrUnsummon();
 
                     HoRQuestComplete(38211);
@@ -1995,8 +1996,9 @@ public:
                         if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(GO_ICE_WALL_2)))
                         {
                             gate->SetGoState(GO_STATE_READY);
-                            if (LichKing && LichKing->isAlive())
-                                DoScriptText(SAY_LICH_KING_WALL_02, LichKing);
+                            if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
+                                if (LichKing->isAlive())
+                                    DoScriptText(SAY_LICH_KING_WALL_02, LichKing);
                             IceWallGUID = gate->GetGUID();
                         }
                         break;
@@ -2004,7 +2006,8 @@ public:
                         if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(GO_ICE_WALL_3)))
                         {
                             gate->SetGoState(GO_STATE_READY);
-                            if (LichKing && LichKing->isAlive())
+                            if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
+                                if (LichKing->isAlive())
                                 DoScriptText(SAY_LICH_KING_WALL_03, LichKing);
                             IceWallGUID = gate->GetGUID();
                         }
@@ -2013,18 +2016,20 @@ public:
                         if (GameObject* gate = instance->instance->GetGameObject(instance->GetData64(GO_ICE_WALL_4)))
                         {
                             gate->SetGoState(GO_STATE_READY);
-                            if (LichKing && LichKing->isAlive())
-                                DoScriptText(SAY_LICH_KING_WALL_04, LichKing);
+                            if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
+                                if (LichKing->isAlive())
+                                    DoScriptText(SAY_LICH_KING_WALL_04, LichKing);
                             IceWallGUID = gate->GetGUID();
                         }
                         break;
                     case 5:
-                        if (LichKing && LichKing->isAlive())
-                        {
-                            LichKing->RemoveAurasDueToSpell(SPELL_WINTER);
-                            LichKing->SetSpeed(MOVE_WALK, 2.5f, true);
-                            Step = 0;
-                        }
+                        if (Creature* LichKing = instance->instance->GetCreature(LichKingGUID))
+                            if (LichKing->isAlive())
+                            {
+                                LichKing->RemoveAurasDueToSpell(SPELL_WINTER);
+                                LichKing->SetSpeed(MOVE_WALK, 2.5f, true);
+                                Step = 0;
+                            }
                         break;
                 }
             }
