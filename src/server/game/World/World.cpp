@@ -75,7 +75,6 @@
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Channel.h"
-#include "AnticheatMgr.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 #include "CalendarMgr.h"
@@ -2777,8 +2776,6 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
-
-    sAnticheatMgr->ResetDailyReportStates();
 }
 
 void World::LoadDBAllowedSecurityLevel()

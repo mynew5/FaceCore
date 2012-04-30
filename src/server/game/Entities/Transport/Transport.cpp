@@ -569,6 +569,7 @@ void Transport::Update(uint32 p_diff)
 
         sLog->outDebug(LOG_FILTER_TRANSPORTS, "%s moved to %d %f %f %f %d", m_name.c_str(), m_curr->second.id, m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
     }
+
     sScriptMgr->OnTransportUpdate(this, p_diff);
 }
 

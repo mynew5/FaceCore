@@ -27,12 +27,6 @@ void AddSC_example_commandscript();
 
 //TeleNPC2
 void AddSC_npc_teleport();
-//Hunter Pet Vendor
-void AddSC_npc_hunterpetvendor();
-// Custom
-void AddSC_DuelReset();
-//NPC Transport Service
-void AddSC_npc_mount();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1264,10 +1258,5 @@ void AddCustomScripts()
     /* This is where custom scripts should be added. */
     //TeleNPC2
     AddSC_npc_teleport();
-    //Hunter Pet Vendor
-    AddSC_npc_hunterpetvendor();
-    // Custom
-    AddSC_DuelReset();
-    AddSC_npc_mount();
 #endif
 }
