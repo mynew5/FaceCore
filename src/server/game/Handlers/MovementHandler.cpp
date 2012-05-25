@@ -338,8 +338,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
 
     /*----------------------*/
 
-    if (plMover)
-        sAnticheatMgr->StartHackDetection(plMover, movementInfo, opcode);
+    if (plrMover)
+        sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
 
     /* process position-change */
     WorldPacket data(opcode, recvData.size());
@@ -363,7 +363,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
     {
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        if (movementInfo.pos.GetPositionZ() < -500.0f || (plMover->GetMapId() == 631 && movementInfo.pos.GetPositionZ() < -3.0f))
+        if (movementInfo.pos.GetPositionZ() < -500.0f || (plrMover->GetMapId() == 631 && movementInfo.pos.GetPositionZ() < -3.0f))
         {
             if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(_player)))
             {
@@ -382,8 +382,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
             }
         }
         else if (movementInfo.pos.GetPositionZ() < -50.0f)
-            if (plMover->InBattleground())
-                if (Battleground* bg = plMover->GetBattleground())
+            if (plrMover->InBattleground())
+                if (Battleground* bg = plrMover->GetBattleground())
                     if (bg->isArena())
                         bg->HandlePlayerUnderMap(_player);
     }
