@@ -879,7 +879,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             maxlevel = getLevel();
 
         scale = minscale + (maxlevel * ((maxscale - minscale) / 80));
-        SetFloatValue(OBJECT_FIELD_SCALE_X, scale);
+        SetObjectScale(scale);
     }
 
     // Resistance
