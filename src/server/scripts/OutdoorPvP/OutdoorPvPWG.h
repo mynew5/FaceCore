@@ -42,6 +42,13 @@ const uint8 CapturePointArtKit[3] = {2, 1, 21};
 char const *fmtstring(char const *format, ...);
 const Team TeamId2Team[3] = {ALLIANCE, HORDE, TEAM_OTHER};
 
+enum OutdoorPvPWGArea
+{
+    AREA_FLAMEWATCH_TOWER   = 4581,
+    AREA_WINTERSEDGE_TOWER  = 4582,
+    AREA_SHADOWSIGHT_TOWER  = 4583,
+};
+
 enum OutdoorPvPWGSpell
 {
     // Wartime auras
@@ -69,6 +76,11 @@ enum OutdoorPvPWGSpell
     SPELL_VICTORY_AURA                           = 60044,
 };
 
+enum OutdoorPvPWGCreatures
+{
+    // credits
+    NPC_SOUTHERN_TOWER_CREDIT   = 35074,
+};
 const uint16 GameEventWintergraspDefender[2] = {50, 51};
 
 enum OutdoorPvP_WG_Sounds

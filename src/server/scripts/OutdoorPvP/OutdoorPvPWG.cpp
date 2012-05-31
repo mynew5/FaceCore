@@ -483,17 +483,21 @@ void OutdoorPvPWG::ProcessEvent(WorldObject *objin, uint32 eventId)
         BuildingStateMap::const_iterator itr = m_buildingStates.find(obj->GetDBTableGUIDLow());
         if (itr == m_buildingStates.end())
             return;
+        uint32 towerAreaCredit;
         std::string msgStr;
         switch(eventId)
         { // TODO - Localized msgs of GO names
             case 19672: case 19675: // Flamewatch Tower
                 msgStr = "Flamewatch";
+                towerAreaCredit = AREA_FLAMEWATCH_TOWER;
                 break;
             case 18553: case 19677: // Shadowsight Tower
                 msgStr = "Shadowsight";
+                towerAreaCredit = AREA_SHADOWSIGHT_TOWER;
                 break;
             case 19673: case 19676: // Winter's Edge Tower
                 msgStr = "Winter's Edge";
+                towerAreaCredit = AREA_WINTERSEDGE_TOWER;
                 break;
             case 19776: case 19778: // E Workshop damaged
                 msgStr = "Sunken Ring";
@@ -527,6 +531,7 @@ void OutdoorPvPWG::ProcessEvent(WorldObject *objin, uint32 eventId)
                 break;
             default:
                 msgStr = "";
+                break;
         }
 
         BuildingState *state = itr->second;
@@ -631,9 +636,21 @@ void OutdoorPvPWG::ProcessEvent(WorldObject *objin, uint32 eventId)
                         TeamCastSpell(getDefenderTeam(), -SPELL_TOWER_CONTROL);
                         uint32 attStack = 3 - m_towerDestroyedCount[getAttackerTeam()];
                         if (m_towerDestroyedCount[getAttackerTeam()])
+                        {
                             for (PlayerSet::iterator itr = m_players[getDefenderTeam()].begin(); itr != m_players[getDefenderTeam()].end(); ++itr)
+                            {
                                 if ((*itr)->getLevel() > 74)
                                     (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), m_towerDestroyedCount[getAttackerTeam()]);
+                                if ((*itr)->GetAreaId() == towerAreaCredit)
+                                {
+                                    // quest credit
+                                    (*itr)->KilledMonsterCredit(NPC_SOUTHERN_TOWER_CREDIT, (*itr)->GetGUID());
+                                    // leaning tower achievement credit
+                                    (*itr)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 20723);
+                                }
+                            }
+                        }
+
 
                         if (attStack!=0)
                         {
@@ -1457,11 +1474,11 @@ void OutdoorPvPWG::UpdateTenacityStack()
     int32 newStack = 0;
 
     for (PlayerSet::iterator itr = m_players[TEAM_ALLIANCE].begin(); itr != m_players[TEAM_ALLIANCE].end(); ++itr)
-        if ((*itr)->getLevel() > 74)
+        if ((*itr)->getLevel() > 74 && !(*itr)->isGameMaster())
             ++allianceNum;
 
     for (PlayerSet::iterator itr = m_players[TEAM_HORDE].begin(); itr != m_players[TEAM_HORDE].end(); ++itr)
-        if ((*itr)->getLevel() > 74)
+        if ((*itr)->getLevel() > 74 && !(*itr)->isGameMaster())
             ++hordeNum;
 
     if (allianceNum && hordeNum)
@@ -1486,7 +1503,7 @@ void OutdoorPvPWG::UpdateTenacityStack()
     if (team != TEAM_NEUTRAL)
     {
         for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if ((*itr)->getLevel() > 74)
+            if ((*itr)->getLevel() > 74 && !(*itr)->isGameMaster())
                 (*itr)->RemoveAurasDueToSpell(SPELL_TENACITY);
 
         for (CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
@@ -1503,7 +1520,7 @@ void OutdoorPvPWG::UpdateTenacityStack()
             newStack = 20;
 
         for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if ((*itr)->getLevel() > 74)
+            if ((*itr)->getLevel() > 74 && !(*itr)->isGameMaster())
                 (*itr)->SetAuraStack(SPELL_TENACITY, (*itr), newStack);
 
         for (CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
