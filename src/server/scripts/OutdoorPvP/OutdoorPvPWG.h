@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2008 - 2012 Trinity <http://www.trinitycore.org/>
- *
- * Copyright (C) 2012 Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
+ * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,17 +27,13 @@
 #define ZONE_WINTERGRASP         4197
 #define POS_X_CENTER             5100
 #define MAX_VEHICLE_PER_WORKSHOP    4
+#define WG_MIN_LEVEL               80
 
-//Creature faction. Needed for proper displaying data(count) about summoned siege machines by teams
-//const uint32 WintergraspFaction[3] = {1802, 1801, 35}; //YTDB
-const uint32 WintergraspFaction[3] = {1732, 1735, 35}; //TDB
-
+const uint32 WintergraspFaction[3] = {1732, 1735, 35};
 const uint32 WG_MARK_OF_HONOR = 43589;
-const uint32 VehNumWorldState[2] = {3680,3490};
-const uint32 MaxVehNumWorldState[2] = {3681,3491};
-const uint32 ClockWorldState[2] = {3781,4354};
-const uint8 CapturePointArtKit[3] = {2, 1, 21};
-char const *fmtstring(char const *format, ...);
+const uint32 VehNumWorldState[2] = {3680, 3490};
+const uint32 MaxVehNumWorldState[2] = {3681, 3491};
+const uint32 ClockWorldState[2] = {3781, 4354};
 const Team TeamId2Team[3] = {ALLIANCE, HORDE, TEAM_OTHER};
 
 enum OutdoorPvPWGArea
@@ -68,8 +62,8 @@ enum OutdoorPvPWGSpell
     SPELL_DAMAGED_BUILDING                       = 59201,
     SPELL_INTACT_BUILDING                        = 59203,
 
-    SPELL_TELEPORT_ALLIENCE_CAMP                 = 58633,
-    SPELL_TELEPORT_HORDE_CAMP                    = 58632,
+    SPELL_TELEPORT_ALLIENCE_CAMP                 = 58632,
+    SPELL_TELEPORT_HORDE_CAMP                    = 58633,
     SPELL_TELEPORT_FORTRESS                      = 59096,
 
     SPELL_TELEPORT_DALARAN                       = 53360,
@@ -78,9 +72,67 @@ enum OutdoorPvPWGSpell
 
 enum OutdoorPvPWGCreatures
 {
+    // engineers & spirit guides
+    NPC_GNOMISH_DEMOLISHER      = 30499, // Gnomish Engineer <Demolisher Engineer>
+    NPC_GOBLIN_MECHANIC         = 30400, // Goblin Mechanic <Demolisher Engineer>
+    NPC_DWARVEN_SPIRIT_GUIDE    = 31842, // Dwarven Spirit Guide
+    NPC_TAUNKA_SPIRIT_GUIDE     = 31841, // Taunka Spirit Guide
+    NPC_SPIRIT_HEALER           = 6491,  // Spirit Healer
+    NPC_RP_GG                   = 30560, // The RP-GG (not implemented)
+
+    // vehicles
+    NPC_WG_CATAPULT             = 27881, // Wintergrasp Catapult
+    NPC_WG_DEMOLISHER           = 28094, // Wintergrasp Demolisher
+    NPC_ALLIANCE_SIEGE_ENGINE   = 28312, // Wintergrasp Siege Engine (Alliance)
+    NPC_ALLIANCE_TURRET         = 28319, // Wintergrasp Siege Turret (Alliance)
+    NPC_HORDE_SIEGE_ENGINE      = 32627, // Wintergrasp Siege Engine (Horde)
+    NPC_HORDE_TURRET            = 32629, // Wintergrasp Siege Turret (Horde)
+    NPC_TOWER_CANNON            = 28366, // Wintergrasp Tower Cannon
+
+    // guards       defend workshops and castle
+    // champions    defend assault on the vendors and questgivers in the castle (additional spawns)
+    NPC_ALLIANCE_CHAMPION       = 30740, // Valiance Expedition Champion
+    NPC_ALLIANCE_GUARD          = 32308, // Valiance Expedition Guard
+    NPC_HORDE_CHAMPION          = 30739, // Warsong Champion
+    NPC_HORDE_GUARD             = 32307, // Warsong Guard
+
+    // vendors
+    NPC_ALLIANCE_KAYLANA        = 31051, // Sorceress Kaylana <Enchantress>
+    NPC_HORDE_FUJIN             = 31101, // Hoodoo Master Fu'jin <Master Hexxer>
+    NPC_ALLIANCE_DAMERON        = 32294, // Knight Dameron <Wintergrasp Quartermaster>      Patch 3.0.2
+    NPC_HORDE_MUKAR             = 32296, // Stone Guard Mukar <Wintergrasp Quartermaster>   Patch 3.0.2
+    NPC_ALLIANCE_MAGRUDER       = 39172, // Marshal Magruder <Wintergrasp Quartermaster>    Patch 3.3.2
+    NPC_HORDE_ROSSLAI           = 39173, // Champion Ros'slai <Wintergrasp Quartermaster>   Patch 3.3.2
+
+    // questgivers
+    NPC_ALLIANCE_RANDOLPH       = 31052, // Bowyer Randolph
+    NPC_HORDE_BLAZEFEATHER      = 31102, // Vieron Blazefeather
+    NPC_ALLIANCE_LEGOSO         = 31109, // Senior Demolitionist Legoso
+    NPC_HORDE_MURP              = 31107, // Lieutenant Murp
+    NPC_ALLIANCE_ABRAHMIS       = 31153, // Tactical Officer Ahbramis
+    NPC_HORDE_KILRATH           = 31151, // Tactical Officer Kilrath
+    NPC_ALLIANCE_STOUTHANDLE    = 31108, // Siege Master Stouthandle
+    NPC_HORDE_STRONGHOOF        = 31106, // Siegesmith Stronghoof
+    NPC_ALLIANCE_TESSA          = 31054, // Anchorite Tessa
+    NPC_HORDE_MULFORT           = 31053, // Primalist Mulfort
+    NPC_ALLIANCE_ZANNETH        = 31036, // Commander Zanneth
+    NPC_HORDE_DARDOSH           = 31091, // Commander Dardosh
+    NPC_ALLIANCE_GENERAL        = 32626, // Alliance Brigadier General
+    NPC_HORDE_WARBRINGER        = 32615, // Horde Warbringer
+
+    // flight master
+    NPC_ALLIANCE_SAFEFLIGHT     = 30870, // Herzo Safeflight <Flight Master>
+    NPC_HORDE_SAFEFLIGHT        = 30869, // Arzo Safeflight <Flight Master>
+
     // credits
     NPC_SOUTHERN_TOWER_CREDIT   = 35074,
 };
+
+enum OutdoorPvPWGObjects
+{
+    GO_TITAN_RELIC              = 192829,
+};
+
 const uint16 GameEventWintergraspDefender[2] = {50, 51};
 
 enum OutdoorPvP_WG_Sounds
@@ -97,12 +149,13 @@ enum OutdoorPvP_WG_Sounds
     OutdoorPvP_WG_SOUND_WORKSHOP_ALLIANCE       = 6298,
     OutdoorPvP_WG_HORDE_CAPTAIN                 = 8333,
     OutdoorPvP_WG_ALLIANCE_CAPTAIN              = 8232,
+//    OutdoorPvP_WG_SOUND_START_BATTLE            = 11803,   //L70ETC Concert
     OutdoorPvP_WG_SOUND_START_BATTLE            = 3439, //Standart BG Start sound
 };
 
 enum DataId
 {
-     DATA_ENGINEER_DIE,
+    DATA_ENGINEER_DIE,
 };
 
 enum OutdoorPvP_WG_KeepStatus
@@ -116,13 +169,11 @@ enum OutdoorPvP_WG_KeepStatus
     OutdoorPvP_WG_KEEP_STATUS_HORDE_OCCUPIED    = 4
 };
 
+
 enum OutdoorPVPWGStatus
 {
-    WORLDSTATE_WINTERGRASP_WARTIME            = 31001,
-    WORLDSTATE_WINTERGRASP_TIMER              = 31002,
-    WORLDSTATE_WINTERGRASP_DEFENDERS          = 31003,
-    WORLDSTATE_WINTERGRASP_CONTROLING_FACTION = 31004,
-    WORLDSTATE_VALUE_COUNT,
+ WORLDSTATE_WINTERGRASP_CONTROLING_FACTION,
+ WORLDSTATE_VALUE_COUNT,
 };
 
 enum OutdoorPvPWGCreType
@@ -159,16 +210,7 @@ enum OutdoorPvPWGQuest
     A_VICTORY_IN_WG                              = 13181,
     H_VICTORY_IN_WG                              = 13183,
     CRE_PVP_KILL                                 = 31086, //Quest Objective - Fixme: this should be handled by DB
-    CRE_PVP_KILL_V                               = 31093, //Quest Objective - Fixme: this should be handled by DB.
-    TOWER_PVP_DESTROYED                          = 35074, //Quest Objective - Toppling the Towers & Southern Sabotage
-};
-
-enum OutdoorPvPWGCreEntry
-{
-    CRE_ENG_A                                    = 30499,
-    CRE_ENG_H                                    = 30400,
-    CRE_SPI_A                                    = 31842,
-    CRE_SPI_H                                    = 31841,
+    CRE_PVP_KILL_V                               = 31093, //Quest Objective - Fixme: this should be handled by DB
 };
 
 const TeamPair OutdoorPvPWGCreEntryPair[] =
@@ -176,7 +218,6 @@ const TeamPair OutdoorPvPWGCreEntryPair[] =
     {32307, 32308}, // Guards
     {30739, 30740}, // Champions
     {32296, 32294}, // Quartermaster
-    {39173, 39172}, // Ros'slai & Marshal Magruder
     {32615, 32626}, // Warbringer & Brigadier General
     {0,0} // Do not delete Used in LoadTeamPair
 };
@@ -194,14 +235,14 @@ typedef std::list<const AreaPOIEntry *> AreaPOIList;
 struct BuildingState
 {
     explicit BuildingState(uint32 _worldState, TeamId _team, bool asDefault)
-         : worldState(_worldState), health(0)
-         , defaultTeam(asDefault ? _team : OTHER_TEAM(_team)), damageState(DAMAGE_INTACT), team(_team)
-         , building(NULL), graveTeam(NULL), type(BUILDING_WALL) {}
+        : worldState(_worldState), health(0)
+        , defaultTeam(asDefault ? _team : OTHER_TEAM(_team)), team(_team), damageState(DAMAGE_INTACT)
+        , building(NULL), type(BUILDING_WALL), graveTeam(NULL)
+    {}
     uint32 worldState;
     uint32 health;
     TeamId defaultTeam;
     OutdoorPvPWGDamageState damageState;
-    TeamId team;
     GameObject *building;
     uint32 *graveTeam;
     OutdoorPvPWGBuildingType type;
@@ -224,9 +265,13 @@ struct BuildingState
             if (uint32 newTeam = TeamId2Team[t])
                 *graveTeam = newTeam;
     }
+
+private:
+    TeamId team;
 };
 
 typedef std::map<uint32, uint32> TeamPairMap;
+
 class OPvPCapturePointWG;
 
 class OutdoorPvPWG : public OutdoorPvP
@@ -237,24 +282,33 @@ class OutdoorPvPWG : public OutdoorPvP
         typedef std::set<GameObject*> GameObjectSet;
         typedef std::map<std::pair<uint32, bool>, Position> QuestGiverPositionMap;
         typedef std::map<uint32, Creature*> QuestGiverMap;
-
     public:
         OutdoorPvPWG();
         bool SetupOutdoorPvP();
         int TeamIDsound;
         uint32 GetCreatureEntry(uint32 guidlow, const CreatureData *data);
+
         void OnCreatureCreate(Creature *creature);
-        void OnGameObjectCreate(GameObject *go);
         void OnCreatureRemove(Creature *creature);
+        void HandleCreatureSpawning(Creature *creature, bool add);
+        void OnGameObjectCreate(GameObject *go);
         void OnGameObjectRemove(GameObject *go);
-        void ProcessEvent(WorldObject *objin, uint32 eventId);
+        void HandleGameObjectSpawning(GameObject *go, bool add);
+
+        void ProcessEvent(WorldObject* obj, uint32 eventId);
+
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
         void HandlePlayerResurrects(Player * plr, uint32 zone);
         void HandleKill(Player *killer, Unit *victim);
+
         bool Update(uint32 diff);
+
         void BroadcastStateChange(BuildingState *state) const;
+
         uint32 GetData(uint32 id);
+        void SetData(uint32 id, uint32 value) {};
+
         void ModifyWorkshopCount(TeamId team, bool add);
         uint32 GetTimer() const { return m_timer / 1000; };
         bool isWarTime() const { return m_wartime; };
@@ -266,28 +320,36 @@ class OutdoorPvPWG : public OutdoorPvP
         void forceChangeTeam();
         void forceStopBattle();
         void forceStartBattle();
+
         // Temporal BG specific till 3.2
         void SendAreaSpiritHealerQueryOpcode(Player *pl, const uint64& guid);
         void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
         void RemovePlayerFromResurrectQueue(uint64 player_guid);
-        void RelocateAllianceDeadPlayers(Creature *cr);
-        void RelocateHordeDeadPlayers(Creature *cr);
+        void RelocateDeadPlayers(Creature *cr);
         // BG end
         void SendInitWorldStatesTo(Player *player = NULL) const;
         uint32 m_timer;
-        bool m_changeAlly;
-        bool m_changeHorde;
 
+        // Relocate System
+        void RelocateTeleport(Creature* creature, Position pos);
+        void RelocateSummonDespawn(Creature* creature, bool condition);
+        void RelocateCreature(Creature* creature);
+
+        // Sound Handler
+        void PlayTeamSound(TeamId team, uint32 sound);
     protected:
         // Temporal BG specific till 3.2
         std::vector<uint64> m_ResurrectQueue;               // Player GUID
         uint32 m_LastResurrectTime;
         // Spirit Guide guid + Player list GUIDS
         std::map<uint64, std::vector<uint64> >  m_ReviveQueue;
+        std::map<uint32, Position> fortressPosition;
+        std::map<uint32, Position> homePosition;
 
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
         // BG end
+
         TeamId m_defender;
         int32 m_tenacityStack;
 
@@ -297,7 +359,6 @@ class OutdoorPvPWG : public OutdoorPvP
         CreatureSet m_creatures;
         CreatureSet m_vehicles[2];
         GameObjectSet m_gobjects;
-        GameObjectSet m_gobjectsDestroyable;
         QuestGiverMap m_questgivers;
 
         TeamPairMap m_creEntryPair, m_goDisplayPair;
@@ -305,11 +366,16 @@ class OutdoorPvPWG : public OutdoorPvP
 
         bool m_wartime;
         bool m_changeDefender;
+        bool m_announce_30_done;
+        bool m_announce_10_done;
         uint32 m_clock[2];
         uint32 m_workshopCount[2];
         uint32 m_towerDestroyedCount[2];
         uint32 m_towerDamagedCount[2];
         uint32 m_WSSaveTimer;
+
+        Creature *m_SpecialEng;
+        Creature *m_SpecialSpi;
 
         OPvPCapturePointWG *GetWorkshop(uint32 lowguid) const;
         OPvPCapturePointWG *GetWorkshopByEngGuid(uint32 lowguid) const;
@@ -317,17 +383,20 @@ class OutdoorPvPWG : public OutdoorPvP
 
         void StartBattle();
         void EndBattle();
+
         void UpdateClock();
         void UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod);
-        void PromotePlayer(Player *player) const;
+        void PromotePlayer(Player *player, bool wasGuardKill) const;
         void UpdateTenacityStack();
         void UpdateAllWorldObject();
         bool UpdateCreatureInfo(Creature *creature);
         bool UpdateGameObjectInfo(GameObject *go) const;
+
         bool CanBuildVehicle(OPvPCapturePointWG *workshop) const;
         OutdoorPvPWGCreType GetCreatureType(uint32 entry) const;
 
         void RebuildAllBuildings();
+
         void RemoveOfflinePlayerWGAuras();
         void RewardMarkOfHonor(Player *player, uint32 count);
         void MoveQuestGiver(uint32 guid);
@@ -340,20 +409,20 @@ class OPvPCapturePointWG : public OPvPCapturePoint
     public:
         explicit OPvPCapturePointWG(OutdoorPvPWG *opvp, BuildingState *state);
         void SetTeamByBuildingState();
-        void ChangeState() { }
+        void ChangeState() {}
         void ChangeTeam(TeamId oldteam);
+
         uint32 *m_spiEntry;
         uint32 m_spiGuid;
         Creature *m_spiritguide;
-        Creature *m_spiritguide_horde;
-        Creature *m_spiritguide_alliance;
+
         uint32 *m_engEntry;
         uint32 m_engGuid;
         Creature *m_engineer;
         uint32 m_workshopGuid;
         BuildingState *m_buildingState;
-
     protected:
         OutdoorPvPWG *m_wintergrasp;
 };
+
 #endif
