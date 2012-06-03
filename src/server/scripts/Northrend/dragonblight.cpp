@@ -898,30 +898,100 @@ public:
 };
 
 /*######
-## npc_woodlands_walker
+## Quest Strengthen the Ancients (12096|12092)
 ######*/
 
-enum woodwalkerQuests {
-    QUEST_ANCIENTS_ALLINACE  = 12092,
-    QUEST_ANCIENTS_HORDE     = 12096
+enum StrengthenAncientsMisc
+{
+    SAY_WALKER_FRIENDLY = 0,
+    SAY_WALKER_ENEMY = 1,
+    SAY_LOTHALOR = 0,
+
+    SPELL_CREATE_ITEM_BARK = 47550,
+    SPELL_CONFUSED = 47044,
+
+    NPC_LOTHALOR = 26321,
+
+    FACTION_WALKER_ENEMY = 14,
 };
 
-//This function is called when the player opens the gossip menubool
-
-class mob_woodlands_walker : public CreatureScript
+class spell_q12096_q12092_dummy : public SpellScriptLoader // Strengthen the Ancients: On Interact Dummy to Woodlands Walker
 {
 public:
-    mob_woodlands_walker() : CreatureScript("mob_woodlands_walker") { }
+    spell_q12096_q12092_dummy() : SpellScriptLoader("spell_q12096_q12092_dummy") { }
 
-    bool OnGossipHello(Player *player, Creature *pCreature)
+    class spell_q12096_q12092_dummy_SpellScript : public SpellScript
     {
-        if (player->GetQuestStatus(QUEST_ANCIENTS_ALLINACE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ANCIENTS_HORDE) == QUEST_STATUS_INCOMPLETE)
-            pCreature->setFaction(16);
+        PrepareSpellScript(spell_q12096_q12092_dummy_SpellScript);
 
-        player->CLOSE_GOSSIP_MENU();
-        return true;
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint32 roll = rand() % 2;
+
+            Creature* tree = GetHitCreature();
+            Player* player = GetCaster()->ToPlayer();
+
+            if (!tree || !player)
+                return;
+
+            tree->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+
+            if (roll == 1) // friendly version
+            {
+                tree->CastSpell(player, SPELL_CREATE_ITEM_BARK);
+                tree->AI()->Talk(SAY_WALKER_FRIENDLY, player->GetGUID());
+                tree->DespawnOrUnsummon(1000);
+            }
+            else if (roll == 0) // enemy version
+            {
+                tree->AI()->Talk(SAY_WALKER_ENEMY, player->GetGUID());
+                tree->setFaction(FACTION_WALKER_ENEMY);
+                tree->Attack(player, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12096_q12092_dummy_SpellScript();
     }
+};
 
+class spell_q12096_q12092_bark : public SpellScriptLoader // Bark of the Walkers
+{
+public:
+    spell_q12096_q12092_bark() : SpellScriptLoader("spell_q12096_q12092_bark") { }
+
+    class spell_q12096_q12092_bark_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q12096_q12092_bark_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Creature* lothalor = GetHitCreature();
+            if (!lothalor || lothalor->GetEntry() != NPC_LOTHALOR)
+                return;
+
+            lothalor->AI()->Talk(SAY_LOTHALOR);
+            lothalor->RemoveAura(SPELL_CONFUSED);
+            lothalor->DespawnOrUnsummon(4000);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_q12096_q12092_bark_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12096_q12092_bark_SpellScript();
+    }
 };
 
 void AddSC_dragonblight()
@@ -936,5 +1006,6 @@ void AddSC_dragonblight()
     new npc_agent_skully;
     new npc_7th_legion_siege_engineer;
     new vehicle_alliance_steamtank;
-    new mob_woodlands_walker;
+    new spell_q12096_q12092_dummy;
+    new spell_q12096_q12092_bark;
 }
