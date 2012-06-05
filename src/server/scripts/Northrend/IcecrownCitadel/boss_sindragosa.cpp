@@ -675,7 +675,7 @@ class npc_spinestalker : public CreatureScript
                 // Increase add count
                 if (!me->isDead())
                 {
-                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetGUID());  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -698,13 +698,12 @@ class npc_spinestalker : public CreatureScript
             void JustRespawned()
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetGUID());  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 _events.Reset();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
             void DoAction(int32 const action)
@@ -802,7 +801,7 @@ class npc_rimefang : public CreatureScript
                 // Increase add count
                 if (!me->isDead())
                 {
-                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetGUID());  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -825,13 +824,12 @@ class npc_rimefang : public CreatureScript
             void JustRespawned()
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData64(DATA_SINDRAGOSA_FROSTWYRMS, me->GetGUID());  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 _events.Reset();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
             void DoAction(int32 const action)
@@ -958,7 +956,8 @@ class npc_sindragosa_trash : public CreatureScript
                 // Increase add count
                 if (!me->isDead())
                 {
-                    _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
+                    if (me->GetEntry() == NPC_FROSTWING_WHELP)
+                        _instance->SetData64(_frostwyrmId, me->GetGUID());  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -980,13 +979,8 @@ class npc_sindragosa_trash : public CreatureScript
                 ScriptedAI::JustRespawned();
 
                 // Increase add count
-                _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                // Decrease add count
-                _instance->SetData(_frostwyrmId, 0);
+                if (me->GetEntry() == NPC_FROSTWING_WHELP)
+                    _instance->SetData64(_frostwyrmId, me->GetGUID());  // this cannot be in Reset because reset also happens on evade
             }
 
             void SetData(uint32 type, uint32 data)
