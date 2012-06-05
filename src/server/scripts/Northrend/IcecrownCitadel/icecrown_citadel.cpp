@@ -1985,6 +1985,9 @@ class at_icc_saurfang_portal : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
+            if (player->isGameMaster())
+                return true;
+
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
                 return true;
@@ -2019,6 +2022,9 @@ class at_icc_shutdown_traps : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
+            if (player->isGameMaster())
+                return true;
+
             if (InstanceScript* instance = player->GetInstanceScript())
                 instance->SetData(DATA_COLDFLAME_JETS, DONE);
             return true;
@@ -2032,6 +2038,9 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
+            if (player->isGameMaster())
+                return true;
+
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
                     instance->SetData(DATA_BLOOD_QUICKENING_STATE, IN_PROGRESS);
@@ -2046,6 +2055,9 @@ class at_icc_start_frostwing_gauntlet : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
+            if (player->isGameMaster())
+                return true;
+
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* crok = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_CROK_SCOURGEBANE)))
                     crok->AI()->DoAction(ACTION_START_GAUNTLET);
