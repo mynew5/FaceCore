@@ -105,7 +105,7 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
     }
 
     // load worldstates
-    QueryResult result = CharacterDatabase.PQuery("SELECT `entry`, `value` from `worldstates` where `entry` in (31001, 31002 , 31003) order by `entry`");
+    QueryResult result = CharacterDatabase.PQuery("SELECT `entry`, `value` from `worldstates` where `entry` in (31001, 31002 , 31003, 31004, 31005) order by `entry`");
     
     m_WSSaveTimer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD);
 
@@ -125,6 +125,13 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
                 case 31003:
                     m_defender = TeamId(fields[1].GetUInt32());
                     break;
+                case 31004:
+                    allianceWinStreak = fields[1].GetUInt32();
+                    break;
+                case 31005:
+                    hordeWinStreak = fields[1].GetUInt32();
+                    break;
+
             }
         } while(result->NextRow());
     }
@@ -133,6 +140,8 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
         m_wartime = false;
         m_timer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILLISECONDS;
         m_defender = TeamId(rand()%2);
+        allianceWinStreak = 0;
+        hordeWinStreak = 0;
     }
 
     sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLLING_FACTION, getDefenderTeam());
@@ -143,9 +152,6 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
     m_workshopCount[TEAM_HORDE] = 0;
     m_tenacityStack = 0;
     m_gate = NULL;
-
-    allianceWinStreak = 0;
-    hordeWinStreak = 0;
 
     std::list<uint32> engineers;
     std::list<uint32> spiritGuides;
@@ -583,6 +589,17 @@ void OutdoorPvPWG::ProcessEvent(WorldObject* object, uint32 eventId)
 
                         if (m_towerDestroyedCount[getAttackerTeam()])
                         {
+                            // Set all cannons in destroyed towers area invisible
+                            if (towerAreaCredit > 0)
+                            {
+                                for (CreatureSet::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
+                                {
+                                    Creature* creature = (*itr);
+                                    if (GetCreatureType(creature->GetEntry()) == CREATURE_TURRET && creature->GetAreaId() == towerAreaCredit)
+                                        creature->SetVisible(false);
+                                }
+                            }
+
                             for (PlayerSet::iterator itr = m_players[getDefenderTeam()].begin(); itr != m_players[getDefenderTeam()].end(); ++itr)
                             {
                                 if ((*itr)->getLevel() >= WG_MIN_LEVEL)
@@ -730,6 +747,11 @@ void OutdoorPvPWG::OnCreatureCreate(Creature *creature)
         return;
 
     HandleCreatureSpawning(creature, true);
+
+    // relocate initial spawns of questgivers and vendors directly on spawn
+    if (GetCreatureType(creature->GetEntry()) == CREATURE_QUESTGIVER ||
+            GetCreatureType(creature->GetEntry()) == CREATURE_SPECIAL)
+            RelocateCreature(creature);
 }
 
 void OutdoorPvPWG::OnCreatureRemove(Creature *creature)
@@ -1037,7 +1059,13 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             {
                 if (!creature->isAlive())
                     creature->Respawn(true);
-                creature->setFaction(WintergraspFaction[getDefenderTeam()]);
+                // southern tower cannons
+                if (creature->GetAreaId() == AREA_FLAMEWATCH_TOWER ||
+                        creature->GetAreaId() == AREA_SHADOWSIGHT_TOWER ||
+                        creature->GetAreaId() == AREA_WINTERSEDGE_TOWER)
+                    creature->setFaction(WintergraspFaction[getAttackerTeam()]);
+                else // fortress cannons
+                    creature->setFaction(WintergraspFaction[getDefenderTeam()]);
                 creature->SetVisible(true);
             }
             else
@@ -1551,6 +1579,8 @@ bool OutdoorPvPWG::Update(uint32 diff)
         CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31001', `value`='%d', `comment`='wg m_wartime'",m_wartime);
         CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31002', `value`='%d', `comment`='wg m_timer'",m_timer);
         CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31003', `value`='%d', `comment`='wg m_defender'",m_defender);
+        CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31004', `value`='%d', `comment`='wg allianceWinStreaks'", allianceWinStreak);
+        CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31005', `value`='%d', `comment`='wg hordeWinStreaks'", hordeWinStreak);
         m_WSSaveTimer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD);
     } else m_WSSaveTimer -= diff;
 
