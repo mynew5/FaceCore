@@ -5138,15 +5138,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                             break;
                         case 58600: // Restricted Flight Area
-                            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                                target->CastSpell(target, 58601, true);
-                            break;
                         case 58730: // Restricted Flight Area
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                            {
                                 target->CastSpell(target, 58601, true);
-                                target->CastSpell(target, 45472, true);
-                            }
                             break;
                     }
                     break;
