@@ -100,12 +100,12 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
 {
     if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
     {
-        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLLING_FACTION, TEAM_NEUTRAL);
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, TEAM_NEUTRAL);
         return false;
     }
 
     // load worldstates
-    QueryResult result = CharacterDatabase.PQuery("SELECT `entry`, `value` from `worldstates` where `entry` in (31001, 31002 , 31003, 31004, 31005) order by `entry`");
+    QueryResult result = CharacterDatabase.PQuery("SELECT `entry`, `value` from `worldstates` where `entry` in (31001, 31002 , 31003) order by `entry`");
     
     m_WSSaveTimer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD);
 
@@ -125,13 +125,6 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
                 case 31003:
                     m_defender = TeamId(fields[1].GetUInt32());
                     break;
-                case 31004:
-                    allianceWinStreak = fields[1].GetUInt32();
-                    break;
-                case 31005:
-                    hordeWinStreak = fields[1].GetUInt32();
-                    break;
-
             }
         } while(result->NextRow());
     }
@@ -140,11 +133,9 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
         m_wartime = false;
         m_timer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILLISECONDS;
         m_defender = TeamId(rand()%2);
-        allianceWinStreak = 0;
-        hordeWinStreak = 0;
     }
 
-    sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLLING_FACTION, getDefenderTeam());
+    sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, getDefenderTeam());
     m_changeDefender = false;
     m_announce_30_done = false;
     m_announce_10_done = false;
@@ -477,7 +468,7 @@ void OutdoorPvPWG::ProcessEvent(WorldObject* object, uint32 eventId)
                 msgStr = "Flamewatch";
                 towerAreaCredit = AREA_FLAMEWATCH_TOWER;
                 break;
-            case 19674: case 19677: // Shadowsight Tower
+            case 18553: case 19677: // Shadowsight Tower
                 msgStr = "Shadowsight";
                 towerAreaCredit = AREA_SHADOWSIGHT_TOWER;
                 break;
@@ -589,17 +580,6 @@ void OutdoorPvPWG::ProcessEvent(WorldObject* object, uint32 eventId)
 
                         if (m_towerDestroyedCount[getAttackerTeam()])
                         {
-                            // Set all cannons in destroyed towers area invisible
-                            if (towerAreaCredit > 0)
-                            {
-                                for (CreatureSet::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
-                                {
-                                    Creature* creature = (*itr);
-                                    if (GetCreatureType(creature->GetEntry()) == CREATURE_TURRET && creature->GetAreaId() == towerAreaCredit)
-                                        creature->SetVisible(false);
-                                }
-                            }
-
                             for (PlayerSet::iterator itr = m_players[getDefenderTeam()].begin(); itr != m_players[getDefenderTeam()].end(); ++itr)
                             {
                                 if ((*itr)->getLevel() >= WG_MIN_LEVEL)
@@ -747,11 +727,6 @@ void OutdoorPvPWG::OnCreatureCreate(Creature *creature)
         return;
 
     HandleCreatureSpawning(creature, true);
-
-    // relocate initial spawns of questgivers and vendors directly on spawn
-    if (GetCreatureType(creature->GetEntry()) == CREATURE_QUESTGIVER ||
-            GetCreatureType(creature->GetEntry()) == CREATURE_SPECIAL)
-            RelocateCreature(creature);
 }
 
 void OutdoorPvPWG::OnCreatureRemove(Creature *creature)
@@ -1059,13 +1034,7 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             {
                 if (!creature->isAlive())
                     creature->Respawn(true);
-                // southern tower cannons
-                if (creature->GetAreaId() == AREA_FLAMEWATCH_TOWER ||
-                        creature->GetAreaId() == AREA_SHADOWSIGHT_TOWER ||
-                        creature->GetAreaId() == AREA_WINTERSEDGE_TOWER)
-                    creature->setFaction(WintergraspFaction[getAttackerTeam()]);
-                else // fortress cannons
-                    creature->setFaction(WintergraspFaction[getDefenderTeam()]);
+                creature->setFaction(WintergraspFaction[getDefenderTeam()]);
                 creature->SetVisible(true);
             }
             else
@@ -1292,18 +1261,11 @@ void OutdoorPvPWG::PromotePlayer(Player *killer, bool wasPlayerKill) const
     //if (!wasPlayerKill)
     //    return;
 
-    // player eligible for insta-promote balancing?
-    bool instaPromote = false;
-    uint32 winStreak = getDefenderTeam() == TEAM_ALLIANCE ? allianceWinStreak : hordeWinStreak;
-    if (winStreak > 1)
-        if (killer->GetTeamId() == getAttackerTeam())
-            instaPromote = true;
-
     Aura * aura;
 
     if (aura = killer->GetAura(SPELL_RECRUIT))
     {
-        if (aura->GetStackAmount() >= 5 || instaPromote)
+        if (aura->GetStackAmount() >= 5)
         {
             killer->RemoveAura(SPELL_RECRUIT);
             killer->CastSpell(killer, SPELL_CORPORAL, true);
@@ -1314,7 +1276,7 @@ void OutdoorPvPWG::PromotePlayer(Player *killer, bool wasPlayerKill) const
     }
     else if (aura = killer->GetAura(SPELL_CORPORAL))
     {
-        if (aura->GetStackAmount() >= 5 || instaPromote)
+        if (aura->GetStackAmount() >= 5)
         {
             killer->RemoveAura(SPELL_CORPORAL);
             killer->CastSpell(killer, SPELL_LIEUTENANT, true);
@@ -1579,8 +1541,6 @@ bool OutdoorPvPWG::Update(uint32 diff)
         CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31001', `value`='%d', `comment`='wg m_wartime'",m_wartime);
         CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31002', `value`='%d', `comment`='wg m_timer'",m_timer);
         CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31003', `value`='%d', `comment`='wg m_defender'",m_defender);
-        CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31004', `value`='%d', `comment`='wg allianceWinStreaks'", allianceWinStreak);
-        CharacterDatabase.PExecute("replace  `worldstates` set `entry`='31005', `value`='%d', `comment`='wg hordeWinStreaks'", hordeWinStreak);
         m_WSSaveTimer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD);
     } else m_WSSaveTimer -= diff;
 
@@ -1677,7 +1637,7 @@ void OutdoorPvPWG::StartBattle()
     TeamCastSpell(getDefenderTeam(), SPELL_TELEPORT_FORTRESS);
 
     // Remove Essence of Wintergrasp from all players
-    sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLLING_FACTION, TEAM_NEUTRAL);
+    sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, TEAM_NEUTRAL);
     sWorld->UpdateAreaDependentAuras();
 
     // destroyed all vehicles
@@ -1730,22 +1690,14 @@ void OutdoorPvPWG::StartBattle()
 void OutdoorPvPWG::EndBattle()
 {
     // Cast Essence of Wintergrasp to all players (CheckCast will determine who to cast)
-    sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLLING_FACTION, getDefenderTeam());
+    sWorld->setWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, getDefenderTeam());
     sWorld->UpdateAreaDependentAuras();
 
-    // End Battle Sound and Balance Handling
+    // End Battle Sound
     if (getDefenderTeam() == TEAM_ALLIANCE)
-    {
-        allianceWinStreak++;
-        hordeWinStreak = 0;
         PlayTeamSound(getDefenderTeam(), OutdoorPvP_WG_SOUND_ALLIANCE_WINS);
-    }
     else
-    {
-        allianceWinStreak = 0;
-        hordeWinStreak++;
         PlayTeamSound(getDefenderTeam(), OutdoorPvP_WG_SOUND_HORDE_WINS);
-    }
 
     // Lost Battle Sound
     PlayTeamSound(getAttackerTeam(), OutdoorPvP_WG_SOUND_NEAR_VICTORY);

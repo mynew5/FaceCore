@@ -36,8 +36,6 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_GH = 8
 };
 
-const uint8 CapturePointArtKit[3] = {2, 1, 21};
-
 #define MAX_OUTDOORPVP_TYPES 9
 
 enum ObjectiveStates
