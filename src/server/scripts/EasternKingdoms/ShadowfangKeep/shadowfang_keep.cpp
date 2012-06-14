@@ -584,6 +584,7 @@ public:
             }
         }
     };
+};
 
 class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 {
