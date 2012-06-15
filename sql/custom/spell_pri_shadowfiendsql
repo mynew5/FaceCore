@@ -16,3 +16,11 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 DELETE FROM spell_script_names WHERE spell_id = 64205;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (64205, 'spell_pal_divine_sacrifice');
+
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dk_corpse_explosion';
+INSERT INTO spell_script_names VALUES
+(-49158, 'spell_dk_corpse_explosion'),
+(-51325, 'spell_dk_corpse_explosion'),
+(-51326, 'spell_dk_corpse_explosion'),
+(-51327, 'spell_dk_corpse_explosion'),
+(-51328, 'spell_dk_corpse_explosion');

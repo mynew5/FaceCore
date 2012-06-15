@@ -204,40 +204,78 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_corpse_explosion_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            int32 bp;
+            Unit* unitTarget;
+            Unit* caster;
+
+            bool Load()
             {
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_TRIGGERED) || !sSpellMgr->GetSpellInfo(DK_SPELL_GHOUL_EXPLODE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_VISUAL))
-                    return false;
+                unitTarget = GetExplTargetUnit();
+                caster = GetCaster();
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            SpellCastResult CheckIfCorpseNear()
             {
-                if (Unit* unitTarget = GetHitUnit())
+                // check if the target exploded already
+                if (unitTarget && !unitTarget->HasAura(51270))
                 {
-                    int32 bp = 0;
-                    if (unitTarget->isAlive())  // Living ghoul as a target
+                    // if we have ghoul selected
+                    if (unitTarget->GetEntry() == 26125)
                     {
                         bp = int32(unitTarget->CountPctFromMaxHealth(25));
                         unitTarget->CastCustomSpell(unitTarget, DK_SPELL_GHOUL_EXPLODE, &bp, NULL, NULL, false);
+                        caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                        return SPELL_CAST_OK;
                     }
-                    else                        // Some corpse
+                    else if (unitTarget->isDead())
                     {
-                        bp = GetEffectValue();
-                        GetCaster()->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
-                        // Corpse Explosion (Suicide)
+                        bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                        caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
                         unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
+                        caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                        return SPELL_CAST_OK;
                     }
-                    // Set corpse look
-                    GetCaster()->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
                 }
+
+                float max_range = 20;
+                unitTarget = NULL;
+
+                // search for nearby corpse in range
+                std::list<Unit*> targetList;
+                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_DEFAULT);
+                Trinity::UnitListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, targetList, check);
+                caster->GetMap()->VisitAll(caster->m_positionX, caster->m_positionY, max_range, searcher);
+
+                // check if the target exploded already (if it has aura 51270)
+                for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                {
+                    if (!((Unit*)*itr)->HasAura(51270))
+                    {
+                        unitTarget = ((Unit*)*itr);
+                        break;
+                    }
+                }
+
+                if (unitTarget)
+                {
+                    bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                    caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
+                    unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
+                    caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                    return SPELL_CAST_OK;
+                }
+
+                // proper handling of these should be done in Spell.cpp, its too late for calling "finish(false)" here
+                ((Player*)caster)->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                ((Player*)caster)->ModifyPower(POWER_RUNIC_POWER, 400);
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NO_NEARBY_CORPSES);
+                return SPELL_FAILED_CUSTOM_ERROR;
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_corpse_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_dk_corpse_explosion_SpellScript::CheckIfCorpseNear);
             }
         };
 
@@ -247,7 +285,7 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         }
 };
 
-// 47496 - Explode, Ghoul spell for Corpse Explosion
+// 47496 - Explode, GHoul spell for Corpse Explosion
 class spell_dk_ghoul_explode : public SpellScriptLoader
 {
     public:
@@ -400,7 +438,12 @@ class spell_dk_scourge_strike : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
+                {
                     multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
+                    // Death Knight T8 Melee 4P Bonus
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(64736, EFFECT_0))
+                        AddPctF(multiplier, aurEff->GetAmount());
+                }
             }
 
             void HandleAfterHit()
@@ -409,6 +452,19 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     int32 bp = GetHitDamage() * multiplier;
+
+                    // Black Ice talent dmg bonus
+                    if (caster->HasAura(49140))
+                        bp *= 1.02f;
+                    if (caster->HasAura(49661))
+                        bp *= 1.04f;
+                    if (caster->HasAura(49662))
+                        bp *= 1.06f;
+                    if (caster->HasAura(49663))
+                        bp *= 1.08f;
+                    if (caster->HasAura(49664))
+                        bp *= 1.1f;
+
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
             }
