@@ -44,7 +44,8 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
 
-    PALADIN_SPELL_RIGHTEOUS_DEFENCE              = 31790,
+    PALADIN_SPELL_RIGHTEOUS_DEFENCE              = 31789,
+    PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1     = 31790,
 
     SPELL_DIVINE_STORM                           = 53385,
     SPELL_DIVINE_STORM_DUMMY                     = 54171,
@@ -392,6 +393,41 @@ class spell_pal_judgement_of_command : public SpellScriptLoader
         }
 };
 
+class spell_pal_righteous_defense : public SpellScriptLoader
+{
+    public:
+        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
+
+        class spell_pal_righteous_defense_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_RIGHTEOUS_DEFENCE))
+                    return false;
+                return true;
+            }
+
+            void HandleSpellEffectTriggerSpell(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* targetUnit = GetHitUnit())
+                        caster->CastSpell(targetUnit, PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleSpellEffectTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_righteous_defense_SpellScript();
+        }
+};
+
 class spell_pal_divine_storm : public SpellScriptLoader
 {
     public:
@@ -543,44 +579,6 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
         }
 };
 
-class spell_pal_righteous_defense : public SpellScriptLoader
-{
-    public:
-        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
-
-        class spell_pal_righteous_defense_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
-                else
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_righteous_defense_SpellScript();
-        }
-};
-
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -593,5 +591,4 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_lay_on_hands();
-    new spell_pal_righteous_defense();
 }
