@@ -24,7 +24,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-
+#include "Group.h"
 
 enum PaladinSpells
 {
@@ -50,6 +50,10 @@ enum PaladinSpells
     SPELL_DIVINE_STORM                           = 53385,
     SPELL_DIVINE_STORM_DUMMY                     = 54171,
     SPELL_DIVINE_STORM_HEAL                      = 54172,
+
+    SPELL_HAND_OF_SACRIFICE                      = 6940,
+
+    SPELL_DIVINE_SACRIFICE                       = 64205,
 
     SPELL_FORBEARANCE                            = 25771,
     SPELL_AVENGING_WRATH_MARKER                  = 61987,
@@ -579,6 +583,97 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
         }
 };
 
+class spell_pal_hand_of_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_pal_hand_of_sacrifice() : SpellScriptLoader("spell_pal_hand_of_sacrifice") { }
+
+        class spell_pal_hand_of_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
+
+            uint32 splitPct;
+            int32 remainingAmount;
+
+            bool Load()
+            {
+                remainingAmount = GetCaster()->GetMaxHealth();
+                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                return true;
+            }
+
+            void Split(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & splitAmount)
+            {
+                splitAmount = CalculatePctN(dmgInfo.GetDamage(), splitPct);
+                remainingAmount -= splitAmount;
+
+                if (remainingAmount <= 0)
+                {
+                    Unit* target = GetTarget();
+                    target->RemoveAura(SPELL_HAND_OF_SACRIFICE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectSplit += AuraEffectSplitFn(spell_pal_hand_of_sacrifice_AuraScript::Split, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_hand_of_sacrifice_AuraScript();
+        }
+};
+
+class spell_pal_divine_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_pal_divine_sacrifice() : SpellScriptLoader("spell_pal_divine_sacrifice") { }
+
+        class spell_pal_divine_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_divine_sacrifice_AuraScript);
+
+            uint32 splitPct, groupSize, minHpPct;
+            int32 remainingAmount;
+
+            bool Load()
+            {
+                if (GetCaster()->ToPlayer()->GetGroup())
+                    groupSize = GetCaster()->ToPlayer()->GetGroup()->GetMembersCount();
+                else
+                    groupSize = 1;
+
+                remainingAmount = (GetCaster()->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster())) * groupSize);
+                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+
+                return true;
+            }
+
+            void Split(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & splitAmount)
+            {
+                splitAmount = CalculatePctN(dmgInfo.GetDamage(), splitPct);
+                remainingAmount -= splitAmount;
+
+                // break when absorbed everything it could, or if the casters hp drops below 20%
+                if (remainingAmount <= 0 || (GetCaster()->GetHealthPct() < minHpPct))
+                    GetCaster()->RemoveAura(SPELL_DIVINE_SACRIFICE);
+            }
+
+            void Register()
+            {
+                OnEffectSplit += AuraEffectSplitFn(spell_pal_divine_sacrifice_AuraScript::Split, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_divine_sacrifice_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -591,4 +686,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_lay_on_hands();
+    new spell_pal_hand_of_sacrifice();
+    new spell_pal_divine_sacrifice();
 }
