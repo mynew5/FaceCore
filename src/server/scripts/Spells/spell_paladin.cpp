@@ -263,6 +263,41 @@ class spell_pal_guarded_by_the_light : public SpellScriptLoader
         }
 };
 
+// 58597 Sacred shield add cooldown
+class spell_pal_sacred_shield : public SpellScriptLoader
+{
+public:
+    spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
+
+    class spell_pal_sacred_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_sacred_shield_AuraScript)
+        bool Validate(SpellEntry const* /*entry*/)
+        {
+            if (!sSpellStore.LookupEntry(PALADIN_SPELL_SACRED_SHIELD_EFFECT))
+                return false;
+            return true;
+        }
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (caster->ToPlayer())
+                    caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_SACRED_SHIELD_EFFECT, 0, time(NULL) + 6);
+        }
+
+        void Register()
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pal_sacred_shield_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_pal_sacred_shield_AuraScript();
+    }
+};
+
 class spell_pal_holy_shock : public SpellScriptLoader
 {
     public:
@@ -334,41 +369,6 @@ class spell_pal_holy_shock : public SpellScriptLoader
         }
 };
 
-// 58597 Sacred shield add cooldown
-class spell_pal_sacred_shield : public SpellScriptLoader
-{
-public:
-    spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
-
-    class spell_pal_sacred_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pal_sacred_shield_AuraScript)
-        bool Validate(SpellEntry const* /*entry*/)
-        {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_SACRED_SHIELD_EFFECT))
-                return false;
-            return true;
-        }
-
-        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-                if (Player* player = caster->ToPlayer())
-                    player->AddSpellCooldown(PALADIN_SPELL_SACRED_SHIELD_EFFECT, 0, time(NULL) + 6);
-        }
-
-        void Register()
-        {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pal_sacred_shield_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        }
-    };
-
-    AuraScript *GetAuraScript() const
-    {
-        return new spell_pal_sacred_shield_AuraScript();
-    }
-};
-
 class spell_pal_judgement_of_command : public SpellScriptLoader
 {
     public:
@@ -394,41 +394,6 @@ class spell_pal_judgement_of_command : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pal_judgement_of_command_SpellScript();
-        }
-};
-
-class spell_pal_righteous_defense : public SpellScriptLoader
-{
-    public:
-        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
-
-        class spell_pal_righteous_defense_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_RIGHTEOUS_DEFENCE))
-                    return false;
-                return true;
-            }
-
-            void HandleSpellEffectTriggerSpell(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* targetUnit = GetHitUnit())
-                        caster->CastSpell(targetUnit, PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1, true);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleSpellEffectTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_righteous_defense_SpellScript();
         }
 };
 
@@ -516,61 +481,6 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pal_divine_storm_dummy_SpellScript();
-        }
-};
-
-class spell_pal_lay_on_hands : public SpellScriptLoader
-{
-    public:
-        spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
-
-        class spell_pal_lay_on_hands_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FORBEARANCE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_AVENGING_WRATH_MARKER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_IMMUNE_SHIELD_MARKER))
-                    return false;
-                return true;
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetExplTargetUnit())
-                    if (caster == target)
-                        if (target->HasAura(SPELL_FORBEARANCE) || target->HasAura(SPELL_AVENGING_WRATH_MARKER) || target->HasAura(SPELL_IMMUNE_SHIELD_MARKER))
-                            return SPELL_FAILED_TARGET_AURASTATE;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleScript()
-            {
-                Unit* caster = GetCaster();
-                if (caster == GetHitUnit())
-                {
-                    caster->CastSpell(caster, SPELL_FORBEARANCE, true);
-                    caster->CastSpell(caster, SPELL_AVENGING_WRATH_MARKER, true);
-                    caster->CastSpell(caster, SPELL_IMMUNE_SHIELD_MARKER, true);
-                }
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands_SpellScript::CheckCast);
-                AfterHit += SpellHitFn(spell_pal_lay_on_hands_SpellScript::HandleScript);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_lay_on_hands_SpellScript();
         }
 };
 
@@ -665,18 +575,121 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
         }
 };
 
+class spell_pal_lay_on_hands : public SpellScriptLoader
+{
+    public:
+        spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
+
+        class spell_pal_lay_on_hands_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FORBEARANCE))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_AVENGING_WRATH_MARKER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_IMMUNE_SHIELD_MARKER))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (caster == target)
+                    {
+                        if (target->HasAura(SPELL_FORBEARANCE))
+                            return SPELL_FAILED_TARGET_AURASTATE;
+
+                        if (target->HasAura(SPELL_AVENGING_WRATH_MARKER))
+                            return SPELL_FAILED_TARGET_AURASTATE;
+
+                        if (target->HasAura(SPELL_IMMUNE_SHIELD_MARKER))
+                            return SPELL_FAILED_TARGET_AURASTATE;
+                    }
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScript()
+            {
+                Unit* caster = GetCaster();
+                if (caster == GetHitUnit())
+                {
+                    caster->CastSpell(caster, SPELL_FORBEARANCE, true);
+                    caster->CastSpell(caster, SPELL_AVENGING_WRATH_MARKER, true);
+                    caster->CastSpell(caster, SPELL_IMMUNE_SHIELD_MARKER, true);
+                }
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands_SpellScript::CheckCast);
+                AfterHit += SpellHitFn(spell_pal_lay_on_hands_SpellScript::HandleScript);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_lay_on_hands_SpellScript();
+        }
+};
+
+class spell_pal_righteous_defense : public SpellScriptLoader
+{
+    public:
+        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
+
+        class spell_pal_righteous_defense_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+                else
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_righteous_defense_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
-    new spell_pal_sacred_shield();
     new spell_pal_guarded_by_the_light();
+    new spell_pal_sacred_shield();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
-    new spell_pal_lay_on_hands();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_divine_sacrifice();
+    new spell_pal_lay_on_hands();
+    new spell_pal_righteous_defense();
 }
