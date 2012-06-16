@@ -1501,6 +1501,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
                             caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
                     }
+                    break;
                 }
                 // Improved Fear
                 else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
@@ -1619,9 +1620,25 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
                 break;
             case SPELLFAMILY_PALADIN:
-                // Remove the immunity shield marker on Forbearance removal if AW marker is not present
-                if (GetId() == 25771 && target->HasAura(61988) && !target->HasAura(61987))
-                    target->RemoveAura(61988);
+                switch (GetId())
+                {
+                    case 25771: // Remove the immunity shield marker on Forbearance removal if AW marker is not present
+                        if (target->HasAura(61988) && !target->HasAura(61987))
+                            target->RemoveAura(61988);
+                        break;
+                    case 199997: // Divine Storm Helper (SERVERSIDE)
+                    {
+                        int32 damage = aurApp->GetBase()->GetEffect(EFFECT_0)->GetAmount();
+
+                        if (!damage)
+                            break;
+
+                        caster->CastCustomSpell(target, 54171, &damage, NULL, NULL, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
                 // Blood of the North
@@ -1719,6 +1736,31 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
         case SPELLFAMILY_PALADIN:
+            // retribution aura works fine by default, dont do anything to it
+            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && GetSpellInfo()->SpellIconID != 555)
+            {
+                // search for Swift and Sanctified Retribution
+                float hasteBonus = 0;
+                Unit::AuraEffectList const& TalentAuras = caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                for (Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
+                {
+                    if ((*itr)->GetSpellInfo()->SpellIconID == 3028)
+                        hasteBonus = ((*itr)->GetSpellInfo()->Effects[0].CalcValue(target));
+                    // add melee dmg bonus of Sanctified Retribution to the paladin
+                    if ((*itr)->GetSpellInfo()->Id == 31869)
+                        ((*itr)->HandleModDamagePercentDone(aurApp, AURA_EFFECT_HANDLE_REAL, apply));
+                }
+
+                // make Swift retribution apply its buffs on every paladin aura
+                if (hasteBonus)
+                {
+                    target->ApplyCastTimePercentMod(hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(BASE_ATTACK, hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(OFF_ATTACK, hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(RANGED_ATTACK, hasteBonus, apply);
+                }
+            }
+
             switch (GetId())
             {
                 case 19746:
@@ -1748,33 +1790,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->RemoveAurasDueToSpell(71166);
                     }
                     break;
-            }
-            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
-            {
-                if (GetCasterGUID() == target->GetGUID())
-                {
-                    // Sanctified Retribution
-                    if (target->HasAura(31869))
-                    {
-                        target->RemoveAurasDueToSpell(63531);
-                        if (apply)
-                            target->CastSpell(target, 63531, true);
-                    }
-                    // Improved Devotion Aura
-                    if (target->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_PALADIN, 291, 1))
-                    {
-                        target->RemoveAurasDueToSpell(63514);
-                        if (apply)
-                            target->CastSpell(target, 63514, true);
-                    }
-                    // Improved Concentration Aura
-                    if (target->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_PALADIN, 1487, 0))
-                    {
-                        target->RemoveAurasDueToSpell(63510);
-                        if (apply)
-                            target->CastSpell(target, 63510, true);
-                    }
-                }
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
