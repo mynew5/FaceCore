@@ -3180,6 +3180,11 @@ void SpellMgr::LoadDbcDataCorrections()
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->procCharges = 6;
                 break;
+            case 1543:  // Flare
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS;
+                spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;
+                spellInfo->speed = 100;
+                break;
             case 47201: // Everlasting Affliction
             case 47202:
             case 47203:
