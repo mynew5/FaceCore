@@ -159,7 +159,7 @@ public:
         return true;
     }
 
-    static bool HandleInstanceUnbindSelfCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleInstanceUnbindSelfCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
