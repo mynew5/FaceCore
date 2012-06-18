@@ -36,10 +36,17 @@ public:
 
     ChatCommand* GetCommands() const
     {
+        static ChatCommand instanceUnbindCommandTable[] =
+        {
+            { "self",       SEC_ADMINISTRATOR,  true,  &HandleInstanceUnbindSelfCommand,       "", NULL },
+            { "",           SEC_ADMINISTRATOR,  true,  &HandleInstanceUnbindCommand,           "", NULL },
+            { NULL,         0,                  false, NULL,                                   "", NULL }
+        };
+
         static ChatCommand instanceCommandTable[] =
         {
             { "listbinds",      SEC_ADMINISTRATOR,  false,  &HandleInstanceListBindsCommand,    "", NULL },
-            { "unbind",         SEC_ADMINISTRATOR,  false,  &HandleInstanceUnbindCommand,       "", NULL },
+            { "unbind",         SEC_ADMINISTRATOR,  false,  NULL,                               "", instanceUnbindCommandTable },
             { "stats",          SEC_ADMINISTRATOR,  true,   &HandleInstanceStatsCommand,        "", NULL },
             { "savedata",       SEC_ADMINISTRATOR,  false,  &HandleInstanceSaveDataCommand,     "", NULL },
             { NULL,             0,                  false,  NULL,                               "", NULL }
@@ -149,6 +156,49 @@ public:
         }
         handler->PSendSysMessage("instances unbound: %d", counter);
 
+        return true;
+    }
+
+    static bool HandleInstanceUnbindSelfCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* pMap = strtok((char*)args, " ");
+        char* pDiff = strtok(NULL, " ");
+        int8 diff = -1;
+        if (pDiff)
+            diff = atoi(pDiff);
+        uint16 counter = 0;
+        uint16 MapId = 0;
+
+        if (strcmp(pMap, "all"))
+        {
+            MapId = uint16(atoi(pMap));
+            if (!MapId)
+                return false;
+        }
+
+        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        {
+            Player::BoundInstancesMap &binds = player->GetBoundInstances(Difficulty(i));
+            for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
+            {
+                InstanceSave *save = itr->second.save;
+                if (itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
+                {
+                    std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
+                    handler->PSendSysMessage("unbinding map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    player->UnbindInstance(itr, Difficulty(i));
+                    counter++;
+                }
+                else
+                    ++itr;
+            }
+        }
+        handler->PSendSysMessage("instances unbound: %d", counter);
         return true;
     }
 
