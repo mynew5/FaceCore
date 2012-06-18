@@ -158,13 +158,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
-    static ChatCommand instanceUnbindCommandTable[] =
-    {
-        { "self",       SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceUnbindSelfCommand>,       "", NULL },
-        { "",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceUnbindCommand>,           "", NULL },
-        { NULL,             0,                  false, NULL,                                                "", NULL }
-    };
-
     static ChatCommand listCommandTable[] =
     {
         { "creature",       SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleListCreatureCommand>,        "", NULL },
