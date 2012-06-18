@@ -3161,7 +3161,7 @@ class spell_gen_mount : public SpellScriptLoader
 
                     // Triggered spell id dependent on riding skill and zone
                     bool canFly = false;
-                    uint32 map = target->GetMapId();
+                    uint32 map = GetVirtualMapForMapAndZone(target->GetMapId(), target->GetZoneId());
                     if (map == 530 || (map == 571 && target->HasSpell(SPELL_COLD_WEATHER_FLYING)))
                         canFly = true;
 
