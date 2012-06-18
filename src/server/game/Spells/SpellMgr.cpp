@@ -3278,6 +3278,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 42650: // Army of the Dead - now we can interrupt this
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
+            case 54807: // DK Sigil of the Wild Buck
+                spellInfo->EffectBasePoints[EFFECT_0] = 39;
+                break;
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
                 spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
