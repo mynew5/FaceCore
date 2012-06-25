@@ -21920,6 +21920,10 @@ bool Player::IsVisibleGloballyFor(Player* u) const
     if (!AccountMgr::IsPlayerAccount(u->GetSession()->GetSecurity()))
         return GetSession()->GetSecurity() <= u->GetSession()->GetSecurity();
 
+    // TrinityNya for ArenaWatcher
+    if (!isGMVisible())
+        return false;
+
     // non faction visibility non-breakable for non-GMs
     if (!IsVisible())
         return false;
