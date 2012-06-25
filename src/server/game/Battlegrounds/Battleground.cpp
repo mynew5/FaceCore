@@ -578,8 +578,6 @@ inline void Battleground::_ProcessLeave(uint32 diff)
             RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
             // do not change any battleground's private variables
         }
-        //TrinityNya: more correctly?
-        GetBgMap()->RemoveAllPlayers();
     }
 }
 
@@ -1246,7 +1244,6 @@ void Battleground::EventPlayerLoggedIn(Player* player)
         }
     }
 
-    //TrinityNya: Fixed count players
     if (!IsPlayerInBattleground(guid))
         return;
 
@@ -1261,7 +1258,6 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 {
     uint64 guid = player->GetGUID();
 
-    //TrinityNya: Fixed count players
     if (!IsPlayerInBattleground(guid))
         return;
 

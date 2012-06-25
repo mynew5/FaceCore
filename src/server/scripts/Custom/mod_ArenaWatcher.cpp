@@ -59,12 +59,12 @@ bool IsWatcher(uint32 guid)
 
 void ArenaWatcherStart(Player* player)
 {
-    player->SetGMVisible(false);
+    player->SetVisible(false);
     uint32 guid = player->GetGUIDLow();
-    
+
     if (IsWatcher(guid))
         return;
-    
+
     ArenaWatcher data;
     data.mutetime = player->GetSession()->m_muteTime;
     ArenaWatcherPlayers[guid] = data;
@@ -77,7 +77,7 @@ void ArenaWatcherAfterTeleport(Player* player)
     
     if (ArenaWatcherSilence)
         player->GetSession()->m_muteTime = time(NULL) + 120 * MINUTE;
-    
+
     if (ArenaWatcherFly)
     {
         player->SendMovementSetCanFly(true);
@@ -107,9 +107,7 @@ void ArenaWatcherEnd(Player* player)
     {
         ArenaWatcherPlayers.erase(itr);
         player->ResurrectPlayer(100.0f, false);
-        player->SetGMVisible(true);
-        player->SetGameMaster(false);
-        player->SetAcceptWhispers(true);
+        player->SetVisible(true);
         player->SendMovementSetCanFly(false);
         player->SetCanFly(false);
         player->SetSpeed(MOVE_WALK, 1.0f, true);
