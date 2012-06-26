@@ -41,6 +41,8 @@
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 
+bool IsWatcher(uint32 guid);
+
 bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg, uint32 lang)
 {
     if (lang != LANG_ADDON)
@@ -250,6 +252,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ))
             {
                 SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
+                return;
+            }
+
+            if (IsWatcher(sender->GetGUIDLow()))
+            {
+                SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName());
                 return;
             }
 
