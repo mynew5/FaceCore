@@ -166,7 +166,7 @@ class npc_arena_watcher : public CreatureScript
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (ArenaWatcherEnable && (!ArenaWatcherOnlyGM || player->isGameMaster()))
+        if (ArenaWatcherEnable && (!ArenaWatcherOnlyGM || player->isGameMaster()) && !player->InBattlegroundQueue())
         {
             uint32 arenasCount[MAX_ARENA_SLOT] = {0, 0, 0};
 
@@ -230,7 +230,7 @@ class npc_arena_watcher : public CreatureScript
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (!ArenaWatcherEnable && (!ArenaWatcherOnlyGM || player->isGameMaster()))
+        if (!ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->isGameMaster()) || player->InBattlegroundQueue())
             return true;
 
         if (action <= GOSSIP_OFFSET)
@@ -366,7 +366,7 @@ class npc_arena_watcher : public CreatureScript
         player->PlayerTalkClass->ClearMenus();
         player->CLOSE_GOSSIP_MENU();
 
-        if (!ArenaWatcherToPlayers || !ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->isGameMaster()) || !*targetName)
+        if (!ArenaWatcherToPlayers || !ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->isGameMaster()) || !*targetName || player->InBattlegroundQueue())
             return true;
 
         if (uiSender == GOSSIP_SENDER_MAIN)
