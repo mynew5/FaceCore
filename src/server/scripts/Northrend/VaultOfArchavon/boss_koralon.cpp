@@ -198,10 +198,10 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
 
             uint32 totalTargets;
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 totalTargets = NULL;
-                for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end(); ++itr)
+                for (std::list<WorldObject*>::iterator itr = targets.begin() ; itr != targets.end(); ++itr)
                 {
                     Unit *target = (*itr);
                     if (!target)
