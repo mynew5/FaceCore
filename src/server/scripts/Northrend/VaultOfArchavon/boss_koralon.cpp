@@ -225,7 +225,7 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_koralon_meteor_fists_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_koralon_meteor_fists_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
                 OnHit += SpellHitFn(spell_koralon_meteor_fists_SpellScript::CalculateSplitDamage);
             }
         };
