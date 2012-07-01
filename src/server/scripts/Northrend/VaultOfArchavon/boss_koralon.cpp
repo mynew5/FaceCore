@@ -203,13 +203,13 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
                 totalTargets = NULL;
                 for (std::list<WorldObject*>::iterator itr = targets.begin() ; itr != targets.end(); ++itr)
                 {
-                    Unit *target = (*itr);
+                    WorldObject* target = (*itr);
                     if (!target)
                         continue;
 
                     if (!target->IsWithinDist(GetExplTargetUnit(), 10.0f))
                     {
-                        unitList.remove(target);
+                        targets.remove(target);
                         continue;
                     }
                     
