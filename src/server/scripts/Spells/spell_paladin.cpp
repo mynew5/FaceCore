@@ -44,9 +44,6 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
 
-    PALADIN_SPELL_RIGHTEOUS_DEFENCE              = 31789,
-    PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1     = 31790,
-
     SPELL_DIVINE_STORM                           = 53385,
     SPELL_DIVINE_STORM_DUMMY                     = 54171,
     SPELL_DIVINE_STORM_HEAL                      = 54172,
