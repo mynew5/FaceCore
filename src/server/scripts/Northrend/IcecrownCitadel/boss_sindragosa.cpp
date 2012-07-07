@@ -19,7 +19,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
 #include "icecrown_citadel.h"
 
 enum Texts
@@ -184,7 +183,7 @@ class FrostBombExplosion : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
         {
-            _owner->CastSpell((Unit*)NULL, SPELL_FROST_BOMB, false, NULL, NULL, _sindragosaGUID);
+            _owner->CastSpell((Unit*)NULL, SPELL_FROST_BOMB, true, NULL, NULL, _sindragosaGUID);
             _owner->RemoveAurasDueToSpell(SPELL_FROST_BOMB_VISUAL);
             return true;
         }
@@ -1304,6 +1303,63 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
         }
 };
 
+class FrostBombTargetSelector
+{
+    public:
+        FrostBombTargetSelector(Unit* caster, std::list<Creature*> const& collisionList) : _caster(caster), _collisionList(collisionList) { }
+
+        bool operator()(Unit* unit)
+        {
+            if (unit->HasAura(SPELL_ICE_TOMB_DAMAGE))
+                return true;
+
+            for (std::list<Creature*>::const_iterator itr = _collisionList.begin(); itr != _collisionList.end(); ++itr)
+                if ((*itr)->IsInBetween(_caster, unit, 1.0f))
+                    return true;
+
+            return false;
+        }
+
+    private:
+        Unit* _caster;
+        std::list<Creature*> const& _collisionList;
+};
+
+class spell_sindragosa_collision_filter : public SpellScriptLoader
+{
+    public:
+        spell_sindragosa_collision_filter() : SpellScriptLoader("spell_sindragosa_collision_filter") { }
+
+        class spell_sindragosa_collision_filter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sindragosa_collision_filter_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ICE_TOMB_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                std::list<Creature*> tombs;
+                GetCreatureListWithEntryInGrid(tombs, GetCaster(), NPC_ICE_TOMB, 200.0f);
+                unitList.remove_if (FrostBombTargetSelector(GetCaster(), tombs));
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_sindragosa_collision_filter_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sindragosa_collision_filter_SpellScript();
+        }
+};
+
 class spell_sindragosa_icy_grip : public SpellScriptLoader
 {
     public:
@@ -1595,6 +1651,7 @@ void AddSC_boss_sindragosa()
     new spell_sindragosa_instability();
     new spell_sindragosa_frost_beacon();
     new spell_sindragosa_ice_tomb();
+    new spell_sindragosa_collision_filter();
     new spell_sindragosa_icy_grip();
     new spell_sindragosa_mystic_buffet();
     new spell_rimefang_icy_blast();
