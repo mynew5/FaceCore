@@ -1501,7 +1501,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
                             caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
                     }
-                    break;
                 }
                 // Improved Fear
                 else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
@@ -1736,31 +1735,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
         case SPELLFAMILY_PALADIN:
-            // retribution aura works fine by default, dont do anything to it
-            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && GetSpellInfo()->SpellIconID != 555)
-            {
-                // search for Swift and Sanctified Retribution
-                float hasteBonus = 0;
-                Unit::AuraEffectList const& TalentAuras = caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
-                for (Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
-                {
-                    if ((*itr)->GetSpellInfo()->SpellIconID == 3028)
-                        hasteBonus = ((*itr)->GetSpellInfo()->Effects[0].CalcValue(target));
-                    // add melee dmg bonus of Sanctified Retribution to the paladin
-                    if ((*itr)->GetSpellInfo()->Id == 31869)
-                        ((*itr)->HandleModDamagePercentDone(aurApp, AURA_EFFECT_HANDLE_REAL, apply));
-                }
-
-                // make Swift retribution apply its buffs on every paladin aura
-                if (hasteBonus)
-                {
-                    target->ApplyCastTimePercentMod(hasteBonus, apply);
-                    target->ApplyAttackTimePercentMod(BASE_ATTACK, hasteBonus, apply);
-                    target->ApplyAttackTimePercentMod(OFF_ATTACK, hasteBonus, apply);
-                    target->ApplyAttackTimePercentMod(RANGED_ATTACK, hasteBonus, apply);
-                }
-            }
-
             switch (GetId())
             {
                 case 19746:
