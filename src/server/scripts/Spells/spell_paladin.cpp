@@ -495,9 +495,13 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 
             bool Load()
             {
-                remainingAmount = GetCaster()->GetMaxHealth();
-                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                return true;
+                if (Unit* caster = GetCaster())
+                {
+                    remainingAmount = caster->GetMaxHealth();
+                    splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster);
+                    return true;
+                }
+                return false;
             }
 
             void Split(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & splitAmount)
