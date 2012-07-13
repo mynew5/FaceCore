@@ -247,6 +247,7 @@ enum eGurgthock
     QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1          = 12932,
     QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR          = 12933,
     QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND        = 12934,
+    QUEST_AMPHITHEATER_ANGUISH_CHAMPION           = 12948,
 
     NPC_ORINOKO_TUSKBREAKER                       = 30020,
     NPC_KORRAK_BLOODRAGER                         = 30023,
@@ -260,11 +261,13 @@ enum eGurgthock
     NPC_FIEND_AIR                                 = 30045,
     NPC_FIEND_FIRE                                = 30042,
     NPC_FIEND_EARTH                               = 30043,
+    NPC_VLADOF                                    = 30022,
 
     SAY_QUEST_ACCEPT_TUSKARRMAGEDON               = -1571031,
     SAY_QUEST_ACCEPT_KORRAK_1                     = -1571033,
     SAY_QUEST_ACCEPT_KORRAK_2                     = -1571034,
     SAY_QUEST_ACCEPT_MAGNATAUR                    = -1571035,
+    SAY_QUEST_ACCEPT_VLADOF                       = -1571048,
 
     EMOTE_YGGDRAS_SPAWN                           = -1571039,
     SAY_STINKBEARD_SPAWN                          = -1571040,
@@ -398,6 +401,10 @@ public:
                             uiTimer = 2000;
                             uiPhase = 12;
                             break;
+                        case QUEST_AMPHITHEATER_ANGUISH_CHAMPION:
+                            uiTimer = 4000;
+                            uiPhase = 16;
+                            break;
                    }
                         break;
                 }
@@ -520,6 +527,12 @@ public:
                                 creature->AI()->SetData(1, uiBossRandom);
                             uiPhase = 0;
                             break;
+                        case 16:
+                            if (Creature* summon = me->SummonCreature(NPC_VLADOF, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                                SummonGUID = summon->GetGUID();
+                            DoScriptText(SAY_QUEST_ACCEPT_VLADOF, me);
+                            uiPhase = 0;
+                            break;
                     }
                 }else uiTimer -= uiDiff;
             }
@@ -546,6 +559,8 @@ public:
             case QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND:
                 creature->AI()->SetData(1, quest->GetQuestId());
                 break;
+            case QUEST_AMPHITHEATER_ANGUISH_CHAMPION:
+                creature->AI()->SetData(1, quest->GetQuestId());
         }
 
         creature->AI()->SetGUID(player->GetGUID());
