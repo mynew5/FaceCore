@@ -11,6 +11,7 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Custom/mod_ArenaWatcher.cpp
+  Custom/arena_teamTop.cpp
 )
 
 message("  -> Prepared: Custom")
