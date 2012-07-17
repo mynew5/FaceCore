@@ -12335,11 +12335,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         return (GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_UNK1)
             || (target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_UNK1);
     }
-
-    // VistaWoW Custom PVP Script
-    if (target->GetZoneId() == 51)
-        return (target->duel && (target->duel->opponent == this));
-
     return true;
 }
 
@@ -12433,11 +12428,6 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         if (Creature const* creatureTarget = target->ToCreature())
             return creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_PARTY_MEMBER || creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS;
     }
-
-    // VistaWoW Custom PVP Script
-    if (target->GetZoneId() == 51)
-        return false;
-
     return true;
 }
 
