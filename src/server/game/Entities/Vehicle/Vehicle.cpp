@@ -114,9 +114,8 @@ void Vehicle::Uninstall()
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Uninstall Entry: %u, GuidLow: %u", _creatureEntry, _me->GetGUIDLow());
     RemoveAllPassengers();
 
-    if (GetBase())
-        if (GetBase()->GetTypeId() == TYPEID_UNIT)
-            sScriptMgr->OnUninstall(this);
+    if (GetBase()->GetTypeId() == TYPEID_UNIT)
+        sScriptMgr->OnUninstall(this);
 }
 
 void Vehicle::Reset(bool evading /*= false*/)
