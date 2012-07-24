@@ -6722,17 +6722,25 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             {
                 if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
                 {
-                    if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN && (procSpell->SpellFamilyFlags[0] & 0x40000000))
+                    if (Unit* caster = triggeredByAura->GetCaster())
                     {
-                        basepoints0 = damage / 12;
+                        if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN && (procSpell->SpellFamilyFlags[0] & 0x40000000))
+                        {
 
-                        if (basepoints0)
-                            CastCustomSpell(this, 66922, &basepoints0, NULL, NULL, true, 0, triggeredByAura, victim->GetGUID());
+                            if (caster->HasAura(53569))
+                                basepoints0 = damage / 24;
+                            else if (caster->HasAura(53576))
+                                basepoints0 = damage / 12;
+                            else
+                                basepoints0 = 0;
 
-                        return true;
-                    }
-                    else
+                            if (basepoints0)
+                                CastCustomSpell(this, 66922, &basepoints0, NULL, NULL, true, 0, triggeredByAura, victim->GetGUID());
+
+                            return true;
+                        }
                         return false;
+                    }
                 }
                 else if (damage > 0)
                     triggered_spell_id = 58597;
