@@ -61,6 +61,16 @@ public:
             { "money",              SEC_ADMINISTRATOR,      true,  &HandleSendMoneyCommand,             "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
+        static ChatCommand wintergraspCommandTable[] =
+        {
+            { "status",             SEC_ADMINISTRATOR,      false, &HandleWintergraspStatusCommand,     "", NULL },
+            { "enable",             SEC_ADMINISTRATOR,      false, &HandleWintergraspEnableCommand,     "", NULL },
+            { "start",              SEC_ADMINISTRATOR,      false, &HandleWintergraspStartCommand,      "", NULL },
+            { "stop",               SEC_ADMINISTRATOR,      false, &HandleWintergraspStopCommand,       "", NULL },
+            { "switch",             SEC_ADMINISTRATOR,      false, &HandleWintergraspSwitchTeamCommand, "", NULL },
+            { "timer",              SEC_ADMINISTRATOR,      false, &HandleWintergraspTimerCommand,      "", NULL },
+            { NULL,                 0,                      false, NULL,                                "", NULL }
+        };
         static ChatCommand commandTable[] =
         {
             { "dev",                SEC_ADMINISTRATOR,      false, &HandleDevCommand,                   "", NULL },
@@ -118,17 +128,8 @@ public:
             { "bindsight",          SEC_ADMINISTRATOR,      false, HandleBindSightCommand,              "", NULL },
             { "unbindsight",        SEC_ADMINISTRATOR,      false, HandleUnbindSightCommand,            "", NULL },
             { "playall",            SEC_GAMEMASTER,         false, HandlePlayAllCommand,                "", NULL },
+            { "wg",                 SEC_ADMINISTRATOR,      false, NULL,                                "", wintergraspCommandTable },
             { NULL,                 0,                      false, NULL,                                "", NULL }
-        };
-        static ChatCommand wintergraspCommandTable[] =
-        {
-            { "status",         SEC_ADMINISTRATOR,  false, &HandleWintergraspStatusCommand,       "", NULL },
-            { "enable",         SEC_ADMINISTRATOR,  false, &HandleWintergraspEnableCommand,       "", NULL },
-            { "start",          SEC_ADMINISTRATOR,  false, &HandleWintergraspStartCommand,        "", NULL },
-            { "stop",           SEC_ADMINISTRATOR,  false, &HandleWintergraspStopCommand,         "", NULL },
-            { "switch",         SEC_ADMINISTRATOR,  false, &HandleWintergraspSwitchTeamCommand,   "", NULL },
-            { "timer",          SEC_ADMINISTRATOR,  false, &HandleWintergraspTimerCommand,        "", NULL },
-            { NULL,             0,                  false, NULL,                                  "", NULL }
         };
         return commandTable;
     }
