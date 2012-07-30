@@ -32,8 +32,10 @@ npc_shoot_bunny
 spell_motivate_a_tron
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "Vehicle.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_royal_historian_archesonus
