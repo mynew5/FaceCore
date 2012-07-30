@@ -30,6 +30,7 @@
 #include "WeatherMgr.h"
 #include "ace/INET_Addr.h"
 #include "OutdoorPvPWG.h"
+#include "OutdoorPvPMgr.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -3024,7 +3025,7 @@ public:
         uint32 timer = pvpWG->GetTimer();
         pvpWG->forceChangeTeam();
         pvpWG->setTimer(timer);
-        handler->PSendSysMessage(LANG_BG_WG_SWITCH_FACTION, GetTrinityString(pvpWG->getDefenderTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE));
+        handler->PSendSysMessage(LANG_BG_WG_SWITCH_FACTION, handler->GetTrinityString(pvpWG->getDefenderTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE));
         return true;
     }
 };
