@@ -219,4 +219,3 @@ void AddSC_npc_teleport()
 {
     new npc_teleport;
 }
-// End of TeleNPC2

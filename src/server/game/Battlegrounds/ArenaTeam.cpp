@@ -543,7 +543,7 @@ uint32 ArenaTeam::GetTypeBySlot(uint8 slot)
         default:
             break;
     }
-    // sLog->outError("FATAL: Unknown arena team slot %u for some arena team", slot);
+    sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team slot %u for some arena team", slot);
     return 0xFFFFFFFF;
 }
 
