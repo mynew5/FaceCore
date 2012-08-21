@@ -48,7 +48,6 @@
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
 #include "OutdoorPvPMgr.h"
-#include "OutdoorPvPWG.h"
 #include "Language.h"
 #include "SocialMgr.h"
 #include "Util.h"
@@ -3791,24 +3790,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                         
                 }
-                // Teleport to Lake Wintergrasp
-                case 58622:
-                   {
-                  if(OutdoorPvPWG* pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
-                        if(pvpWG->isWarTime() || pvpWG->m_timer<300000)
-                        {
-                        if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
-                        unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
-                        else if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
-                        unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_HORDE_CAMP, true);
-                    
-                        if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
-                        unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
-                        else if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
-                        unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_ALLIENCE_CAMP, true);
-                        }
-                return;
-                   }
                 // Glyph of Backstab
                 case 63975:
                 {
