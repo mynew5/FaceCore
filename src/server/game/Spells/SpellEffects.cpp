@@ -6377,6 +6377,7 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
             break;
         case 58600: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+            unitTarget->PlayDirectSound(9417); // Fel Reaver sound
             break;
     }
 
