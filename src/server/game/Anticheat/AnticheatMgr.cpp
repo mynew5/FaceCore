@@ -216,7 +216,7 @@ void AnticheatMgr::SpeedHackDetection(Player* player,MovementInfo movementInfo)
     if (clientSpeedRate > speedRate)
     {
         BuildReport(player,SPEED_HACK_REPORT);
-        sLog->outError(LOG_FILTER_PLAYER, "AnticheatMgr:: Speed-Hack detected player GUID (low) %u",player->GetGUIDLow());
+        // sLog->outError(LOG_FILTER_PLAYER, "AnticheatMgr:: Speed-Hack detected player GUID (low) %u",player->GetGUIDLow());
     }
 }
 
