@@ -55,6 +55,8 @@ enum PaladinSpells
     SPELL_FORBEARANCE                            = 25771,
     SPELL_AVENGING_WRATH_MARKER                  = 61987,
     SPELL_IMMUNE_SHIELD_MARKER                   = 61988,
+
+    PALADIN_SPELL_RIGHREOUS_DEFENSE_TAUNT        = 31790,
 };
 
 // 31850 - Ardent Defender
@@ -642,40 +644,37 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
 
 class spell_pal_righteous_defense : public SpellScriptLoader
 {
-    public:
-        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
+public:
+    spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
 
-        class spell_pal_righteous_defense_SpellScript : public SpellScript
+    class spell_pal_righteous_defense_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_righteous_defense_SpellScript)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
-                else
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_righteous_defense_SpellScript();
+            if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_RIGHREOUS_DEFENSE_TAUNT))
+                return false;
+            return true;
         }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* unitTarget = GetHitUnit())
+            {
+                GetCaster()->CastSpell(unitTarget, PALADIN_SPELL_RIGHREOUS_DEFENSE_TAUNT, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_righteous_defense_SpellScript();
+    }
 };
 
 class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
