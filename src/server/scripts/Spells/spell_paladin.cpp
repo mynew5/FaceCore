@@ -660,9 +660,7 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* unitTarget = GetHitUnit())
-            {
                 GetCaster()->CastSpell(unitTarget, PALADIN_SPELL_RIGHREOUS_DEFENSE_TAUNT, true);
-            }
         }
 
         void Register()
