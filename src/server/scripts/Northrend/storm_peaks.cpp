@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
+#include "CombatAI.h"
 
 /*######
 ## npc_agnetta_tyrsdottar
@@ -283,172 +284,179 @@ public:
 ## npc_brunnhildar_prisoner
 ######*/
 
-enum BrunnhildarPrisoner
-{
-    SPELL_ICE_BLOCK                   = 54894,
-    SPELL_ICE_SHARD                   = 55046,
-    SPELL_ICE_SHARD_IMPACT            = 55047
+enum BrunnhildarPrisoner {
+    SPELL_ICE_PRISON           = 54894,
+    SPELL_ICE_LANCE            = 55046,
+    SPELL_FREE_PRISONER        = 55048,
+    SPELL_RIDE_DRAKE           = 55074,
+    SPELL_SHARD_IMPACT         = 55047
 };
 
 class npc_brunnhildar_prisoner : public CreatureScript
 {
 public:
-    npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") {}
+    npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") { }
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
         npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 uiCheckTimer;
+        bool freed;
 
         void Reset()
         {
-            uiCheckTimer = 10*IN_MILLISECONDS;
-            DoCast(me, SPELL_ICE_BLOCK, true);
+            freed = false;
+            me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 
-        void DoAction(const int32 /*param*/)
+        void JustRespawned()
         {
-            me->Kill(me);
-            me->Respawn();
+            Reset();
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void UpdateAI(const uint32 /*diff*/)
         {
-            if (spell->Id == SPELL_ICE_SHARD)
+            if (!freed)
+                return;
+
+            if (!me->HasUnitState(UNIT_STATE_ONVEHICLE))
             {
-                DoCast(me, SPELL_ICE_SHARD_IMPACT, true);
-
-                if (caster->IsVehicle())
-                {
-                    uint8 seat = caster->GetVehicleKit()->GetNextEmptySeat(0, true);
-                    if (seat <= 0)
-                        return;
-
-                    me->EnterVehicle(caster);
-                    me->RemoveAurasDueToSpell(SPELL_ICE_BLOCK);
-                    caster->SetSpeed(MOVE_FLIGHT, 3.0f);
-                }
+                me->DespawnOrUnsummon();
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (uiCheckTimer < diff)
+            if (spell->Id != SPELL_ICE_LANCE)
+                return;
+
+            if (caster->GetVehicleKit()->GetAvailableSeatCount() != 0)
             {
-                if (!me->HasUnitState(UNIT_STATE_ONVEHICLE))
-                {
-                    // return home
-                    if (me->GetDistance(me->GetHomePosition()) > 30.0f)
-                        DoAction(0);
-                }
-                else
-                {
-                    if (me->GetPositionY() > -2595.0f)
-                    {
-                        // remove player control
-                        if (Unit* base = me->GetVehicleBase())
-                            if (base->isCharmed())
-                                base->RemoveCharmedBy(base->GetCharmer());
-                    }
-                }
-                uiCheckTimer = 10*IN_MILLISECONDS;
-            }else uiCheckTimer -= diff;
+                me->CastSpell(me, SPELL_FREE_PRISONER, true);
+                me->CastSpell(caster, SPELL_RIDE_DRAKE, true);
+                me->CastSpell(me, SPELL_SHARD_IMPACT, true);
+                freed = true;
+            }
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_brunnhildar_prisonerAI(creature);
     }
 };
 
 /*######
-## Quest: Cold Hearted (12856)
+## npc_freed_protodrake
 ######*/
 
-enum ColdHearted
+enum FreedProtoDrake
 {
+    AREA_VALLEY_OF_ANCIENT_WINTERS      = 4437,
+    TEXT_EMOTE                          = 0,
     SPELL_KILL_CREDIT_PRISONER          = 55144,
-    SPELL_KILL_CREDIT_DRAKE             = 55143,
-    SPELL_SUMMON_LIBERATED              = 55073
+    SPELL_SUMMON_LIBERATED              = 55073,
+    SPELL_KILL_CREDIT_DRAKE             = 55143
 };
 
-const Position FreedDrakeWaypoints[6] =
+const Position FreedDrakeWaypoints[16] =
 {
-    {7250.15f, -2327.22f, 869.03f, 0.0f},
-    {7118.79f, -2122.05f, 841.32f, 0.0f},
-    {7052.86f, -1905.99f, 888.59f, 0.0f},
-    {7038.24f, -1822.77f, 857.94f, 0.0f},
-    {7044.09f, -1792.25f, 841.69f, 0.0f},
-    {7071.20f, -1780.73f, 822.42f, 0.0f}
+    {7294.96f, -2418.733f, 823.869f, 0.0f},
+    {7315.984f, -2331.46f, 826.3972f, 0.0f},
+    {7271.826f, -2271.479f, 833.5917f, 0.0f},
+    {7186.253f, -2218.475f, 847.5632f, 0.0f},
+    {7113.195f, -2164.288f, 850.2301f, 0.0f},
+    {7078.018f, -2063.106f, 854.7581f, 0.0f},
+    {7073.221f, -1983.382f, 861.9246f, 0.0f},
+    {7061.455f, -1885.899f, 865.119f, 0.0f},
+    {7033.32f, -1826.775f, 876.2578f, 0.0f},
+    {6999.902f, -1784.012f, 897.4521f, 0.0f},
+    {6954.913f, -1747.043f, 897.4521f, 0.0f},
+    {6933.856f, -1720.698f, 882.2022f, 0.0f},
+    {6932.729f, -1687.306f, 866.1189f, 0.0f},
+    {6952.458f, -1663.802f, 849.8133f, 0.0f},
+    {7002.819f, -1651.681f, 831.397f, 0.0f},
+    {7026.531f, -1649.239f, 828.8406f, 0.0f}
 };
+
 
 class npc_freed_protodrake : public CreatureScript
 {
 public:
     npc_freed_protodrake() : CreatureScript("npc_freed_protodrake") { }
 
-    struct npc_freed_protodrakeAI : public ScriptedAI
+    struct npc_freed_protodrakeAI : public VehicleAI
     {
-        npc_freed_protodrakeAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_freed_protodrakeAI(Creature* creature) : VehicleAI(creature) {}
 
-        uint8 count;
-        bool wp_reached;
-        bool movementStarted;
+        bool autoMove;
+        bool wpReached;
+        uint16 CheckTimer;
+        uint16 countWP;
 
         void Reset()
         {
-            count = 0;
-            wp_reached = false;
-            movementStarted = false;
+            autoMove = false;
+            wpReached = false;
+            CheckTimer = 5000;
+            countWP = 0;
         }
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if (type != POINT_MOTION_TYPE || id != count)
+            if (type != POINT_MOTION_TYPE)
                 return;
 
-            if (id < 5)
+            if (id < 15)
             {
-                ++count;
-                wp_reached = true;
+                ++countWP;
+                wpReached = true;
             }
-            else // reached village, give credits
+            else
+            // drake reached village
             {
-                Unit* player = me->GetVehicleKit()->GetPassenger(0); // get player
+                // get player that rides drake (from seat 0)
+                Unit* player = me->GetVehicleKit()->GetPassenger(0);
                 if (player && player->GetTypeId() == TYPEID_PLAYER)
                 {
-                    for (uint8 i = 1; i < 4; ++i) // try to get prisoners
+                    // for each prisoner on drake,give credit
+                    for (uint8 i = 1; i < 4; ++i)
                         if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
                         {
                             if (prisoner->GetTypeId() != TYPEID_UNIT)
                                 return;
-
-                            DoCast(player, SPELL_KILL_CREDIT_PRISONER, true);
-                            //DoCast(player, SPELL_SUMMON_LIBERATED, true);
+                            prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
+                            prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
                             prisoner->ExitVehicle();
-                            prisoner->ToCreature()->AI()->DoAction(0);
                         }
-                    DoCast(player, SPELL_KILL_CREDIT_DRAKE, true);
+                    me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
                     player->ExitVehicle();
                 }
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(const uint32 diff)
         {
-            if (!me->isCharmed() && !movementStarted)
+            if (!autoMove)
             {
-                me->SetSpeed(MOVE_FLIGHT, 5.0f);
-                movementStarted = true;
-                wp_reached = true;
+                if (CheckTimer < diff)
+                {
+                    CheckTimer = 5000;
+                    if (me->GetAreaId() == AREA_VALLEY_OF_ANCIENT_WINTERS)
+                    {
+                        Talk(TEXT_EMOTE, me->GetVehicleKit()->GetPassenger(0)->GetGUID());
+                        autoMove = true;
+                        wpReached = true;
+                    }
+                }
+                else
+                    CheckTimer -= diff;
             }
 
-            if (wp_reached)
+            if (wpReached && autoMove)
             {
-                wp_reached = false;
-                me->GetMotionMaster()->MovePoint(count, FreedDrakeWaypoints[count]);
+                wpReached = false;
+                me->GetMotionMaster()->MovePoint(countWP, FreedDrakeWaypoints[countWP]);
             }
         }
     };
