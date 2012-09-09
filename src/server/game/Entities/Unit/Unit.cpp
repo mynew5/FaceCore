@@ -12615,6 +12615,10 @@ void Unit::SetVisible(bool x)
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
+    // VISTAWOW ANTICHEAT
+    if (GetTypeId() == TYPEID_PLAYER)
+        this->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
@@ -16662,6 +16666,10 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
+    // VISTAWOW ANTICHEAT
+    if (GetTypeId() == TYPEID_PLAYER)
+        this->ToPlayer()->GetAntiCheat()->SetSleep(4000);
+
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
         player = (Player*)this;
