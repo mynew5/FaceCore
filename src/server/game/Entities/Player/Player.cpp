@@ -25595,7 +25595,7 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
     // if not riding a taxi
     // if not in SOTA (causing false positive)
     // if not in Stormwind-Ironforge Subway (causing false positive)
-    if (!plMover->GetVehicle() && !plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination() && (plMover->GetMapId() != 607) && (plMover->GetMapId() != 369)) {
+    if (!plrMover->GetVehicle() && !plrMover->GetTransport() && !plrMover->m_taxi.GetTaxiDestination() && (plrMover->GetMapId() != 607) && (plrMover->GetMapId() != 369)) {
         UnitMoveType move_type;
 
         if (movementInfo->flags & MOVEMENTFLAG_FLYING)
@@ -25607,16 +25607,16 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
         else
             move_type = movementInfo->flags & MOVEMENTFLAG_BACKWARD ? MOVE_SWIM_BACK : MOVE_RUN;
 
-        const float current_speed = plMover->GetSpeed(move_type);
+        const float current_speed = plrMover->GetSpeed(move_type);
 
-        const float delta_x    = plMover->GetPositionX() - movementInfo->pos.GetPositionX();
-        const float delta_y    = plMover->GetPositionY() - movementInfo->pos.GetPositionY();
-        const float delta_z    = plMover->GetPositionZ() - movementInfo->pos.GetPositionZ();
+        const float delta_x    = plrMover->GetPositionX() - movementInfo->pos.GetPositionX();
+        const float delta_y    = plrMover->GetPositionY() - movementInfo->pos.GetPositionY();
+        const float delta_z    = plrMover->GetPositionZ() - movementInfo->pos.GetPositionZ();
         const float real_delta = delta_x * delta_x + delta_y * delta_y;
 
         const float time_delta = MSTime_delta < 1500 ? float(MSTime_delta) / 1000.0f : 1.5f;
 
-        const bool no_fly_auras = !(plMover->HasAuraType(SPELL_AURA_FLY) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS) || plMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK));
+        const bool no_fly_auras = !(plrMover->HasAuraType(SPELL_AURA_FLY) || plrMover->HasAuraType(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED) || plrMover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || plrMover->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) || plrMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS) || plrMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK));
         const bool no_swim_flags = (movementInfo->flags & MOVEMENTFLAG_SWIMMING) == 0;
         const float tg_z = (real_delta != 0 && no_fly_auras && no_swim_flags) ? (pow(delta_z, 2) / real_delta) : -99999.9f;
 
@@ -25625,10 +25625,10 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
         if (real_delta > allowed_delta) {
             if ((++TriggerCount >= 5) || ((real_delta > 400.0f) && (real_delta > (allowed_delta * 3.0f)))) {
                 WorldPacket data;
-                plMover->SetUnitMovementFlags(0);
-                plMover->SendTeleportAckPacket();
-                plMover->BuildHeartBeatMsg(&data);
-                plMover->SendMessageToSet(&data, true);
+                plrMover->SetUnitMovementFlags(0);
+                plrMover->SendTeleportAckPacket();
+                plrMover->BuildHeartBeatMsg(&data);
+                plrMover->SendMessageToSet(&data, true);
                 return true;
             }
         } else

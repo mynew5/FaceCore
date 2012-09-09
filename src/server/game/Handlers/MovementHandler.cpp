@@ -368,8 +368,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
         sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
 
     // VISTAWOW ANTICHEAT
-    if (plMover)
-        if (plMover->GetAntiCheat()->BlockMovementOperation(&movementInfo, opcode))
+    if (plrMover)
+        if (plrMover->GetAntiCheat()->BlockMovementOperation(&movementInfo, opcode))
             return;
 
     /*----------------------*/

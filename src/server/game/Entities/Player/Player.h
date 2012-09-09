@@ -896,13 +896,13 @@ enum CurrencyItems
 class AntiCheat
 {
     private:
-        Player* plMover;
+        Player* plrMover;
         time_t WakeUpTime;
         time_t LastClientTime;
         uint32 TriggerCount;
     public:
         AntiCheat(Player *player) {
-            plMover = player;
+            plrMover = player;
             WakeUpTime = LastClientTime = 0;
             TriggerCount = 0;
         };
