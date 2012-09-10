@@ -25599,7 +25599,8 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
     // if not riding a taxi
     // if not in SOTA (causing false positive)
     // if not in Stormwind-Ironforge Subway (causing false positive)
-    if (!plrMover->GetVehicle() && !plrMover->GetTransport() && !plrMover->m_taxi.GetTaxiDestination() && (plrMover->GetMapId() != 607) && (plrMover->GetMapId() != 369)) {
+    if (!plrMover->GetVehicle() && !plrMover->GetTransport() && !plrMover->m_taxi.GetTaxiDestination() && (plrMover->GetMapId() != 607) && (plrMover->GetMapId() != 369))
+    {
         UnitMoveType move_type;
 
         if (movementInfo->flags & MOVEMENTFLAG_FLYING)
@@ -25609,7 +25610,7 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
         else if (movementInfo->flags & MOVEMENTFLAG_WALKING)
             move_type = MOVE_WALK;
         else
-            move_type = movementInfo->flags & MOVEMENTFLAG_BACKWARD ? MOVE_SWIM_BACK : MOVE_RUN;
+            move_type = movementInfo->flags & MOVEMENTFLAG_BACKWARD ? MOVE_RUN_BACK : MOVE_RUN;
 
         const float current_speed = plrMover->GetSpeed(move_type);
 
@@ -25626,8 +25627,10 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
 
         const float allowed_delta = pow(current_speed * time_delta, 2) + (tg_z > 2.2f ? pow(delta_z, 2) / 2.37f : 0.0f) + 2.0f;
 
-        if (real_delta > allowed_delta) {
-            if ((++TriggerCount >= 5) || ((real_delta > 400.0f) && (real_delta > (allowed_delta * 3.0f)))) {
+        if (real_delta > allowed_delta)
+        {
+            if ((++TriggerCount >= 5) || ((real_delta > 400.0f) && (real_delta > (allowed_delta * 3.0f))))
+            {
                 WorldPacket data;
                 plrMover->SetUnitMovementFlags(0);
                 plrMover->SendTeleportAckPacket();
