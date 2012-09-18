@@ -2683,7 +2683,7 @@ public:
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         // Argent Pony Bridle options
-        if (pPlayer->GetAchievementMgr().HasAchieved(ACHI_PONY_UP))
+        if (pPlayer->HasAchieved(ACHI_PONY_UP))
             if (!pCreature->HasAura(SPELL_SQUIRE_TIRED))
             {
                 uint8 uiBuff = (STATE_BANK | STATE_SHOP | STATE_MAIL);
