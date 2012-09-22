@@ -74,6 +74,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Pet charge effects (Infernal Awakening, Demon Charge)
             if (spellproto->SpellVisual[0] == 2816 && spellproto->SpellIconID == 15)
                 return DIMINISHING_CONTROLLED_STUN;
+            // Frost Tomb
+            else if (spellproto->Id == 48400)
+                return DIMINISHING_NONE;
             // Gnaw
             else if (spellproto->Id == 47481)
                 return DIMINISHING_CONTROLLED_STUN;
@@ -3007,6 +3010,15 @@ void SpellMgr::LoadDbcDataCorrections()
         {
             case 24259: // Felhunter's Spell Lock
                 spellInfo->speed = 80;
+            case 42730: 
+                spellInfo->EffectTriggerSpell[EFFECT_1] = 42739;
+                break;
+            case 59735:
+                spellInfo->EffectTriggerSpell[EFFECT_1] = 59736;
+                break;
+            case 52611: // Summon Skeletons
+            case 52612: // Summon Skeletons
+                spellInfo->EffectMiscValueB[0] = 64;
                 break;
             case 40244: // Simon Game Visual
             case 40245: // Simon Game Visual
