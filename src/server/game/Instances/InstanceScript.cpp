@@ -321,6 +321,24 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
     }
 }
 
+// Complete Achievement for all players in instance
+void InstanceScript::DoCompleteAchievement(uint32 achievement)
+{
+    AchievementEntry const* pAE = GetAchievementStore()->LookupEntry(achievement);
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!pAE)
+    {
+        sLog->outError(LOG_FILTER_TSCR, "DoCompleteAchievement called for not existing achievement %u", achievement);
+        return;
+    }
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player *pPlayer = i->getSource())
+                pPlayer->CompletedAchievement(pAE);
+}
+
 // Update Achievement Criteria for all players in instance
 void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
 {
@@ -381,24 +399,6 @@ void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->getSource())
                 player->CastSpell(player, spell, true);
-}
-
-// Complete Achievement for all players in instance
-void InstanceScript::DoCompleteAchievement(uint32 achievement)
-{
-    AchievementEntry const * AE = sAchievementStore.LookupEntry(achievement);
-    Map::PlayerList const & PlayerList = instance->GetPlayers();
-
-    if (!AE)
-    {
-        sLog->outError(LOG_FILTER_ACHIEVEMENTSYS, "TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
-        return;
-    }
-
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-            if (Player * plr = itr->getSource())
-                plr->CompletedAchievement(AE);
 }
 
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
