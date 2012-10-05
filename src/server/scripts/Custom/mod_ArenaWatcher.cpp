@@ -175,12 +175,12 @@ class npc_arena_watcher : public CreatureScript
                 if (!BattlegroundMgr::IsArenaType(BattlegroundTypeId(bgTypeId)))
                     continue;
 
-                BattlegroundSet arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BattlegroundTypeId(bgTypeId));
+                BattlegroundContainer arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BattlegroundTypeId(bgTypeId));
 
                 if (arenas.empty())
                     continue;
 
-                for (BattlegroundSet::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
+                for (BattlegroundContainer::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
                 {
                     Battleground* bg = itr->second;
                     if (!bg)
@@ -244,12 +244,12 @@ class npc_arena_watcher : public CreatureScript
                 if (!BattlegroundMgr::IsArenaType(BattlegroundTypeId(bgTypeId)))
                     continue;
 
-                BattlegroundSet arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BattlegroundTypeId(bgTypeId));
+                BattlegroundContainer arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BattlegroundTypeId(bgTypeId));
 
                 if (arenas.empty())
                     continue;
 
-                for (BattlegroundSet::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
+                for (BattlegroundContainer::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
                 {
                     Battleground* bg = itr->second;
                     if (!bg)
@@ -304,7 +304,7 @@ class npc_arena_watcher : public CreatureScript
         {
             uint32 arenaId = action - GOSSIP_OFFSET;
             uint32 bgTypeId = sender - GOSSIP_SENDER_MAIN;
-            BattlegroundSet arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BattlegroundTypeId(bgTypeId));
+            BattlegroundContainer arenas = sBattlegroundMgr->GetAllBattlegroundsWithTypeId(BattlegroundTypeId(bgTypeId));
 
             if (arenas[arenaId])
             {
