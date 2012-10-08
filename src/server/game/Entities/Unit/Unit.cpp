@@ -6690,7 +6690,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return false;
                 triggered_spell_id = 0;
                 Unit* beaconTarget = NULL;
-                if (this->GetTypeId() != TYPEID_PLAYER)
+                if (GetTypeId() != TYPEID_PLAYER)
                 {
                     beaconTarget = triggeredByAura->GetBase()->GetCaster();
                     if (beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
@@ -6700,23 +6700,24 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 else
                 {    // Check Party/Raid Group
-                    if (Group *group = this->ToPlayer()->GetGroup())
+                    if (Group* group = ToPlayer()->GetGroup())
                     {
-                        for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                         {
-                            Player* Member = itr->getSource();
-
-                            // check if it was heal by paladin which casted this beacon of light
-                            if (Member->GetAura(53563, victim->GetGUID()))
+                            if (Player* member = itr->getSource())
                             {
-                                // do not proc when target of beacon of light is healed
-                                if (Member == this)
-                                    return false;
+                                // check if it was heal by paladin which casted this beacon of light
+                                if (member->GetAura(53563, victim->GetGUID()))
+                                {
+                                    // do not proc when target of beacon of light is healed
+                                    if (member == this)
+                                        return false;
 
-                                beaconTarget = Member;
-                                basepoints0 = int32(damage);
-                                triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
-                                break;
+                                    beaconTarget = member;
+                                    basepoints0 = int32(damage);
+                                    triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -6727,8 +6728,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
                     return true;
                 }
-                else
-                    return false;
+                
+                return false;
             }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
@@ -10156,8 +10157,7 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
         if (Unit* magnet = (*itr)->GetBase()->GetCaster())
             if (spellInfo->CheckExplicitTarget(this, magnet) == SPELL_CAST_OK
                 && spellInfo->CheckTarget(this, magnet, false) == SPELL_CAST_OK
-                && _IsValidAttackTarget(magnet, spellInfo)
-                && IsWithinLOSInMap(magnet))
+                && _IsValidAttackTarget(magnet, spellInfo))
             {
                 // TODO: handle this charge drop by proc in cast phase on explicit target
                 (*itr)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
