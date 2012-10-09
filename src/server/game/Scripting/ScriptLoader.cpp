@@ -27,6 +27,7 @@ void AddSC_example_commandscript();
 
 //TeleNPC2
 void AddSC_npc_teleport();
+void AddSC_Mod_ArenaWatcher();
 void AddSC_npc_arena_setup();
 
 // spells
@@ -1293,6 +1294,7 @@ void AddCustomScripts()
     /* This is where custom scripts should be added. */
     //TeleNPC2
     AddSC_npc_teleport();
+    AddSC_Mod_ArenaWatcher();
     AddSC_npc_arena_setup();
 #endif
 }

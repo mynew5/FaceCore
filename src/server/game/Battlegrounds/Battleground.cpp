@@ -1246,9 +1246,6 @@ void Battleground::EventPlayerLoggedIn(Player* player)
         }
     }
 
-    if (!IsPlayerInBattleground(guid))
-        return;
-
     m_Players[guid].OfflineRemoveTime = 0;
     PlayerAddedToBGCheckIfBGIsRunning(player);
     // if battleground is starting, then add preparation aura
@@ -1259,9 +1256,6 @@ void Battleground::EventPlayerLoggedIn(Player* player)
 void Battleground::EventPlayerLoggedOut(Player* player)
 {
     uint64 guid = player->GetGUID();
-
-    if (!IsPlayerInBattleground(guid))
-        return;
 
     // player is correct pointer, it is checked in WorldSession::LogoutPlayer()
     m_OfflineQueue.push_back(player->GetGUID());
