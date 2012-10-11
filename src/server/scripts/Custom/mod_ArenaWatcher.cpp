@@ -183,7 +183,11 @@ class npc_arena_watcher : public CreatureScript
                 for (BattlegroundContainer::const_iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
                 {
                     Battleground* bg = itr->second;
+
                     if (!bg)
+                        continue;
+
+                    if (!bg->GetInstanceID())
                         continue;
 
                     if (bg->GetStatus() == STATUS_NONE || bg->GetStatus() == STATUS_WAIT_LEAVE)
@@ -221,7 +225,6 @@ class npc_arena_watcher : public CreatureScript
                     true
                 );
         }
-
         player->PlayerTalkClass->SendGossipMenu(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
@@ -253,6 +256,9 @@ class npc_arena_watcher : public CreatureScript
                 {
                     Battleground* bg = itr->second;
                     if (!bg)
+                        continue;
+
+                    if (!bg->GetInstanceID())
                         continue;
 
                     Map* map = bg->FindBgMap();
