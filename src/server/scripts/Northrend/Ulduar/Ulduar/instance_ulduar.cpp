@@ -25,7 +25,7 @@ static DoorData const doorData[] =
 {
     {   GO_LEVIATHAN_DOOR, BOSS_LEVIATHAN,    DOOR_TYPE_ROOM, BOUNDARY_S      },
     {   GO_XT_002_DOOR,    BOSS_XT002,        DOOR_TYPE_ROOM, BOUNDARY_S      },
-    {   0,                 0,                 DOOR_TYPE_ROOM, BOUNDARY_NONE   },
+    {   0,                 0,                 DOOR_TYPE_ROOM, BOUNDARY_NONE   }
 };
 
 // Used to map boss-identifier to "player-died-in-fight-against"-flag, since not all "bosses" are relevant
@@ -50,7 +50,7 @@ static const uint32 BossId_2_PlayerDiedFlag[][2] =
     { BOSS_STONEBARK        , DEAD_NONE             },
     { BOSS_VEZAX            , DEAD_VEZAX            },
     { BOSS_YOGGSARON        , DEAD_YOGGSARON        },
-    { BOSS_ALGALON          , DEAD_ALGALON          },
+    { BOSS_ALGALON          , DEAD_ALGALON          }
 };
 
 class instance_ulduar : public InstanceMapScript
@@ -450,37 +450,37 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case ACHIEVEMENT_CRITERIA_THE_ASSASSINATION_OF_KING_LLANE_10:
                     case ACHIEVEMENT_CRITERIA_THE_ASSASSINATION_OF_KING_LLANE_25:
-                        {
-                            if (GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
-                                return false;
-
-                            if (Creature* ctrl = instance->GetCreature(YoggSaronCtrlGUID))
-                                return (ctrl->AI()->GetData(DATA_PORTAL_PHASE) == 0);
-
+                    {
+                        if (GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
                             return false;
-                        }
+
+                        if (Creature* ctrl = instance->GetCreature(YoggSaronCtrlGUID))
+                            return (ctrl->AI()->GetData(DATA_PORTAL_PHASE) == 0);
+
+                        return false;
+                    }
                     case ACHIEVEMENT_CRITERIA_THE_TORTURED_CHAMPION_10:
                     case ACHIEVEMENT_CRITERIA_THE_TORTURED_CHAMPION_25:
-                        {
-                            if (GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
-                                return false;
-
-                            if (Creature* ctrl = instance->GetCreature(YoggSaronCtrlGUID))
-                                return (ctrl->AI()->GetData(DATA_PORTAL_PHASE) == 2);
-
+                    {
+                        if (GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
                             return false;
-                        }
+
+                        if (Creature* ctrl = instance->GetCreature(YoggSaronCtrlGUID))
+                            return (ctrl->AI()->GetData(DATA_PORTAL_PHASE) == 2);
+
+                        return false;
+                    }
                     case ACHIEVEMENT_CRITERIA_FORGING_OF_THE_DEMON_SOUL_10:
                     case ACHIEVEMENT_CRITERIA_FORGING_OF_THE_DEMON_SOUL_25:
-                        {
-                            if (GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
-                                return false;
-
-                            if (Creature* ctrl = instance->GetCreature(YoggSaronCtrlGUID))
-                                return (ctrl->AI()->GetData(DATA_PORTAL_PHASE) == 1);
-
+                    {
+                        if (GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
                             return false;
-                        }
+
+                        if (Creature* ctrl = instance->GetCreature(YoggSaronCtrlGUID))
+                            return (ctrl->AI()->GetData(DATA_PORTAL_PHASE) == 1);
+
+                        return false;
+                    }
                     default:
                         break;
                 }
@@ -875,7 +875,10 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_VEZAX_DOOR:
                         VezaxDoorGUID = gameObject->GetGUID();
-                        HandleGameObject(0, false, gameObject);
+                        if (GetBossState(BOSS_VEZAX) == DONE)
+                            HandleGameObject(0, true, gameObject);
+                        else
+                            HandleGameObject(0, false, gameObject);
                         break;
 
                     // Yogg-Saron related
@@ -1094,11 +1097,16 @@ class instance_ulduar : public InstanceMapScript
                             HandleGameObject(HodirIceDoorGUID, true);
                             HandleGameObject(HodirStoneDoorGUID, true);
                             HandleGameObject(HodirInDoorGUID, true);
-                            if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
-                                if (GetData(DATA_HODIR_RARE_CACHE))
+                            if (GetData(DATA_HODIR_RARE_CACHE))
+                            {
+                                if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
                                     HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
-                                HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
+                            }
+                            else
+                            {
+                                if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
+                                    HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
+                            }
 
                             if (Creature* hodir = instance->GetCreature(HodirImageGUID))
                             {
@@ -1427,36 +1435,36 @@ class instance_ulduar : public InstanceMapScript
 
 class go_call_tram : public GameObjectScript
 {
-public:
-    go_call_tram() : GameObjectScript("go_call_tram") { }
+    public:
+        go_call_tram() : GameObjectScript("go_call_tram") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
-    {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
-
-        if (!pInstance)
-            return false;
-
-        if (pInstance->GetBossState(BOSS_AURIAYA) != DONE)
-            return false;
-
-        switch (pGo->GetEntry())
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
-            // Activate
-            case 194437:    // [ok]
-            case 194912:
-                pInstance->SetData(DATA_CALL_TRAM, 0);
-                break;
-            // Call
-            case 194438:
-            case 194914:    // [ok]
-                pInstance->SetData(DATA_CALL_TRAM, 0);
-                break;
-            default:
-                break;
+            InstanceScript* pInstance = pGo->GetInstanceScript();
+
+            if (!pInstance)
+                return false;
+
+            if (pInstance->GetBossState(BOSS_AURIAYA) != DONE)
+                return false;
+
+            switch (pGo->GetEntry())
+            {
+                // Activate
+                case 194437:    // [ok]
+                case 194912:
+                    pInstance->SetData(DATA_CALL_TRAM, 0);
+                    break;
+                // Call
+                case 194438:
+                case 194914:    // [ok]
+                    pInstance->SetData(DATA_CALL_TRAM, 0);
+                    break;
+                default:
+                    break;
+            }
+            return true;
         }
-        return true;
-    }
 };
 
 void AddSC_instance_ulduar()
