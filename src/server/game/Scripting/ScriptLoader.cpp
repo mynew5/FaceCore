@@ -430,6 +430,7 @@ void AddSC_boss_loken();
 void AddSC_boss_ionar();
 void AddSC_boss_volkhan();
 void AddSC_instance_halls_of_lightning();
+void AddSC_halls_of_lightning();
 void AddSC_boss_maiden_of_grief();       //Ulduar Halls of Stone
 void AddSC_boss_krystallus();
 void AddSC_boss_sjonnir();
@@ -1160,6 +1161,7 @@ void AddNorthrendScripts()
     AddSC_boss_ionar();
     AddSC_boss_volkhan();
     AddSC_instance_halls_of_lightning();
+    AddSC_halls_of_lightning();
     AddSC_boss_maiden_of_grief();       //Ulduar Halls of Stone
     AddSC_boss_krystallus();
     AddSC_boss_sjonnir();
