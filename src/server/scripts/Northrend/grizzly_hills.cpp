@@ -165,7 +165,7 @@ public:
                         player->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
                         DoScriptText(SAY_QUEST_COMPLETE, me, player);
                     }
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                     break;
                 case 25:
                     DoScriptText(SAY_VICTORY4, me);
@@ -197,9 +197,7 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
                 if (m_uiChatTimer <= uiDiff)
-                {
                     m_uiChatTimer = 12000;
-                }
                 else
                     m_uiChatTimer -= uiDiff;
             }
@@ -212,9 +210,7 @@ public:
         {
             DoScriptText(SAY_QUEST_ACCEPT, creature);
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(creature, NPC_MRFLOPPY, 180.0f))
-            {
                 Mrfloppy->GetMotionMaster()->MoveFollow(creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-            }
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
                 pEscortAI->Start(true, false, player->GetGUID());
@@ -320,8 +316,8 @@ public:
 
         void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
-            if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
-            {
+             if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
+             {
                 ++m_counter;
                 if (m_counter < 5)
                     DoCast(pCaster, SPELL_CAMERA_SHAKE, true);
@@ -352,8 +348,7 @@ public:
 
 enum etallhornstage
 {
-    OBJECT_HAUNCH                   = 188665,
-    SPELL_GORE                      = 32019
+    OBJECT_HAUNCH                   = 188665
 };
 
 class npc_tallhorn_stag : public CreatureScript
@@ -366,15 +361,13 @@ public:
         npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 m_uiPhase;
-        uint32 m_uiTimer;
 
         void Reset()
         {
             m_uiPhase = 1;
-            m_uiTimer = 3000;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 /*uiDiff*/)
         {
             if (m_uiPhase == 1)
             {
@@ -386,18 +379,6 @@ public:
                 }
                 m_uiPhase = 0;
             }
-
-            if (!UpdateVictim())
-                return;
-
-            if (m_uiTimer <= uiDiff)
-            {
-                DoCastVictim(SPELL_GORE);
-                m_uiTimer = 15000;
-            }
-            else
-                m_uiTimer -= uiDiff;
-
             DoMeleeAttackIfReady();
         }
     };
@@ -500,7 +481,7 @@ public:
 
         uint32 DespawnTimer;
 
-        void Reset ()
+        void Reset()
         {
             DespawnTimer = 5000;
             uiPlayerGUID = 0;
@@ -533,6 +514,7 @@ public:
         {
             if (!UpdateVictim())
                 return;
+
             DoMeleeAttackIfReady();
         }
     };
@@ -714,86 +696,6 @@ class npc_venture_co_straggler : public CreatureScript
         }
 };
 
-/*######
-## Quest 13666 & 13673:  A blade fit for a champion!
-######*/
-
-enum eLakeFrog
-{
-    SPELL_WARTSBGONE_LIP_BALM = 62574,
-    SPELL_FROG_LOVE = 62537,
-    SPELL_WARTS = 62581,
-    NPC_MAIDEN_OF_ASHWOOD_LAKE = 33220,
-    MAIDEN_SPAWN
-};
-
-//Script for Lake Frog
-class npc_lake_frog : public CreatureScript
-{
-public:
-    npc_lake_frog(): CreatureScript("npc_lake_frog"){}
-
-    struct npc_lake_frogAI : public FollowerAI // FollowerAI: Allows the npc to follow a target
-    {
-        npc_lake_frogAI(Creature *c) : FollowerAI(c) {}
-
-        uint32 uiFollowTimer; // Follow time (15 sec)
-        bool following;	//Whether the frog is going to follow the player
-
-        void Reset ()
-        {
-            following=false;
-            uiFollowTimer=15000; // 15 sec
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if(following)
-            {
-                if(uiFollowTimer <= diff)
-                {
-                    SetFollowComplete();
-                    me->DisappearAndDie();		//despawn
-                    me->Respawn(true);
-                    Reset();
-                }
-                else uiFollowTimer-=diff;
-            }
-        }
-
-        void ReceiveEmote(Player* pPlayer, uint32 emote)
-        {
-            if(following) // If the frog has already received a /kiss, nothing happens
-                return;
-
-            if(emote==TEXT_EMOTE_KISS) // If player use emote /kiss
-            {
-                if(!pPlayer->HasAura(SPELL_WARTSBGONE_LIP_BALM))
-                    pPlayer->AddAura(SPELL_WARTS,pPlayer);
-                else if(roll_chance_i(10)) // 10% chance spawn Maiden
-                {
-                    pPlayer->SummonCreature(NPC_MAIDEN_OF_ASHWOOD_LAKE,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
-                    me->DisappearAndDie();		//Despawn
-                    me->Respawn(true);
-                }
-                else
-                {
-                    pPlayer->RemoveAura(SPELL_WARTSBGONE_LIP_BALM);	//It removes the buff set by the object of quest
-                    me->AddAura(SPELL_FROG_LOVE,me); //It adds the aura of a frog (hearts)
-                    StartFollow(pPlayer, 35, NULL); //The frog following the player
-                    following=true;
-                }
-            }
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_lake_frogAI(pCreature);
-    }
-};
-
 //Script for Maiden Ashwood
 #define MAIDEN_DEFAULT_TEXTID 14319
 #define MAIDEN_REWARD_TEXTID 14320
@@ -935,7 +837,6 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
-    new npc_lake_frog();
     new npc_maiden_of_ashwood_lake;
     new npc_maiden_of_drak_mar;
 }
