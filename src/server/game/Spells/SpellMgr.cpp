@@ -3432,17 +3432,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 64234: // Gravity Bomb (25m) (XT-002)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
-
-            case 7294: // Retribution Aura (Rank 1)
-            case 10298: // Retribution Aura (Rank 2)
-            case 10299: // Retribution Aura (Rank 3)
-            case 10300: // Retribution Aura (Rank 4)
-            case 10301: // Retribution Aura (Rank 5)
-            case 27150: // Retribution Aura (Rank 6)
-            case 54043: // Retribution Aura (Rank 7)
-                spellInfo->Effect[EFFECT_1] = 0;
-                spellInfo->Effect[EFFECT_2] = 0;
-                break;
             case 62834: // Boom (XT-002)
             // This hack is here because we suspect our implementation of spell effect execution on targets
             // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,
