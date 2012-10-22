@@ -11973,7 +11973,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     bool lootedObjectInDungeon = false;
     Map const* map = lootedObject->GetMap();
     if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
-        if (LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
+        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
             if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
                 lootedObjectInDungeon = true;
 
@@ -23337,7 +23337,7 @@ PartyResult Player::CanUninviteFromGroup() const
         if (state == LFG_STATE_BOOT)
             return ERR_PARTY_LFG_BOOT_IN_PROGRESS;
 
-        if (grp->GetMembersCount() <= LFG_GROUP_KICK_VOTES_NEEDED)
+        if (grp->GetMembersCount() <= sLFGMgr->GetVotesNeeded(gguid))
             return ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS;
 
         if (state == LFG_STATE_FINISHED_DUNGEON)
@@ -23370,22 +23370,8 @@ PartyResult Player::CanUninviteFromGroup() const
 
 bool Player::isUsingLfg()
 {
-    return sLFGMgr->GetState(GetGUID()) != LFG_STATE_NONE;
-}
-
-bool Player::inRandomLfgDungeon()
-{
-    if (isUsingLfg())
-    {
-        const LfgDungeonSet& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
-        if (!dungeons.empty())
-        {
-             LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin());
-             if (dungeon && (dungeon->type == LFG_TYPE_RANDOM || dungeon->seasonal))
-                 return true;
-        }
-    }
-    return false;
+    uint64 guid = GetGUID();
+    return sLFGMgr->GetState(guid) != LFG_STATE_NONE;
 }
 
 void Player::SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup)

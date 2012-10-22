@@ -45,7 +45,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "PoolMgr.h"
-#include "LFGMgr.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -5029,7 +5028,7 @@ void ObjectMgr::LoadInstanceEncounters()
             continue;
         }
 
-        if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeon(lastEncounterDungeon))
+        if (lastEncounterDungeon && !sLFGDungeonStore.LookupEntry(lastEncounterDungeon))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName[0], lastEncounterDungeon);
             continue;

@@ -20,20 +20,13 @@
 
 #include "Common.h"
 
-enum LFGEnum
-{
-    LFG_TANKS_NEEDED                             = 1,
-    LFG_HEALERS_NEEDED                           = 1,
-    LFG_DPS_NEEDED                               = 3
-};
-
 enum LfgRoles
 {
-    PLAYER_ROLE_NONE                             = 0x00,
-    PLAYER_ROLE_LEADER                           = 0x01,
-    PLAYER_ROLE_TANK                             = 0x02,
-    PLAYER_ROLE_HEALER                           = 0x04,
-    PLAYER_ROLE_DAMAGE                           = 0x08
+    ROLE_NONE                                    = 0x00,
+    ROLE_LEADER                                  = 0x01,
+    ROLE_TANK                                    = 0x02,
+    ROLE_HEALER                                  = 0x04,
+    ROLE_DAMAGE                                  = 0x08
 };
 
 enum LfgUpdateType
@@ -80,16 +73,7 @@ enum LfgLockStatusType
     LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL     = 1002,
     LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,
     LFG_LOCKSTATUS_MISSING_ITEM                  = 1025,
-    LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031,
-    LFG_LOCKSTATUS_MISSING_ACHIEVEMENT           = 1034
-};
-
-/// Answer state (Also used to check compatibilites)
-enum LfgAnswer
-{
-    LFG_ANSWER_PENDING                           = -1,
-    LFG_ANSWER_DENY                              = 0,
-    LFG_ANSWER_AGREE                             = 1
+    LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031
 };
 
 /// Dungeon and reason why player can't join
@@ -100,10 +84,7 @@ struct LfgLockStatus
 };
 
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, uint32> LfgLockMap;
+typedef std::map<uint32, LfgLockStatusType> LfgLockMap;
 typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
-typedef std::set<uint64> LfgGuidSet;
-typedef std::list<uint64> LfgGuidList;
-typedef std::map<uint64, uint8> LfgRolesMap;
 
 #endif
