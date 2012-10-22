@@ -19,6 +19,8 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "Vehicle.h"
 #include "CombatAI.h"
 
@@ -723,6 +725,52 @@ public:
             }
         }
     };
+
+enum CloseRift
+{
+    SPELL_DESPAWN_RIFT          = 61665
+};
+
+class spell_close_rift : public SpellScriptLoader
+{
+    public:
+        spell_close_rift() : SpellScriptLoader("spell_close_rift") { }
+
+        class spell_close_rift_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_close_rift_AuraScript);
+
+            bool Load()
+            {
+                _counter = 0;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT);
+            }
+
+            void HandlePeriodic(AuraEffect const* /* aurEff */)
+            {
+                if (++_counter == 5)
+                    GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_close_rift_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+
+        private:
+            uint8 _counter;
+
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_close_rift_AuraScript();
+        }
 };
 
 void AddSC_storm_peaks()
@@ -737,4 +785,5 @@ void AddSC_storm_peaks()
     new npc_hyldsmeet_protodrake();
     new npc_snowblind_follower();
     new npc_exhausted_vrykul();
+    new spell_close_rift();
 }
