@@ -7192,7 +7192,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             }
             if (PLAYER_TITLE_MASK_ALL_PVP & vtitle)
             {
-                for (int i = ((victim->GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((victim->GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
+                for (int i = ((plrVictim->GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((plrVictim->GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
                 {
                     if (vtitle & (1<<i))
                         victim_title = i;
