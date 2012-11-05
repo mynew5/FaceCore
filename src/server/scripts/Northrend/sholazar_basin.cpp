@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "SpellScript.h"
+#include "SpellAuras.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle
