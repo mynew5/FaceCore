@@ -166,6 +166,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 AlgalonDoor1GUID;
             uint64 AlgalonDoor2GUID;
             uint64 AlgalonAccessGUID;
+            uint64 AlgalonChestGUID;
 
             // Creatures
             uint64 KeeperGUIDs[3];
@@ -292,6 +293,7 @@ class instance_ulduar : public InstanceMapScript
                 AlgalonDoor1GUID        = 0;
                 AlgalonDoor2GUID        = 0;
                 AlgalonAccessGUID       = 0;
+                AlgalonChestGUID        = 0;
 
                 // Creatures
                 std::fill(KeeperGUIDs, KeeperGUIDs + 3, 0);
@@ -357,30 +359,30 @@ class instance_ulduar : public InstanceMapScript
                     // reward leviathan kill all over the formation grounds area
                     // otherwise, there may occur some problems due to kill-credit since he's killed using vehicles
                     case NPC_LEVIATHAN:
+                    {
+                        Map::PlayerList const& playerList = instance->GetPlayers();
+
+                        if (playerList.isEmpty())
+                            return;
+
+                        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
                         {
-                            Map::PlayerList const& playerList = instance->GetPlayers();
-
-                            if (playerList.isEmpty())
-                                return;
-
-                            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                            if (Player* player = i->getSource())
                             {
-                                if (Player* player = i->getSource())
-                                {
-                                    // has been rewarded
-                                    if (player->IsAtGroupRewardDistance(creature))
-                                        continue;
+                                // has been rewarded
+                                if (player->IsAtGroupRewardDistance(creature))
+                                    continue;
 
-                                    // is somewhere else
-                                    if (player->GetAreaId() != AREA_FORMATION_GROUNDS)
-                                        continue;
+                                // is somewhere else
+                                if (player->GetAreaId() != AREA_FORMATION_GROUNDS)
+                                    continue;
 
-                                    if (player->isAlive() || !player->GetCorpse())
-                                        player->KilledMonsterCredit(NPC_LEVIATHAN, 0);
-                                }
+                                if (player->isAlive() || !player->GetCorpse())
+                                    player->KilledMonsterCredit(NPC_LEVIATHAN, 0);
                             }
                         }
                         break;
+                    }
                     default:
                         break;
                 }
@@ -823,6 +825,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
                     case GO_HODIR_RARE_CACHE_OF_WINTER:
                         HodirRareCacheGUID = gameObject->GetGUID();
+                        gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_HODIR_CHEST_HERO:
                     case GO_HODIR_CHEST:
@@ -933,6 +936,10 @@ class instance_ulduar : public InstanceMapScript
                             gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
                         break;
+                    case GO_GIFT_OF_THE_OBSERVER_10:
+                    case GO_GIFT_OF_THE_OBSERVER_25:
+                        AlgalonChestGUID = gameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -1001,9 +1008,9 @@ class instance_ulduar : public InstanceMapScript
 
                         if (GameObject* gameObject = instance->GetGameObject(LeviathanDoorGUID))
                         {
-                            /*if (state == NOT_STARTED || state == IN_PROGRESS)
+                            if (state == NOT_STARTED || state == IN_PROGRESS)
                                 gameObject->SetGoState(GO_STATE_READY);
-                            else*/
+                            else
                                 gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
 
@@ -1170,11 +1177,12 @@ class instance_ulduar : public InstanceMapScript
                             case DONE:
                                 AlgalonCountdown = 0;
                                 DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 0);
-                                SaveToDB();
                                 HandleGameObject(AlgalonGlobeGUID, false);
                                 HandleGameObject(AlgalonBridgeGUID, false);
                                 HandleGameObject(AlgalonBridgeVisualGUID, false);
                                 HandleGameObject(AlgalonBridgeDoorGUID, true);
+                                if (GameObject* chest = instance->GetGameObject(AlgalonChestGUID))
+                                    chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                             default:
                                 break;
@@ -1187,9 +1195,8 @@ class instance_ulduar : public InstanceMapScript
                     GetBossState(BOSS_MIMIRON) == DONE &&
                     GetBossState(BOSS_HODIR) == DONE &&
                     GetBossState(BOSS_THORIM) == DONE)
-                    if (GameObject* go = instance->GetGameObject(WayToYoggGUID))
+                    if (instance->GetGameObject(WayToYoggGUID))
                         HandleGameObject(WayToYoggGUID, true);
-                        //go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
 
                 return true;
             }

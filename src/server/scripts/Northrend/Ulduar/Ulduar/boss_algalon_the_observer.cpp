@@ -337,6 +337,7 @@ class boss_algalon_the_observer : public CreatureScript
                     case ACTION_START_INTRO:
                     {
                         me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
+                        me->SetVisible(true);
                         me->SetDisableGravity(true);
                         DoCast(me, SPELL_ARRIVAL, true);
                         DoCast(me, SPELL_RIDE_THE_LIGHTNING, true);
@@ -374,6 +375,8 @@ class boss_algalon_the_observer : public CreatureScript
                         _firstPull = false;
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         break;;
+                    default:
+                        break;
                 }
             }
 
@@ -484,6 +487,8 @@ class boss_algalon_the_observer : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             if (summon->Attack(target, true))
                                 summon->GetMotionMaster()->MoveChase(target);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -689,6 +694,8 @@ class boss_algalon_the_observer : public CreatureScript
                             DoCast(me, SPELL_TELEPORT);
                             me->DespawnOrUnsummon(1.5*IN_MILLISECONDS);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -786,6 +793,8 @@ class npc_living_constellation : public CreatureScript
                             break;
                         case EVENT_RESUME_UPDATING:
                             _events.SetPhase(0);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -885,6 +894,8 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                         _events.ScheduleEvent(EVENT_BRANN_OUTRO_1, 89.5*IN_MILLISECONDS);
                         _events.ScheduleEvent(EVENT_BRANN_OUTRO_2, 116.5*IN_MILLISECONDS);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -912,6 +923,8 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                     case POINT_BRANN_OUTRO:
                     case POINT_BRANN_OUTRO_END:
                         return;
+                    default:
+                        break;
                 }
 
                 _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, delay);
@@ -961,11 +974,6 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
 
 class npc_algalon_asteroid_target : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_COSMIC_SMASH  = 1
-    };
-
     public:
         npc_algalon_asteroid_target() : CreatureScript("npc_algalon_asteroid_target") { }
 
@@ -978,29 +986,29 @@ class npc_algalon_asteroid_target : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                events.ScheduleEvent(EVENT_COSMIC_SMASH, 4*IN_MILLISECONDS);
+                _cosmicSmashTimer = 4*IN_MILLISECONDS;
+                _casted = false;
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void UpdateAI(uint32 const diff)
             {
-                events.Update(diff);
-
-                while (uint32 event = events.ExecuteEvent())
+                if (!_casted)
                 {
-                    switch (event)
+                    if (_cosmicSmashTimer <= diff)
                     {
-                        case EVENT_COSMIC_SMASH:
-                            DoCast(SPELL_COSMIC_SMASH_TRIGGERED);
-                            break;
-                        default:
-                            break;
+                        DoCast(SPELL_COSMIC_SMASH_TRIGGERED);
+                        me->DespawnOrUnsummon(3*IN_MILLISECONDS);
+                        _casted = true;
                     }
+                    else
+                        _cosmicSmashTimer -= diff;
                 }
             }
 
             private:
-                EventMap events;
+                uint32 _cosmicSmashTimer;
+                bool _casted;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1074,6 +1082,8 @@ class go_celestial_planetarium_access : public GameObjectScript
                     {
                         case EVENT_DESPAWN_CONSOLE:
                             go->Delete();
+                            break;
+                        default:
                             break;
                     }
                 }
