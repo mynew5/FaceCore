@@ -21,7 +21,6 @@
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
 #include "VMapManager2.h"
-
 namespace DisableMgr
 {
 
@@ -40,7 +39,10 @@ namespace
 
     DisableMap m_DisableMap;
 
-    uint8 MAX_DISABLE_TYPES = 8;
+    typedef std::set<std::string> DisableMessageMap;
+    DisableMessageMap m_DisableMessageMap;
+
+    uint8 MAX_DISABLE_TYPES = 9;
 }
 
 void LoadDisables()
@@ -52,6 +54,7 @@ void LoadDisables()
         itr->second.clear();
 
     m_DisableMap.clear();
+    m_DisableMessageMap.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
 
@@ -220,6 +223,12 @@ void LoadDisables()
                 }
                 break;
             }
+            case DISABLE_TYPE_MESSAGE:
+            {
+                std::transform(params_0.begin(), params_0.end(), params_0.begin(), ::toupper);
+                m_DisableMessageMap.insert(params_0);
+                break;
+            }
             default:
                 break;
         }
@@ -352,6 +361,16 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
            return flags & itr->second.flags;
     }
 
+    return false;
+}
+
+bool IsMessageDisabled(std::string message)
+{
+    std::string _message = message;
+    std::transform(_message.begin(), _message.end(), _message.begin(), ::toupper);
+    for (DisableMessageMap::iterator itr = m_DisableMessageMap.begin(); itr != m_DisableMessageMap.end(); ++itr)
+        if (_message.find(*itr) != std::string::npos)
+            return true;
     return false;
 }
 

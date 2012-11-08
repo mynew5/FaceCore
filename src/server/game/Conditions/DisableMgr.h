@@ -32,7 +32,8 @@ enum DisableType
     DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4,
     DISABLE_TYPE_OUTDOORPVP             = 5,
     DISABLE_TYPE_VMAP                   = 6,
-    DISABLE_TYPE_QUEST_COMPLETE         = 7
+    DISABLE_TYPE_QUEST_COMPLETE         = 7,
+    DISABLE_TYPE_MESSAGE                = 8
 };
 
 enum SpellDisableTypes
@@ -60,6 +61,7 @@ namespace DisableMgr
     void LoadDisables();
     bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
     void CheckQuestDisables();
+    bool IsMessageDisabled(std::string message);
 }
 
 #endif //TRINITY_DISABLEMGR_H
