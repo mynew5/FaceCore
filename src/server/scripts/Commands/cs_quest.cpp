@@ -26,6 +26,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "DisableMgr.h"
 #include "Chat.h"
+#include "Player.h"
 
 class quest_commandscript : public CommandScript
 {

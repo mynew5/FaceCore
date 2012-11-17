@@ -18,6 +18,7 @@
 #include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"
+#include "Player.h"
 
 #define GOSSIP_START_EVENT1     "Estamos listos para comenzar el desafio."  // "I'm ready to start challenge."
 #define GOSSIP_START_EVENT2     "Estamos preparados para el siguiete reto." // "I'm ready for the next challenge."

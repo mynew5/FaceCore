@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
+#include "Player.h"
 
 /*######
 ## Quest 12027: Mr. Floppy's Perilous Adventure
