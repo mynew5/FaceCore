@@ -1843,7 +1843,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!seer->CanDetectInvisibilityOf(obj))
+    if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
         return false;
 
     if (!ignoreStealth && !seer->CanDetectStealthOf(obj))
