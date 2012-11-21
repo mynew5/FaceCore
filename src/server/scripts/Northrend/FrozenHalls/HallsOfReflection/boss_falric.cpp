@@ -159,7 +159,7 @@ public:
                             if (Aura* plrAur = player->GetAura(HoplessnessSpellId[i]))
                                 plrAur->Remove();
 
-                            if (Pet* pet = player->GetPet())
+                            if (Unit* pet = player->GetGuardianPet())
                                 if (Aura* petAur = pet->GetAura(HoplessnessSpellId[i]))
                                     petAur->Remove();
                         }
