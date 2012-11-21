@@ -264,7 +264,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             if (IsWatcher(sender->GetGUIDLow()))
             {
-                SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName());
+                SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName().c_str());
                 return;
             }
 
