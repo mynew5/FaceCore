@@ -20,7 +20,6 @@
 #include "InstanceScript.h"
 #include "ulduar.h"
 #include <algorithm>
-#include "Player.h"
 
 static DoorData const doorData[] =
 {

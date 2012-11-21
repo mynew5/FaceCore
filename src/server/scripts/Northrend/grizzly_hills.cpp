@@ -21,6 +21,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 /*######
 ## Quest 12027: Mr. Floppy's Perilous Adventure

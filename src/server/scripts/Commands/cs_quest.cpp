@@ -22,11 +22,12 @@ Comment: All quest related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
 #include "DisableMgr.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
 
 class quest_commandscript : public CommandScript
 {

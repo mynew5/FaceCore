@@ -24,6 +24,8 @@
 #include "AccountMgr.h"
 #include "icecrown_citadel.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 enum EventIds
 {
@@ -592,7 +594,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -617,7 +619,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) const
             {
                 switch (type)
                 {
