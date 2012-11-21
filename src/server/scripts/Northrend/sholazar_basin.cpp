@@ -188,8 +188,7 @@ public:
         switch(_Quest->GetQuestId())
         {
         case QUEST_JUST_FOLLOWING_ORDERS:
-            player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(FACTION_ORCLES),3000);
-            //player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(FACTION_FRENZYHEART),-600);
+            player->SetReputation(FACTION_ORCLES, 3000);
             break;
         }
         return true;
