@@ -16,6 +16,7 @@
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Chat.h"
+#include "Language.h"
 #include "AnticheatMgr.h"
 
 class anticheat_commandscript : public CommandScript
