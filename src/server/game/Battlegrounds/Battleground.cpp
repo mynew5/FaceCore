@@ -411,7 +411,7 @@ uint32 Battleground::GetPrematureWinner()
         winner = ALLIANCE;
     else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
         winner = HORDE;
-        
+
     return winner;
 }
 
@@ -1248,7 +1248,6 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
 void Battleground::EventPlayerLoggedIn(Player* player)
 {
     uint64 guid = player->GetGUID();
-
     // player is correct pointer
     for (std::deque<uint64>::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
     {
@@ -1272,8 +1271,7 @@ void Battleground::EventPlayerLoggedIn(Player* player)
 void Battleground::EventPlayerLoggedOut(Player* player)
 {
     uint64 guid = player->GetGUID();
-
-    if (!IsPlayerInBattleground(guid))
+    if (!IsPlayerInBattleground(guid))  // Check if this player really is in battleground (might be a GM who teleported inside)
         return;
 
     // player is correct pointer, it is checked in WorldSession::LogoutPlayer()
@@ -1286,8 +1284,8 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                EndBattleground(GetOtherTeam(player->GetTeam()));
+            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
+                EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
 }
 
