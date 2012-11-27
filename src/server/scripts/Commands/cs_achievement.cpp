@@ -20,8 +20,7 @@ Name: achievement_commandscript
 %Complete: 100
 Comment: All achievement related commands
 Category: commandscripts
-EndScriptData */
-
+EndScriptData */#include "AchievementMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Player.h"
@@ -69,7 +68,7 @@ public:
             return false;
         }
 
-        if (AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievementId))
+        if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(achievementId))
             target->CompletedAchievement(achievementEntry);
 
         return true;
