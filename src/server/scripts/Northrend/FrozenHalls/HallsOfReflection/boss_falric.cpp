@@ -21,12 +21,11 @@
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1668050,
-    SAY_SLAY_1                                    = -1668051,
-    SAY_SLAY_2                                    = -1668052,
-    SAY_DEATH                                     = -1668053,
-    SAY_IMPENDING_DESPAIR                         = -1668054,
-    SAY_DEFILING_HORROR                           = -1668055,
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_IMPENDING_DESPAIR                         = 3,
+    SAY_DEFILING_HORROR                           = 4,
 };
 
 enum Spells
@@ -86,7 +85,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             if (instance)
                 instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
 
@@ -97,7 +96,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             // Cleanup all Hopelessness auras
             RemoveAllAurasOfHopelessness();
@@ -108,7 +107,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void DoDefilingHorror()
@@ -188,7 +187,7 @@ public:
                 case EVENT_IMPENDING_DESPAIR:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     {
-                        DoScriptText(SAY_IMPENDING_DESPAIR, me);
+                        Talk(SAY_IMPENDING_DESPAIR);
                         DoCast(target, SPELL_IMPENDING_DESPAIR);
                     }
                     events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
