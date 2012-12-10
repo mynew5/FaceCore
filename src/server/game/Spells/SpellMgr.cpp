@@ -3003,6 +3003,9 @@ void SpellMgr::LoadDbcDataCorrections()
         {
             case 24259: // Felhunter's Spell Lock
                 spellInfo->speed = 80;
+            case 53096: // Quetz'lun's Judgment
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             case 42730:
                 spellInfo->EffectTriggerSpell[EFFECT_1] = 42739;
                 break;
