@@ -10,6 +10,8 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  Custom/Transmogrification.cpp
+  Custom/Transmogrification.h
   Custom/arena_teamTop.cpp
   Custom/mod_ArenaWatcher.cpp
   Custom/argent_tournament.cpp
