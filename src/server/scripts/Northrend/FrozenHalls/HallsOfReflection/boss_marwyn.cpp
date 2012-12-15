@@ -73,7 +73,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            // DoScriptText(SAY_AGGRO, me);
             if (instance)
                 instance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
 
@@ -85,7 +85,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            // DoScriptText(SAY_DEATH, me);
 
             if (instance)
             {
@@ -96,7 +96,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            // DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void UpdateAI(const uint32 diff)
@@ -121,7 +121,7 @@ public:
                     events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, DUNGEON_MODE(13000, 8000));
                     break;
                 case EVENT_CORRUPTED_FLESH:
-                    DoScriptText(RAND(SAY_CORRUPTED_FLESH_1, SAY_CORRUPTED_FLESH_2), me);
+                    // DoScriptText(RAND(SAY_CORRUPTED_FLESH_1, SAY_CORRUPTED_FLESH_2), me);
                     DoCast(DUNGEON_MODE(SPELL_CORRUPTED_FLESH, H_SPELL_CORRUPTED_FLESH));
                     events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
                     break;

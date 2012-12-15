@@ -690,13 +690,13 @@ public:
                         switch(urand(1,3))
                         {
                             case 1:
-                                DoScriptText(SAY_RAND_ATTACK1, me);
+                                // DoScriptText(SAY_RAND_ATTACK1, me);
                                 break;
                             case 2:
-                                DoScriptText(SAY_RAND_ATTACK2, me);
+                                // DoScriptText(SAY_RAND_ATTACK2, me);
                                 break;
                             case 3:
-                                DoScriptText(SAY_RAND_ATTACK3, me);
+                                // DoScriptText(SAY_RAND_ATTACK3, me);
                                 break;
                         }
 
@@ -709,13 +709,13 @@ public:
                         switch(urand(1,3))
                         {
                             case 1:
-                                DoScriptText(SAY_RAND_WORK1, me);
+                                // DoScriptText(SAY_RAND_WORK1, me);
                                 break;
                             case 2:
-                                DoScriptText(SAY_RAND_WORK2, me);
+                                // DoScriptText(SAY_RAND_WORK2, me);
                                 break;
                             case 3:
-                                DoScriptText(SAY_RAND_WORK3, me);
+                                // DoScriptText(SAY_RAND_WORK3, me);
                                 break;
                         }
                         ((Player *)caster)->KilledMonsterCredit(NPC_EXHAUSTED_VRYKUL,me->GetGUID());

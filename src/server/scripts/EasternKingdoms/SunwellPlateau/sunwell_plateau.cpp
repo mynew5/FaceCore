@@ -169,20 +169,20 @@ public:
                     {
                         player->DestroyItemCount(49879, 1, true);
                         player->DestroyItemCount(49889, 1, true);
-                        DoScriptText(SAY_QUELDELAR_1, me, player);
+                        // DoScriptText(SAY_QUELDELAR_1, me, player);
                     }
                     events.ScheduleEvent(2, 2000);
                     break;
                 case 2:
                     // Say del Guardia
                     if(Creature* pGuard = me->FindNearestCreature(37781, 20, true))
-                        DoScriptText(SAY_QUELDELAR_2, pGuard);
+                        // DoScriptText(SAY_QUELDELAR_2, pGuard);
                     events.ScheduleEvent(3, 1000);
                     break;
                 case 3:
                     // Say de Theron
                     if(Creature* pTheron = me->GetCreature(*me, uiTheron))
-                        DoScriptText(SAY_QUELDELAR_3, pTheron);
+                        // DoScriptText(SAY_QUELDELAR_3, pTheron);
                     events.ScheduleEvent(4, 4000);
                     break;
                 case 4:
@@ -198,7 +198,7 @@ public:
                     if(Creature* pRommath = me->GetCreature(*me, uiRommath))
                     {
                         pRommath->SetOrientation(0.3308f);
-                        DoScriptText(SAY_QUELDELAR_4, pRommath);
+                        // DoScriptText(SAY_QUELDELAR_4, pRommath);
                     }
                     if(Creature* pAuric = me->GetCreature(*me, uiAuric))
                         pAuric->SetOrientation(1.29057f);
@@ -211,7 +211,7 @@ public:
                     if(Creature* pTheron = me->GetCreature(*me, uiTheron))
                     {
                         if(Player* player = me->GetPlayer(*me, uiPlayer))
-                            DoScriptText(SAY_QUELDELAR_5, pTheron, player);
+                            // DoScriptText(SAY_QUELDELAR_5, pTheron, player);
                         pTheron->GetMotionMaster()->MovePoint(1, 1682.3f, 618.459f, 27.9581f);
                     }
                     events.ScheduleEvent(7, 4000);
@@ -238,7 +238,7 @@ public:
                             //pRommath->CastSpell(player, 70540, true);
                             pRommath->AddAura(70540, player);
                         }
-                        DoScriptText(SAY_QUELDELAR_6, pRommath);
+                        // DoScriptText(SAY_QUELDELAR_6, pRommath);
                     }
                     if(Creature* pGuard = me->FindNearestCreature(37781, 20))
                     {
@@ -250,25 +250,25 @@ public:
                 case 10:
                     // Say del guardia
                     if(Creature* pGuard = me->FindNearestCreature(37781, 20))
-                        DoScriptText(SAY_QUELDELAR_7, pGuard);
+                        // DoScriptText(SAY_QUELDELAR_7, pGuard);
                     events.ScheduleEvent(11, 2000);
                     break;
                 case 11:
                     // Say1 de Auric
                     if(Creature* pAuric = me->GetCreature(*me, uiAuric))
-                        DoScriptText(SAY_QUELDELAR_8, pAuric);
+                        // DoScriptText(SAY_QUELDELAR_8, pAuric);
                     events.ScheduleEvent(12, 6000);
                     break;
                 case 12:
                     // Say2 de Auric
                     if(Creature* pAuric = me->GetCreature(*me, uiAuric))
-                        DoScriptText(SAY_QUELDELAR_9, pAuric);
+                        // DoScriptText(SAY_QUELDELAR_9, pAuric);
                     events.ScheduleEvent(13, 5000);
                     break;
                 case 13:
                     // Say de Rommath
                     if(Creature* pRommath = me->GetCreature(*me, uiRommath))
-                        DoScriptText(SAY_QUELDELAR_10, pRommath);
+                        // DoScriptText(SAY_QUELDELAR_10, pRommath);
                     events.ScheduleEvent(14, 2000);
                     break;
                 case 14:
@@ -283,7 +283,7 @@ public:
                     {
                         pRommath->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
                         if(Player* player = me->GetPlayer(*me, uiPlayer))
-                            DoScriptText(SAY_QUELDELAR_11, pRommath, player);
+                            // DoScriptText(SAY_QUELDELAR_11, pRommath, player);
                     }
                     events.ScheduleEvent(15, 7000);
                     break;
@@ -293,7 +293,7 @@ public:
                     {
                         pAuric->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
                         if(Player* player = me->GetPlayer(*me, uiPlayer))
-                            DoScriptText(SAY_QUELDELAR_12, pAuric, player);
+                            // DoScriptText(SAY_QUELDELAR_12, pAuric, player);
                         if(GameObject* gQuelDelar = me->FindNearestGameObject(201794, 20))
                             gQuelDelar->RemoveFlag(GAMEOBJECT_FLAGS, 5);
                     }

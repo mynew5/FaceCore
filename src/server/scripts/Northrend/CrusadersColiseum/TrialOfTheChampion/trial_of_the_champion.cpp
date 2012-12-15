@@ -264,12 +264,12 @@ public:
                         if (!announceID.empty())
                         {
                             int32 announce = Trinity::Containers::SelectRandomContainerElement(announceID);
-                            DoScriptText(announce, me, player);
+                            // DoScriptText(announce, me, player);
                             announceID.erase(announce);
                         }
                         playersGUID.erase(*playersGUID.begin());
                         // Public emote
-                        DoScriptText(EMOTE_FACTION_CHEER-player->getRace(), player);
+                        // DoScriptText(EMOTE_FACTION_CHEER-player->getRace(), player);
                     }
                 }
             }
@@ -279,51 +279,51 @@ public:
                 {
                     case NPC_MOKRA: // Warrior
                         Talk(SAY_ANNOUNCER_NPC_WARRIOR);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_ORC, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_ORC, champion);
                         break;
                     case NPC_JACOB:
                         Talk(SAY_ANNOUNCER_NPC_WARRIOR);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_HUMAN, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_HUMAN, champion);
                         break;
                     case NPC_ERESSEA: // Mage
                         Talk(SAY_ANNOUNCER_NPC_MAGE);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_BLOODELF, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_BLOODELF, champion);
                         break;
                     case NPC_AMBROSE:
                         Talk(SAY_ANNOUNCER_NPC_MAGE);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_GNOME, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_GNOME, champion);
                         break;
                     case NPC_RUNOK: // Saman
                         Talk(SAY_ANNOUNCER_NPC_SHAMAN);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_TAUREN, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_TAUREN, champion);
                         break;
                     case NPC_COLOSOS:
                         Talk(SAY_ANNOUNCER_NPC_SHAMAN);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_DRAENEI, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_DRAENEI, champion);
                         break;
                     case NPC_JAELYNE: // Hunter
                         Talk(SAY_ANNOUNCER_NPC_HUNTER);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_NIGHTELF, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_NIGHTELF, champion);
                         break;
                     case NPC_ZULTORE:
                         Talk(SAY_ANNOUNCER_NPC_HUNTER);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_TROLL, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_TROLL, champion);
                         break;
                     case NPC_VISCERI: // Rouge
                         Talk(SAY_ANNOUNCER_NPC_ROUGE);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_UNDEAD_PLAYER, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_UNDEAD_PLAYER, champion);
                         break;
                     case NPC_LANA:
                         Talk(SAY_ANNOUNCER_NPC_ROUGE);
-                        DoScriptText(EMOTE_FACTION_CHEER-RACE_DWARF, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER-RACE_DWARF, champion);
                         break;
                     case NPC_EADRIC:
                         Talk(SAY_ANNOUNCER_EADRIC);
-                        DoScriptText(EMOTE_FACTION_CHEER, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER, champion);
                         break;
                     case NPC_PALETRESS:
                         Talk(SAY_ANNOUNCER_PALETRESS);
-                        DoScriptText(EMOTE_FACTION_CHEER, champion);
+                        // DoScriptText(EMOTE_FACTION_CHEER, champion);
                         break;
                 }
             }

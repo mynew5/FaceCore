@@ -276,7 +276,7 @@ public:
                     {
                         Talk(SAY_EADRIC_HAMMER);
                         DoCast(target, SPELL_HAMMER_JUSTICE);
-                        DoScriptText(SAY_EADRIC_HAMMER_WARNING, me, target);
+                        // DoScriptText(SAY_EADRIC_HAMMER_WARNING, me, target);
                         DoCast(target, SPELL_HAMMER_RIGHTEOUS);
                     }
                 }
@@ -585,7 +585,7 @@ public:
 
             if (wakingNightmareTimer <= diff)
             {
-                DoScriptText(SAY_PALETRESS_NIGHTMARE_WARNING, me);
+                // DoScriptText(SAY_PALETRESS_NIGHTMARE_WARNING, me);
                 DoCast(me, SPELL_WAKING_NIGHTMARE);
                 wakingNightmareTimer = 15000;
             }else wakingNightmareTimer -= diff;

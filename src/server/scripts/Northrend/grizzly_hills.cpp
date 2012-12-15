@@ -778,19 +778,19 @@ public:
                     switch(phase)
                     {
                         case 1:
-                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_01, me);
+                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_01, me);
                             uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_01;
                             break;
                         case 2:
-                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_02, me);
+                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_02, me);
                             uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_02;
                             break;
                         case 3:
-                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_03, me);
+                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_03, me);
                             uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_03;
                             break;
                         case 4:
-                            DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_04, me);
+                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_04, me);
                             if(GameObject* go = me->SummonGameObject(MAIDEN_OF_DRAK_MAR_GOB_02,4603.351f,-1599.288f,156.8822f,2.234018f,0,0,0,0,0))
                                 secondGobGuid = go->GetGUID(); //Spawn Blade GO
                             uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_04;

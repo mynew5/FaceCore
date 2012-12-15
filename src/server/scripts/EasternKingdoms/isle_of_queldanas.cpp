@@ -266,22 +266,22 @@ public:
                     break;
                                 case 2:
                                         if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_1, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_1, pThalorien);
                                      events.ScheduleEvent(3,5000);
                                   break;
                          case 3:
                                         if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_2, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_2, pThalorien);
                                      events.ScheduleEvent(4,5000);
                                   break;
                          case 4:
                                         if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_3, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_3, pThalorien);
                                      events.ScheduleEvent(5,10000);
                                  break;
                          case 5:
                                         if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_4, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_4, pThalorien);
                                      events.ScheduleEvent(6,6000);
                                   break;
                          case 6:
@@ -291,12 +291,12 @@ public:
                                   break;
                          case 7:
                                         if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_5, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_5, pThalorien);
                                      events.ScheduleEvent(8,9000);
                                   break;
                          case 8:
                                         if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_6, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_6, pThalorien);
                                      if (Creature* pMorlen = me->GetCreature(*me, uiMorlen))
                                                 pMorlen->CastSpell(pMorlen, 50689, true);
                                       events.ScheduleEvent(9,9000);
@@ -330,22 +330,22 @@ public:
                          // Outro
                                case 13:
                                        if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_7, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_7, pThalorien);
                                      events.ScheduleEvent(14, 3500);
                                         break;
                          case 14:
                                        if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_8, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_8, pThalorien);
                                      events.ScheduleEvent(15, 3500);
                                         break;
                          case 15:
                                        if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_9, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_9, pThalorien);
                                      events.ScheduleEvent(16, 3000);
                                         break;
                          case 16:
                                        if (Creature* pThalorien = me->GetCreature(*me, uiThalorien))
-                                          DoScriptText(SAY_THALORIEN_10, pThalorien);
+                                          // DoScriptText(SAY_THALORIEN_10, pThalorien);
                                     events.ScheduleEvent(17, 12000);
                                        break;
                          case 17:

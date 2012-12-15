@@ -232,7 +232,7 @@ public:
             {
                 if (uiDamage > me->GetHealth() && (pDoneBy->GetTypeId() == TYPEID_PLAYER || pDoneBy->GetOwner()))
                 {
-                    DoScriptText(NPC_ARGENT_VALIANT_TEXT_SAY_WIN, me);
+                    // DoScriptText(NPC_ARGENT_VALIANT_TEXT_SAY_WIN, me);
                     uiDamage = 0;
 
                     if(pDoneBy->GetOwner())
@@ -252,7 +252,7 @@ public:
         {
             me->setFaction(35);
             me->DespawnOrUnsummon(5000);
-            DoScriptText(NPC_ARGENT_VALIANT_TEXT_SAY_LOOSE, me);
+            // DoScriptText(NPC_ARGENT_VALIANT_TEXT_SAY_LOOSE, me);
             me->CombatStop(true);
         }
 
@@ -275,7 +275,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(NPC_ARGENT_VALIANT_TEXT_SAY_START, me);
+            // DoScriptText(NPC_ARGENT_VALIANT_TEXT_SAY_START, me);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -1208,7 +1208,7 @@ public:
             {
                 if (uiDamage > me->GetHealth() && (pDoneBy->GetTypeId() == TYPEID_PLAYER || pDoneBy->GetOwner()))
                 {
-                    DoScriptText(NPC_ARGENT_CHAMPION_TEXT_SAY_WIN, me);
+                    // DoScriptText(NPC_ARGENT_CHAMPION_TEXT_SAY_WIN, me);
                     uiDamage = 0;
 
                     if(pDoneBy->GetOwner())
@@ -1228,7 +1228,7 @@ public:
         {
             me->setFaction(35);
             me->DespawnOrUnsummon(5000);
-            DoScriptText(NPC_ARGENT_CHAMPION_TEXT_SAY_LOOSE, me);
+            // DoScriptText(NPC_ARGENT_CHAMPION_TEXT_SAY_LOOSE, me);
             me->CombatStop(true);
         }
 
@@ -1251,7 +1251,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(NPC_ARGENT_CHAMPION_TEXT_SAY_START, me);
+            // DoScriptText(NPC_ARGENT_CHAMPION_TEXT_SAY_START, me);
         }
 
         void UpdateAI(const uint32 uiDiff)

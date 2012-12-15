@@ -589,8 +589,8 @@ public:
                 {
                     if (!bYelled)
                     {
-                        DoScriptText(SAY_QUEST1, me);
-                        DoScriptText(SAY_QUEST2, me);
+                        // DoScriptText(SAY_QUEST1, me);
+                        // DoScriptText(SAY_QUEST2, me);
                         bYelled = true;
                     }
 
@@ -695,13 +695,13 @@ public:
             if (pPlayer->GetQuestStatus(QUEST_FINISH_ME) == QUEST_STATUS_INCOMPLETE)
                 pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, 0);
             pCreature->Kill(pCreature);
-            DoScriptText(RAND(SAY_KILL_QUEST1, SAY_KILL_QUEST2, SAY_KILL_QUEST3, SAY_KILL_QUEST4, SAY_KILL_QUEST5), pCreature);
+            // DoScriptText(RAND(SAY_KILL_QUEST1, SAY_KILL_QUEST2, SAY_KILL_QUEST3, SAY_KILL_QUEST4, SAY_KILL_QUEST5), pCreature);
         }
 
         if (uiAction == GOSSIP_SENDER_INFO+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            DoScriptText(SAY_QUEST_SOLDIER1, pCreature);
+            // DoScriptText(SAY_QUEST_SOLDIER1, pCreature);
             CAST_AI(npc_dying_soldier::npc_dying_soldierAI, pCreature->AI())->uiPlayerGUID = pPlayer->GetGUID();
             CAST_AI(npc_dying_soldier::npc_dying_soldierAI, pCreature->AI())->uiTalkTimer = 3000;
             CAST_AI(npc_dying_soldier::npc_dying_soldierAI, pCreature->AI())->bTalkTime = true;
@@ -740,32 +740,32 @@ public:
                     switch(uiStep)
                     {
                         case 0:
-                            DoScriptText(SAY_QUEST_SOLDIER2, me);
+                            // DoScriptText(SAY_QUEST_SOLDIER2, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 1:
-                            DoScriptText(SAY_QUEST_SOLDIER3, pPlayer);
+                            // DoScriptText(SAY_QUEST_SOLDIER3, pPlayer);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 2:
-                            DoScriptText(SAY_QUEST_SOLDIER4, me);
+                            // DoScriptText(SAY_QUEST_SOLDIER4, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 3:
-                            DoScriptText(SAY_QUEST_SOLDIER5, me);
+                            // DoScriptText(SAY_QUEST_SOLDIER5, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 4:
-                            DoScriptText(SAY_QUEST_SOLDIER6, me);
+                            // DoScriptText(SAY_QUEST_SOLDIER6, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 5:
-                            DoScriptText(SAY_QUEST_SOLDIER7, me);
+                            // DoScriptText(SAY_QUEST_SOLDIER7, me);
                             if (pPlayer->GetQuestStatus(QUEST_THE_BROKEN_FRONT_A) == QUEST_STATUS_INCOMPLETE)
                                 pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, 0);
                             bTalkTime = false;
@@ -802,7 +802,7 @@ public:
         if (uiAction == GOSSIP_SENDER_INFO)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            DoScriptText(SAY_QUEST_BERSERKER1, pCreature);
+            // DoScriptText(SAY_QUEST_BERSERKER1, pCreature);
             CAST_AI(npc_dying_berserker::npc_dying_berserkerAI, pCreature->AI())->uiPlayerGUID = pPlayer->GetGUID();
             CAST_AI(npc_dying_berserker::npc_dying_berserkerAI, pCreature->AI())->uiTalkTimer = 3000;
             CAST_AI(npc_dying_berserker::npc_dying_berserkerAI, pCreature->AI())->bTalkTime = true;
@@ -841,37 +841,37 @@ public:
                     switch(uiStep)
                     {
                         case 0:
-                            DoScriptText(SAY_QUEST_BERSERKER2, me);
+                            // DoScriptText(SAY_QUEST_BERSERKER2, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 1:
-                            DoScriptText(SAY_QUEST_BERSERKER3, pPlayer);
+                            // DoScriptText(SAY_QUEST_BERSERKER3, pPlayer);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 2:
-                            DoScriptText(SAY_QUEST_BERSERKER4, me);
+                            // DoScriptText(SAY_QUEST_BERSERKER4, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 3:
-                            DoScriptText(SAY_QUEST_BERSERKER5, me);
+                            // DoScriptText(SAY_QUEST_BERSERKER5, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 4:
-                            DoScriptText(SAY_QUEST_BERSERKER6, me);
+                            // DoScriptText(SAY_QUEST_BERSERKER6, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 5:
-                            DoScriptText(SAY_QUEST_BERSERKER7, me);
+                            // DoScriptText(SAY_QUEST_BERSERKER7, me);
                             uiTalkTimer = 3000;
                             ++uiStep;
                             break;
                         case 6:
-                            DoScriptText(SAY_QUEST_BERSERKER8, me);
+                            // DoScriptText(SAY_QUEST_BERSERKER8, me);
                             if (pPlayer->GetQuestStatus(QUEST_THE_BROKEN_FRONT_H) == QUEST_STATUS_INCOMPLETE)
                                 pPlayer->KilledMonsterCredit(CREATURE_DYING_BERSERKER_KC, 0);
                             bTalkTime = false;
