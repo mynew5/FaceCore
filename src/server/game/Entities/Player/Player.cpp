@@ -7217,7 +7217,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
     if (honor_f <= 0)
     {
-        if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
+        if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT) || victim->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             return false;
 
         victim_guid = victim->GetGUID();
