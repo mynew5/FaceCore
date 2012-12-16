@@ -541,7 +541,7 @@ public:
                     if (Creature* pUther = me->GetCreature(*me, uiUther))
                     {
                         pUther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE);
                             // DoScriptText(SAY_UTHER_INTRO_A2_9, pUther);
                         // else
                             // DoScriptText(SAY_UTHER_INTRO_H2_7, pUther);
@@ -641,7 +641,7 @@ public:
                     break;
 
                 case EVENT_INTRO_LK_9:
-                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE);
                         // DoScriptText(SAY_JAINA_INTRO_END, me);
                     // else
                         // DoScriptText(SAY_SYLVANAS_INTRO_END, me);
