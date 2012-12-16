@@ -661,7 +661,7 @@ public:
                     if (Creature* pLichKing = me->GetCreature(*me, uiLichKing))
                         if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             // DoScriptText(SAY_LK_JAINA_INTRO_END, pLichKing);
-                        else
+                        // else
                             // DoScriptText(SAY_LK_SYLVANAS_INTRO_END, pLichKing);
 
                     events.ScheduleEvent(EVENT_INTRO_END, 7000);
