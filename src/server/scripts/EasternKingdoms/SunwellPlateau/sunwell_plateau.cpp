@@ -282,7 +282,7 @@ public:
                     if(Creature* pRommath = me->GetCreature(*me, uiRommath))
                     {
                         pRommath->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
-                        if(Player* player = me->GetPlayer(*me, uiPlayer))
+                        if(Player* player = me->GetPlayer(*me, uiPlayer));
                             // DoScriptText(SAY_QUELDELAR_11, pRommath, player);
                     }
                     events.ScheduleEvent(15, 7000);
