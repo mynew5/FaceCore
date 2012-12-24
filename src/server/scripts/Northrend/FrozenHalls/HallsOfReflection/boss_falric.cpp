@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "Pet.h"
 #include "halls_of_reflection.h"
 
 enum Yells
@@ -158,7 +160,7 @@ public:
                             if (Aura* plrAur = player->GetAura(HoplessnessSpellId[i]))
                                 plrAur->Remove();
 
-                            if (Unit* pet = player->GetGuardianPet())
+                            if (Pet* pet = player->GetPet())
                                 if (Aura* petAur = pet->GetAura(HoplessnessSpellId[i]))
                                     petAur->Remove();
                         }
