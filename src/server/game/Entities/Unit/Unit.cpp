@@ -17394,8 +17394,22 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
     else
     {
         UpdatePosition(x, y, z, orientation, true);
-        SendMovementFlagUpdate();
+        Position pos; // dummy, not used for creatures.
+        SendTeleportPacket(pos);
+        UpdateObjectVisibility();
     }
+}
+
+void Unit::SendTeleportPacket(Position& oldPos)
+{
+    WorldPacket data2(MSG_MOVE_TELEPORT, 38);
+    data2.append(GetPackGUID());
+    BuildMovementPacket(&data2);
+    
+    if (GetTypeId() == TYPEID_PLAYER)
+        Relocate(&oldPos);
+        
+    SendMessageToSet(&data2, true);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
