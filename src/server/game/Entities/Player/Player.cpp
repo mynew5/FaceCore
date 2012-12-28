@@ -11633,12 +11633,6 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                         return swap ? EQUIP_ERR_ITEMS_CANT_BE_SWAPPED : EQUIP_ERR_INVENTORY_FULL;
                 }
             }
-
-            // temporary event : can only participate 5v5 arenas with items level up to 251
-            if (pProto->ItemLevel > 251)
-                if (InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_5v5))
-                    return EQUIP_ERR_CANT_DO_RIGHT_NOW;
-
             dest = ((INVENTORY_SLOT_BAG_0 << 8) | eslot);
             return EQUIP_ERR_OK;
         }

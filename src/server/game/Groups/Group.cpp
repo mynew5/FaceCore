@@ -1826,16 +1826,6 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // check if someone in party is using dungeon system
         if (member->isUsingLfg())
             return ERR_LFG_CANT_USE_BATTLEGROUND;
-
-        // temporary event : can only participate 5v5 arenas with items level up to 251
-        if (bgQueueTypeId == BATTLEGROUND_QUEUE_5v5)
-        {
-            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-                if (Item* item = member->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                    if (ItemTemplate const* proto = item->GetTemplate())
-                        if (proto->ItemLevel > 251)
-                            return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
-        }
     }
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
