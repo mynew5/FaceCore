@@ -2874,29 +2874,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
-            // ToC Spells
-            case 65767: // Light Surge
-            case 66013: // Penetrating Cold
-            case 66059: // Dark Vortex
-            case 66242: // Incinerate Flesh
-            case 66255: // Infernal Eruption
-            case 66264: // Nether Portal
-            case 66528: // Fel Lightning
-            case 66532: // Fel Fireball
-            case 66683: // Massive Crash
-            case 66689: // Arctic Breath
-            case 66770: // Ferocious Butt
-            case 66794: // Sweep
-            case 66796: // Fire Spit
-            case 66819: // Acid spew
-            case 66823: // Paralysierendes Toxin
-            case 66824: // Paralytic Bite
-            case 66879: // Burning Bite
-            case 66880: // Acid Spit
-            case 67345: // Whirl
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DIRECT_DAMAGE; // spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-                break;
             case 18500: // Wing Buffet
             case 33086: // Wild Bite
             case 49749: // Piercing Blow
