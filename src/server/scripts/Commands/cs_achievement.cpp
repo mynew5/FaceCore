@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,9 @@ Name: achievement_commandscript
 %Complete: 100
 Comment: All achievement related commands
 Category: commandscripts
-EndScriptData */#include "AchievementMgr.h"
+EndScriptData */
+
+#include "AchievementMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Player.h"
