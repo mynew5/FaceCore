@@ -928,7 +928,6 @@ class boss_the_lich_king : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_ONE);
-                            me->SetInCombatWithZone();
                             break;
                         case EVENT_SUMMON_SHAMBLING_HORROR:
                             DoCast(me, SPELL_SUMMON_SHAMBLING_HORROR);
@@ -1338,7 +1337,7 @@ class npc_shambling_horror_icc : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHOCKWAVE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_ENRAGE, urand(11000, 14000));
+                _events.ScheduleEvent(EVENT_ENRAGE, urand(21000, 24000));
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
@@ -1370,7 +1369,7 @@ class npc_shambling_horror_icc : public CreatureScript
                             break;
                         case EVENT_ENRAGE:
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_ENRAGE, urand(40000, 45000));
                             break;
                         default:
                             break;
@@ -1530,6 +1529,12 @@ class npc_valkyr_shadowguard : public CreatureScript
                 switch (id)
                 {
                     case POINT_DROP_PLAYER:
+                        me->GetPosition(&_current);
+                        if (_current.GetPositionX() != _dropPoint.GetPositionX() || _current.GetPositionY() != _dropPoint.GetPositionY())
+                        {
+                            _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 0);
+                            break;
+                        }
                         DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                         me->DespawnOrUnsummon(1000);
                         break;
@@ -1608,6 +1613,7 @@ class npc_valkyr_shadowguard : public CreatureScript
         private:
             EventMap _events;
             Position _dropPoint;
+            Position _current;
             uint64 _grabbedPlayer;
             InstanceScript* _instance;
         };
@@ -2460,7 +2466,7 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 5.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
             }
 
             void ChangeDamageAndGrow()
