@@ -27,57 +27,78 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "mechanar.h"
 
-#define MAX_ENCOUNTER      1
-
 class instance_mechanar : public InstanceMapScript
 {
-    public:
-        instance_mechanar()
-            : InstanceMapScript("instance_mechanar", 554)
-        {
-        }
+    public: instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
-            instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-            void Initialize()
+            instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+                SetBossNumber(EncounterCount);
             }
 
-            bool IsEncounterInProgress() const
+            bool SetBossState(uint32 type, EncounterState state)
             {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        return true;
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
 
-                return false;
-            }
-
-            uint32 GetData(uint32 type) const
-            {
                 switch (type)
                 {
-                case DATA_NETHERMANCER_EVENT:   return m_auiEncounter[0];
+                    case DATA_GATEWATCHER_GYROKILL:
+                    case DATA_IRON_HAND:
+                    case DATA_MECHANOLORD_CAPACITUS:
+                    case DATA_NETHERMANCER_SEPRETHREA:
+                    case DATA_PATHALEON_THE_CALCULATOR:
+                        break;
+                    default:
+                        break;
                 }
 
-                return false;
+                return true;
             }
 
-            uint64 GetData64(uint32 /*identifier*/) const
+            std::string GetSaveData()
             {
-                return 0;
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "M C " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
             }
 
-            void SetData(uint32 type, uint32 data)
+            void Load(const char* str)
             {
-                switch (type)
+                if (!str)
                 {
-                case DATA_NETHERMANCER_EVENT:   m_auiEncounter[0] = data;   break;
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
                 }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'M' && dataHead2 == 'C')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
         };
 
@@ -89,6 +110,6 @@ class instance_mechanar : public InstanceMapScript
 
 void AddSC_instance_mechanar()
 {
-    new instance_mechanar;
+    new instance_mechanar();
 }
 
