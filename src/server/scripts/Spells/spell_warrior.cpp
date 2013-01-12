@@ -290,6 +290,13 @@ class spell_warr_execute : public SpellScriptLoader
 
                     int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
                     caster->CastCustomSpell(target, SPELL_WARRIOR_EXECUTE, &bp, NULL, NULL, true, NULL, NULL, GetOriginalCaster()->GetGUID());
+                    // Item - Warrior T10 Melee 4P Bonus
+                    if (Aura * aura = caster->GetAura(52437))
+                        if (aura->GetCharges())
+                        {
+                            caster->ToPlayer()->RestoreSpellMods(GetSpell(), 52437);
+                            //aura->DropCharge();
+                        }
                 }
             }
 
@@ -317,17 +324,6 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                int32 bp0 = GetEffectValue();
-                if (GetHitUnit())
-                {
-                    GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_SLAM, &bp0, NULL, NULL, true, 0);
-                    if (Aura * aura = GetCaster()->GetAura(46916))
-                        if (aura->GetCharges())
-                        {
-                            GetCaster()->ToPlayer()->RestoreSpellMods(GetSpell(), 46916);
-                            aura->DropCharge();
-                        }
-                }
                 if (GetCaster())
                     unitList.remove(GetCaster());
             }
@@ -365,32 +361,6 @@ class spell_warr_last_stand : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    SpellInfo const* spellInfo = GetSpellInfo();
-                    int32 rageUsed = std::min<int32>(300 - spellInfo->CalcPowerCost(caster, SpellSchoolMask(spellInfo->SchoolMask)), caster->GetPower(POWER_RAGE));
-                    int32 newRage = std::max<int32>(0, caster->GetPower(POWER_RAGE) - rageUsed);
-
-                    // Sudden Death rage save
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_GENERIC, ICON_ID_SUDDEN_DEATH, EFFECT_0))
-                    {
-                        int32 ragesave = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue() * 10;
-                        newRage = std::max(newRage, ragesave);
-                    }
-
-                    caster->SetPower(POWER_RAGE, uint32(newRage));
-                    // Glyph of Execution bonus
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_GLYPH_OF_EXECUTION, EFFECT_0))
-                        rageUsed += aurEff->GetAmount() * 10;
-
-
-                    int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
-                    caster->CastCustomSpell(target,SPELL_EXECUTE,&bp,0,0,true,0,0,GetOriginalCaster()->GetGUID());
-                    // Item - Warrior T10 Melee 4P Bonus
-                    if (Aura * aura = caster->GetAura(52437))
-                        if (aura->GetCharges())
-                        {
-                            caster->ToPlayer()->RestoreSpellMods(GetSpell(), 52437);
-                            //aura->DropCharge();
-                        }
                     int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
                     caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
                 }
