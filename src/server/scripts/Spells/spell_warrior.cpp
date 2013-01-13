@@ -41,6 +41,7 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_SLAM                              = 50783,
+    SPELL_WARRIOR_SLAM_PROC                         = 46916,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_2        = 46860,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
@@ -437,7 +438,15 @@ class spell_warr_slam : public SpellScriptLoader
             {
                 int32 bp0 = GetEffectValue();
                 if (GetHitUnit())
+                {
                     GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_SLAM, &bp0, NULL, NULL, true, 0);
+                    if (Aura * aura = GetCaster()->GetAura(SPELL_WARRIOR_SLAM_PROC))
+                        if (aura->GetCharges())
+                        {
+                            GetCaster()->ToPlayer()->RestoreSpellMods(GetSpell(), SPELL_WARRIOR_SLAM_PROC);
+                            aura->DropCharge();
+                        }
+                }
             }
 
             void Register()
