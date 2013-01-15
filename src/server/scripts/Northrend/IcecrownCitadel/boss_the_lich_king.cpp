@@ -2500,13 +2500,22 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
 
             void ModDestHeight(SpellEffIndex effIndex)
             {
-                static Position const offset = {0.0f, 0.0f, 2.0f, 0.0f};
                 WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
-                dest->RelocateOffset(offset);
-                GetHitDest()->RelocateOffset(offset);
-                // spirit bombs get higher
                 if (GetSpellInfo()->Effects[effIndex].MiscValue == NPC_SPIRIT_BOMB)
                 {
+                    static Position const offset = {0.0f, 0.0f, 30.0f, 0.0f};
+                    dest->RelocateOffset(offset);
+                    GetHitDest()->RelocateOffset(offset);
+                }
+                else if (GetSpellInfo()->Effects[effIndex].MiscValue == NPC_VALKYR_SHADOWGUARD)
+                {
+                    static Position const offset = {0.0f, 0.0f, 2.0f, 0.0f};
+                    dest->RelocateOffset(offset);
+                    GetHitDest()->RelocateOffset(offset);
+                }
+                else
+                {
+                    static Position const offset = {0.0f, 0.0f, 15.0f, 0.0f};
                     dest->RelocateOffset(offset);
                     GetHitDest()->RelocateOffset(offset);
                 }
