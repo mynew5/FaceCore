@@ -52,7 +52,8 @@ enum Events
 
 class boss_gatewatcher_gyrokill : public CreatureScript
 {
-    public: boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") { }
+    public:
+        boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") {}
 
         struct boss_gatewatcher_gyrokillAI : public BossAI
         {
