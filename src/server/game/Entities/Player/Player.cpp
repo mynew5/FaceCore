@@ -25813,7 +25813,7 @@ bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode
 
         if (real_delta > allowed_delta)
         {
-            if ((++TriggerCount >= 5) || ((real_delta > 400.0f) && (real_delta > (allowed_delta * 3.0f))))
+            if ((++TriggerCount >= 3) || ((real_delta > 300.0f) && (real_delta > (allowed_delta * 3.0f))))
             {
                 WorldPacket data;
                 plrMover->SetUnitMovementFlags(0);
