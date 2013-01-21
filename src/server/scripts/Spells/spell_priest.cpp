@@ -573,7 +573,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_shadowfiend();
-    new spell_pri_reflective_shield_trigger();
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
     new spell_pri_vampiric_touch();
