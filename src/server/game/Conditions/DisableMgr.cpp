@@ -226,11 +226,38 @@ void LoadDisables()
                 }
                 break;
             }
+            case DISABLE_TYPE_MMAP:
+            {
+                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                if (!mapEntry)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    continue;
+                }
+                switch (mapEntry->map_type)
+                {
+                    case MAP_COMMON:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for world map %u.", entry);
+                        break;
+                    case MAP_INSTANCE:
+                    case MAP_RAID:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for instance map %u.", entry);
+                        break;
+                    case MAP_BATTLEGROUND:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for battleground map %u.", entry);
+                        break;
+                    case MAP_ARENA:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for arena map %u.", entry);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
             case DISABLE_TYPE_MESSAGE:
             {
                 std::transform(params_0.begin(), params_0.end(), params_0.begin(), ::toupper);
                 m_DisableMessageMap.insert(params_0);
-                break;
             }
             default:
                 break;
@@ -361,6 +388,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
+        case DISABLE_TYPE_MMAP:
             return true;
         case DISABLE_TYPE_VMAP:
            return flags & itr->second.flags;
