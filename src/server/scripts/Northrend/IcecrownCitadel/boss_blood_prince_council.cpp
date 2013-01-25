@@ -400,7 +400,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                     DoZoneInCombat(controller);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
-                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, 1000);
+                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_SHADOW_LANCE, 2000);
 
                 if (IsHeroic())
@@ -452,6 +452,8 @@ class boss_prince_keleseth_icc : public CreatureScript
                 float angle = me->GetAngle(summon);
                 me->MovePositionToFirstCollision(pos, maxRange, angle);
                 summon->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                summon->Relocate(pos);
+                summon->SendMovementFlagUpdate();
                 summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
             }
 
@@ -545,7 +547,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                         case EVENT_SHADOW_RESONANCE:
                             Talk(SAY_KELESETH_SPECIAL);
                             DoCast(me, SPELL_SHADOW_RESONANCE);
-                            events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 11000));
+                            events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
                             break;
                         case EVENT_SHADOW_LANCE:
                             if (_isEmpowered)
@@ -586,7 +588,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                 _spawnHealth = creature->GetMaxHealth();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-           }
+            }
 
             void InitializeAI()
             {
@@ -1233,10 +1235,10 @@ class npc_kinetic_bomb : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                me->SetWalk(true);
                 me->CastSpell(me, SPELL_UNSTABLE, true);
                 me->CastSpell(me, SPELL_KINETIC_BOMB_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
+                me->SetSpeed(MOVE_FLIGHT, me->GetSpeedRate(MOVE_RUN), true);
                 me->GetPosition(_x, _y, _groundZ);
                 me->DespawnOrUnsummon(60000);
                 _groundZ = me->GetMap()->GetHeight(me->GetPhaseMask(), _x, _y, _groundZ, true, 500.0f);
@@ -1249,7 +1251,7 @@ class npc_kinetic_bomb : public CreatureScript
                 else if (action == ACTION_KINETIC_BOMB_JUMP)
                 {
                     if (!me->HasAura(SPELL_KINETIC_BOMB_KNOCKBACK))
-                        me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
+                    me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
                     _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 3000);
                 }
             }
@@ -1267,7 +1269,8 @@ class npc_kinetic_bomb : public CreatureScript
                             me->DespawnOrUnsummon(5000);
                             break;
                         case EVENT_CONTINUE_FALLING:
-                            me->GetMotionMaster()->MoveCharge(_x, _y, _groundZ, me->GetSpeed(MOVE_WALK), POINT_KINETIC_BOMB_IMPACT);
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, _x, _y, _groundZ);
                             break;
                         default:
                             break;
@@ -1620,7 +1623,7 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* aurEff)
             {
-                if (GetTarget()->isMoving())
+                if (GetTarget()->isMoving() && GetTarget()->GetTypeId() == TYPEID_PLAYER)
                     GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
             }
 
