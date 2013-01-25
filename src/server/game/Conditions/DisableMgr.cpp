@@ -45,7 +45,7 @@ namespace
     typedef std::set<std::string> DisableMessageMap;
     DisableMessageMap m_DisableMessageMap;
 
-    uint8 MAX_DISABLE_TYPES = 9;
+    uint8 MAX_DISABLE_TYPES = 10;
 }
 
 void LoadDisables()
