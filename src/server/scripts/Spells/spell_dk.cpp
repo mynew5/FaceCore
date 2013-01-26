@@ -28,7 +28,6 @@
 
 enum DeathKnightSpells
 {
-    DK_SPELL_BLOOD_TAP                          = 45529,
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
     SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
@@ -781,48 +780,6 @@ class spell_dk_improved_unholy_presence : public SpellScriptLoader
         }
 };
 
-// 45529 Blood Tap
-class spell_dk_blood_tap : public SpellScriptLoader
-{
-public:
-    spell_dk_blood_tap() : SpellScriptLoader("spell_dk_blood_tap") { }
-
-    class spell_dk_blood_tap_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dk_blood_tap_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
-        {
-            if (!sSpellStore.LookupEntry(DK_SPELL_BLOOD_TAP))
-                return false;
-            return true;
-        }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            for (uint32 i = 0; i < MAX_RUNES; ++i)
-            {
-                if (caster->ToPlayer()->GetBaseRune(i) == RUNE_BLOOD && caster->ToPlayer()->GetRuneCooldown(i) != 0)
-                {
-                    caster->ToPlayer()->SetRuneCooldown(i, 0);
-                    caster->ToPlayer()->ResyncRunes(MAX_RUNES);
-                    return;
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnEffectHit += SpellEffectFn(spell_dk_blood_tap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_ACTIVATE_RUNE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dk_blood_tap_SpellScript();
-    }
-};
-
 // 59754 Rune Tap - Party
 class spell_dk_rune_tap_party : public SpellScriptLoader
 {
@@ -1070,5 +1027,4 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_spell_deflection();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
-    new spell_dk_blood_tap();
 }
