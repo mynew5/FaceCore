@@ -29,8 +29,6 @@
 
 enum PriestSpells
 {
-    PRIEST_SPELL_SHADOWFIEND                    = 34433,
-    PRIEST_SPELL_SHADOWFIEND_TRIGGERED          = 28305,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
     SPELL_PRIEST_GLYPHE_OF_LIGHTWELL                = 55673,
@@ -514,44 +512,6 @@ class spell_pri_power_word_shield : public SpellScriptLoader
         }
 };
 
-class spell_pri_shadowfiend : public SpellScriptLoader
-{
-    public:
-        spell_pri_shadowfiend() : SpellScriptLoader("spell_pri_shadowfiend") { }
-
-        class spell_pri_shadowfiend_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_shadowfiend_SpellScript);
-
-            bool Validate(SpellInfo const* spellEntry)
-            {
-                return sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOWFIEND) && sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOWFIEND_TRIGGERED);
-            }
-
-            void HandleTriggerSpell(SpellEffIndex /*effIndex*/)
-            {
-                Unit* unitTarget = GetHitUnit();
-                if (!unitTarget)
-                    return;
-
-                if (Unit* pet = unitTarget->GetGuardianPet())
-                {
-                    pet->CastSpell(pet, PRIEST_SPELL_SHADOWFIEND_TRIGGERED, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_shadowfiend_SpellScript::HandleTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_shadowfiend_SpellScript;
-        }
-};
-
 // 33110 - Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
@@ -717,7 +677,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_penance();
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
-    new spell_pri_shadowfiend();
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
     new spell_pri_vampiric_touch();
