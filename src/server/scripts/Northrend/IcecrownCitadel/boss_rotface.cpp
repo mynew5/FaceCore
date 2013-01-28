@@ -94,8 +94,6 @@ class boss_rotface : public CreatureScript
             {
                 infectionStage = 0;
                 infectionCooldown = 14000;
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void Reset()
@@ -226,6 +224,8 @@ class npc_little_ooze : public CreatureScript
         {
             npc_little_oozeAI(Creature* creature) : ScriptedAI(creature)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void IsSummonedBy(Unit* summoner)
@@ -276,6 +276,8 @@ class npc_big_ooze : public CreatureScript
         {
             npc_big_oozeAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
@@ -347,9 +349,8 @@ class npc_precious_icc : public CreatureScript
         {
             npc_precious_iccAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
-                _instance = creature->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -588,11 +589,31 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
                 if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
                     if (Aura* targetAura = GetHitCreature()->GetAura(SPELL_UNSTABLE_OOZE))
+                    {
                         unstable->ModStackAmount(targetAura->GetStackAmount());
+
+                        // explode!
+                        if (unstable->GetStackAmount() >= 5)
+                        {
+                            GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
+                            GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (Creature* rotface = Unit::GetCreature(*GetCaster(), instance->GetData64(DATA_ROTFACE)))
+                                    if (rotface->isAlive())
+                                    {
+                                        rotface->AI()->Talk(EMOTE_UNSTABLE_EXPLOSION);
+                                        rotface->AI()->Talk(SAY_UNSTABLE_EXPLOSION);
+                                    }
+
+                            if (Creature* cre = GetCaster()->ToCreature())
+                                cre->AI()->DoAction(EVENT_STICKY_OOZE);
+                            GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, false, NULL, NULL, GetCaster()->GetGUID());
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
+                        }
+                    }
                     else
                         unstable->ModStackAmount(1);
-
-                    // no idea why, but this does not trigger explosion on retail (only small+large do)
                 }
 
                 // just for safety
@@ -778,12 +799,42 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
         }
 };
 
+class spell_rotface_slime_spray : public SpellScriptLoader
+{
+    public:
+        spell_rotface_slime_spray() : SpellScriptLoader("spell_rotface_slime_spray") { }
+
+        class spell_rotface_slime_spray_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
+
+            void ChangeOrientation()
+            {
+                Unit* caster = GetCaster();
+                // find stalker and set caster orientation to face it
+                if (Creature* target = caster->FindNearestCreature(NPC_OOZE_SPRAY_STALKER, 200.0f))
+                    caster->SetOrientation(caster->GetAngle(target));
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_rotface_slime_spray_SpellScript::ChangeOrientation);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rotface_slime_spray_SpellScript();
+        }
+};
+
 void AddSC_boss_rotface()
 {
     new boss_rotface();
     new npc_little_ooze();
     new npc_big_ooze();
     new npc_precious_icc();
+
     new spell_rotface_ooze_flood();
     new spell_rotface_mutated_infection();
     new spell_rotface_little_ooze_combine();
@@ -792,4 +843,5 @@ void AddSC_boss_rotface()
     new spell_rotface_unstable_ooze_explosion_init();
     new spell_rotface_unstable_ooze_explosion();
     new spell_rotface_unstable_ooze_explosion_suicide();
+    new spell_rotface_slime_spray();
 }
