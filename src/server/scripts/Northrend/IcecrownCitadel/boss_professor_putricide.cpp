@@ -230,6 +230,8 @@ class boss_professor_putricide : public CreatureScript
                 _baseSpeed(creature->GetSpeedRate(MOVE_RUN)), _experimentState(EXPERIMENT_STATE_OOZE)
             {
                 _phase = PHASE_NONE;
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             }
 
             void Reset()
@@ -306,6 +308,13 @@ class boss_professor_putricide : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
+                // prevent delayed summons from spawning when they are not supposed to exist anymore
+                if (!me->isAlive() || (_phase == PHASE_COMBAT_3 && (summon->GetEntry() == NPC_GAS_CLOUD || summon->GetEntry() == NPC_VOLATILE_OOZE)))
+                {
+                    summon->DespawnOrUnsummon(1);
+                    return;
+                }
+
                 summons.Summon(summon);
                 switch (summon->GetEntry())
                 {
@@ -354,12 +363,16 @@ class boss_professor_putricide : public CreatureScript
                             return;
                         me->SetReactState(REACT_PASSIVE);
                         DoAction(ACTION_CHANGE_PHASE);
+                        UnsummonSpecificCreaturesNearby(me, NPC_VOLATILE_OOZE, 100.0f);
+                        UnsummonSpecificCreaturesNearby(me, NPC_GAS_CLOUD, 100.0f);
                         break;
                     case PHASE_COMBAT_2:
                         if (HealthAbovePct(35))
                             return;
                         me->SetReactState(REACT_PASSIVE);
                         DoAction(ACTION_CHANGE_PHASE);
+                        UnsummonSpecificCreaturesNearby(me, NPC_VOLATILE_OOZE, 100.0f);
+                        UnsummonSpecificCreaturesNearby(me, NPC_GAS_CLOUD, 100.0f);
                         break;
                     default:
                         break;
@@ -370,7 +383,6 @@ class boss_professor_putricide : public CreatureScript
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
-
                 switch (id)
                 {
                     case POINT_FESTERGUT:
@@ -428,6 +440,7 @@ class boss_professor_putricide : public CreatureScript
                         me->GetMotionMaster()->MovePoint(POINT_FESTERGUT, festergutWatchPos);
                         me->SetReactState(REACT_PASSIVE);
                         DoZoneInCombat(me);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         if (IsHeroic())
                             events.ScheduleEvent(EVENT_FESTERGUT_GOO, urand(15000, 20000), 0, PHASE_FESTERGUT);
                         break;
@@ -436,6 +449,7 @@ class boss_professor_putricide : public CreatureScript
                         DoCast(me, SPELL_RELEASE_GAS_VISUAL, true);
                         break;
                     case ACTION_FESTERGUT_DEATH:
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         events.ScheduleEvent(EVENT_FESTERGUT_DIES, 4000, 0, PHASE_FESTERGUT);
                         break;
                     case ACTION_ROTFACE_COMBAT:
@@ -446,6 +460,7 @@ class boss_professor_putricide : public CreatureScript
                         me->SetReactState(REACT_PASSIVE);
                         _oozeFloodStage = 0;
                         DoZoneInCombat(me);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         if (IsHeroic())
                             events.ScheduleEvent(EVENT_ROTFACE_VILE_GAS, urand(15000, 20000), 0, PHASE_ROTFACE);
                         // init random sequence of floods
@@ -460,9 +475,7 @@ class boss_professor_putricide : public CreatureScript
                                 do
                                 {
                                     list.pop_back();
-                                }
-                                while
-                                    (list.size() > 4);
+                                } while (list.size() > 4);
                             }
 
                             uint8 i = 0;
@@ -484,6 +497,7 @@ class boss_professor_putricide : public CreatureScript
                             _oozeFloodStage = 0;
                         break;
                     case ACTION_ROTFACE_DEATH:
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         events.ScheduleEvent(EVENT_ROTFACE_DIES, 4500, 0, PHASE_ROTFACE);
                         break;
                     case ACTION_CHANGE_PHASE:
@@ -492,8 +506,9 @@ class boss_professor_putricide : public CreatureScript
                         me->AttackStop();
                         if (!IsHeroic())
                         {
+                            SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_TEAR_GAS);
                             DoCast(me, SPELL_TEAR_GAS);
-                            events.ScheduleEvent(EVENT_TEAR_GAS, 2500);
+                            events.ScheduleEvent(EVENT_TEAR_GAS, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 2500);
                         }
                         else
                         {
@@ -626,6 +641,7 @@ class boss_professor_putricide : public CreatureScript
                             events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(35000, 40000));
                             break;
                         case EVENT_TEAR_GAS:
+                            me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_CREATURE);
                             me->GetMotionMaster()->MovePoint(POINT_TABLE, tablePos);
                             DoCast(me, SPELL_TEAR_GAS_PERIODIC_TRIGGER, true);
                             break;
@@ -634,7 +650,7 @@ class boss_professor_putricide : public CreatureScript
                             AttackStart(me->getVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71615);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_PLAYER);
                             DoCastAOE(SPELL_TEAR_GAS_CANCEL);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
