@@ -165,12 +165,7 @@ enum Phases
     PHASE_INTRO         = 1,
     PHASE_ONE           = 2,
     PHASE_TWO           = 3,
-    PHASE_THREE         = 4,
-
-    PHASE_INTRO_MASK    = 1 << PHASE_INTRO,
-    PHASE_ONE_MASK      = 1 << PHASE_ONE,
-    PHASE_TWO_MASK      = 1 << PHASE_TWO,
-    PHASE_THREE_MASK    = 1 << PHASE_THREE
+    PHASE_THREE         = 4
 };
 
 enum Misc
@@ -326,7 +321,7 @@ class boss_halion : public CreatureScript
             void EnterEvadeMode()
             {
                 // Phase 1: We always can evade. Phase 2 & 3: We can evade if and only if the controller tells us to.
-                if ((events.GetPhaseMask() & PHASE_ONE_MASK) || _canEvade)
+                if (events.IsInPhase(PHASE_ONE) || _canEvade)
                     generic_halionAI::EnterEvadeMode();
             }
 
@@ -370,7 +365,7 @@ class boss_halion : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
+                if (me->HealthBelowPctDamaged(75, damage) && events.IsInPhase(PHASE_ONE))
                 {
                     events.SetPhase(PHASE_TWO);
                     Talk(SAY_PHASE_TWO);
@@ -384,7 +379,7 @@ class boss_halion : public CreatureScript
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
                     if (!me->InSamePhase(attacker))
@@ -397,7 +392,7 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (events.GetPhaseMask() & PHASE_TWO_MASK)
+                if (events.IsInPhase(PHASE_TWO))
                     return;
 
                 generic_halionAI::UpdateAI(diff);
@@ -529,7 +524,7 @@ class boss_twilight_halion : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
+                if (me->HealthBelowPctDamaged(50, damage) && events.IsInPhase(PHASE_TWO))
                 {
                     events.SetPhase(PHASE_THREE);
                     me->CastStop();
@@ -538,7 +533,7 @@ class boss_twilight_halion : public CreatureScript
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
                     if (!me->InSamePhase(attacker))
@@ -694,7 +689,7 @@ class npc_halion_controller : public CreatureScript
                 // The isInCombat() check is needed because that check should be false when Halion is
                 // not engaged, while it would return true without as UpdateVictim() checks for
                 // combat state.
-                if (!(_events.GetPhaseMask() & PHASE_INTRO_MASK) && me->isInCombat() && !UpdateVictim())
+                if (!(_events.IsInPhase(PHASE_INTRO)) && me->isInCombat() && !UpdateVictim())
                 {
                     EnterEvadeMode();
                     return;
