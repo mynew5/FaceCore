@@ -130,6 +130,7 @@ enum Spells
     SPELL_IMPALING_SPEAR            = 71443,
     SPELL_AETHER_SHIELD             = 71463,
     SPELL_HURL_SPEAR                = 71466,
+    SPELL_DIVINE_SURGE              = 71465,
 
     // Captain Arnath
     SPELL_DOMINATE_MIND             = 14515,
@@ -284,6 +285,8 @@ enum MovementPoints
 {
     POINT_LAND  = 1,
 };
+
+const Position SvalnaLandPos = {4356.71f, 2484.33f, 358.5f, 1.571f};
 
 class FrostwingVrykulSearcher
 {
@@ -626,7 +629,7 @@ class npc_rotting_frost_giant : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             {
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target->GetGUID());
                                 DoCast(target, SPELL_DEATH_PLAGUE);
@@ -636,11 +639,11 @@ class npc_rotting_frost_giant : public CreatureScript
                         case EVENT_STOMP:
                             DoCastVictim(SPELL_STOMP);
                             _events.ScheduleEvent(EVENT_STOMP, urand(15000, 18000));
-                            break;
+                            return;
                         case EVENT_ARCTIC_BREATH:
                             DoCastVictim(SPELL_ARCTIC_BREATH);
                             _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(26000, 33000));
-                            break;
+                            return;
                         default:
                             break;
                     }
@@ -772,6 +775,7 @@ class boss_sister_svalna : public CreatureScript
                 events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9000);
                 events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(40000, 50000));
                 events.ScheduleEvent(EVENT_AETHER_SHIELD, urand(100000, 110000));
+                DoCast(SPELL_DIVINE_SURGE);
             }
 
             void KilledUnit(Unit* victim)
@@ -803,8 +807,7 @@ class boss_sister_svalna : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetDisableGravity(false);
-                me->SetHover(false);
+                me->SetCanFly(false);
             }
 
             void DoAction(int32 const action)
@@ -817,7 +820,7 @@ class boss_sister_svalna : public CreatureScript
                     case ACTION_START_GAUNTLET:
                         me->setActive(true);
                         _isEventInProgress = true;
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                         events.ScheduleEvent(EVENT_SVALNA_START, 25000);
                         break;
                     case ACTION_RESURRECT_CAPTAINS:
@@ -846,14 +849,16 @@ class boss_sister_svalna : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type != EFFECT_MOTION_TYPE || id != POINT_LAND)
+                if (type != POINT_MOTION_TYPE || id != POINT_LAND)
                     return;
 
                 _isEventInProgress = false;
                 me->setActive(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetDisableGravity(false);
                 me->SetHover(false);
+                me->SendMovementFlagUpdate();
+                DoZoneInCombat(me, 150.0f);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
@@ -894,10 +899,6 @@ class boss_sister_svalna : public CreatureScript
                             Talk(SAY_SVALNA_EVENT_START);
                             break;
                         case EVENT_SVALNA_RESURRECT:
-                            me->setActive(false);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                            me->SetCanFly(false);
-                            me->SetPosition(4356.33f, 2484.21f, 358.43f, 1.54f);
                             Talk(SAY_SVALNA_RESURRECT_CAPTAINS);
                             me->CastSpell(me, SPELL_REVIVE_CHAMPION, false);
                             break;
@@ -955,8 +956,15 @@ class npc_crok_scourgebane : public CreatureScript
                 _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
                 _events.ScheduleEvent(EVENT_DEATH_STRIKE, urand(25000, 30000));
                 me->SetReactState(REACT_DEFENSIVE);
+                _isEventActive = false;
+
+                if (_instance)
+                    _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
+
                 _didUnderTenPercentText = false;
                 _wipeCheckTimer = 1000;
+                _aliveTrash.clear();
+                _currentWPid = 0;
             }
 
             void DoAction(int32 const action)
@@ -1114,7 +1122,7 @@ class npc_crok_scourgebane : public CreatureScript
                     }
                 }
 
-                if (HealthBelowPct(10))
+                if (HealthBelowPct(10) || damage >= me->GetHealth())
                 {
                     if (!_didUnderTenPercentText)
                     {
@@ -1276,8 +1284,11 @@ struct npc_argent_captainAI : public ScriptedAI
 
         void EnterEvadeMode()
         {
+            if (IsUndead)
+                me->DespawnOrUnsummon();
+
             // not yet following
-            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE || IsUndead)
+            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE)
             {
                 ScriptedAI::EnterEvadeMode();
                 return;
@@ -1324,6 +1335,8 @@ struct npc_argent_captainAI : public ScriptedAI
                 Talk(SAY_CAPTAIN_RESURRECTED);
                 me->UpdateEntry(newEntry, instance->GetData(DATA_TEAM_IN_INSTANCE), me->GetCreatureData());
                 DoCast(me, SPELL_UNDEATH, true);
+                me->SetReactState(REACT_AGGRESSIVE);
+                DoZoneInCombat(me, 150.0f);
             }
         }
 
@@ -1818,7 +1831,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                     {
                         (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
                         (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
-                        if (Unit* target = (*itr)->SelectNearestTarget(100.0f))
+                        if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
                             (*itr)->AI()->AttackStart(target);
                         break;
                     }
@@ -1987,13 +2000,8 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                Position pos;
-                caster->GetPosition(&pos);
-                caster->GetNearPosition(pos, 5.0f, 0.0f);
-                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
-                //pos.m_positionZ += 0.05f;
-                caster->SetHomePosition(pos);
-                caster->GetMotionMaster()->MoveLand(POINT_LAND, pos);
+                caster->SetHomePosition(SvalnaLandPos);
+                caster->GetMotionMaster()->MovePoint(POINT_LAND, SvalnaLandPos);
             }
 
             void Register()
