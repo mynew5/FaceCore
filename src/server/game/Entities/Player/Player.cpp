@@ -7520,7 +7520,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     if (Group* group = GetGroup())
     {
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
-        if (GetSession() && group->isLFGGroup() && sLFGMgr->IsTeleported(GetGUID()))
+        if (GetSession() && group->isLFGGroup() && sLFGMgr->hasPendingTeleport(GetGUID()))
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
@@ -11987,7 +11987,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
 InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObject const* lootedObject) const
 {
-    LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
+    lfg::LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
     if (dungeons.empty())
         return EQUIP_ERR_OK;    // not using LFG
 
@@ -11997,10 +11997,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     // check if looted object is inside the lfg dungeon
     bool lootedObjectInDungeon = false;
     Map const* map = lootedObject->GetMap();
-    if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
-        if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
-            if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
-                lootedObjectInDungeon = true;
+    lootedObjectInDungeon = sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficulty());
 
     if (!lootedObjectInDungeon)
         return EQUIP_ERR_OK;
@@ -23521,14 +23518,14 @@ PartyResult Player::CanUninviteFromGroup() const
         if (!sLFGMgr->GetKicksLeft(gguid))
             return ERR_PARTY_LFG_BOOT_LIMIT;
 
-        LfgState state = sLFGMgr->GetState(gguid);
-        if (state == LFG_STATE_BOOT)
+        lfg::LfgState state = sLFGMgr->GetState(gguid);
+        if (state == lfg::LFG_STATE_BOOT)
             return ERR_PARTY_LFG_BOOT_IN_PROGRESS;
 
-        if (grp->GetMembersCount() <= LFG_GROUP_KICK_VOTES_NEEDED)
+        if (grp->GetMembersCount() <= lfg::LFG_GROUP_KICK_VOTES_NEEDED)
             return ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS;
 
-        if (state == LFG_STATE_FINISHED_DUNGEON)
+        if (state == lfg::LFG_STATE_FINISHED_DUNGEON)
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
         if (grp->isRollLootActive())
@@ -23558,21 +23555,17 @@ PartyResult Player::CanUninviteFromGroup() const
 
 bool Player::isUsingLfg()
 {
-    return sLFGMgr->GetState(GetGUID()) != LFG_STATE_NONE;
+    return sLFGMgr->GetState(GetGUID()) != lfg::LFG_STATE_NONE;
 }
 
 bool Player::inRandomLfgDungeon()
 {
-    if (isUsingLfg())
+    if (sLFGMgr->selectedRandomLfgDungeon(GetGUID()))
     {
-        const LfgDungeonSet& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
-        if (!dungeons.empty())
-        {
-             LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin());
-             if (dungeon && (dungeon->type == LFG_TYPE_RANDOM || dungeon->seasonal))
-                 return true;
-        }
+        Map const* map = GetMap();
+        return sLFGMgr->inLfgDungeonMap(GetGUID(), map->GetId(), map->GetDifficulty());
     }
+
     return false;
 }
 
