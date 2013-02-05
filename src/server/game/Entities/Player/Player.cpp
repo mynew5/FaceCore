@@ -7517,7 +7517,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     }
 
     // group update
-    if (Group* group = GetGroup())
+    if (GetGroup())
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
 
     m_zoneUpdateId    = newZone;
