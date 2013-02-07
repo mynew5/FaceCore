@@ -331,7 +331,7 @@ public:
 
     struct npc_guardian_pavilionAI : public ScriptedAI
     {
-        npc_guardian_pavilionAI(Creature* creature) : ScriptedAI(creature) 
+        npc_guardian_pavilionAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
         }
