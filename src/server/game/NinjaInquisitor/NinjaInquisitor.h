@@ -41,7 +41,7 @@ class NinjaInquisitor
         std::map<uint32, uint32> m_players_last_instance, m_players_expire_time;
         uint32 GetLastInstanceId(uint32 playerGUID);
         uint32 GetLastInstanceId(Player* player);
-        uint32 NinjaInquisitor::GetCurrentMapInstanceId(Player* player);
+        uint32 GetCurrentMapInstanceId(Player* player);
         void SetLastInstanceId(uint32 playerGUID, uint32 instanceId);
         void SetLastInstanceId(Player* player, uint32 instanceId);
         uint32 GetInstanceId(uint64 playerGUID);
