@@ -101,11 +101,18 @@ void NinjaInquisitor::Log(uint32 instanceId, uint32 playerGUID, const char *str,
     char text[MAX_QUERY_LEN];
     vsnprintf(text, MAX_QUERY_LEN, str, ap);
     va_end(ap);
-
+    sLog->outError(LOG_FILTER_GENERAL, "[DEBUG] So far so good ... NinjaInquisitor.cpp line 104");
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_NINJAINQUISITOR);
+    if (!stmt)
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "Prepared statement LOGIN_INS_NINJAINQUISITOR is borked?");
+        return;
+    }
+    sLog->outError(LOG_FILTER_GENERAL, "[DEBUG] Filling prepared statement with data ... NinjaInquisitor.cpp line 111");
     stmt->setUInt32(0, instanceId);
     stmt->setUInt32(1, playerGUID);
     stmt->setString(2, text);
+    sLog->outError(LOG_FILTER_GENERAL, "[DEBUG] Executing ... NinjaInquisitor.cpp line 115");
     LoginDatabase.Execute(stmt);
 }
 
@@ -146,33 +153,33 @@ void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, std::
     switch (type)
     {
         case CHAT_MSG_SAY:
-            Log(instanceId, player->GetGUIDLow(), "say %d %s", inInstance, message);
+            Log(instanceId, player->GetGUIDLow(), "say %d %s", inInstance, message.c_str());
             break;
         case CHAT_MSG_YELL:
-            Log(instanceId, player->GetGUIDLow(), "yell %d %s", inInstance, message);
+            Log(instanceId, player->GetGUIDLow(), "yell %d %s", inInstance, message.c_str());
             break;
         case CHAT_MSG_GUILD:
-            Log(instanceId, player->GetGUIDLow(), "msg_guild %d %s", guildId, message);
+            Log(instanceId, player->GetGUIDLow(), "msg_guild %d %s", guildId, message.c_str());
             break;
         case CHAT_MSG_OFFICER:
-            Log(instanceId, player->GetGUIDLow(), "msg_guild_officer %d %s", guildId, message);
+            Log(instanceId, player->GetGUIDLow(), "msg_guild_officer %d %s", guildId, message.c_str());
             break;
         case CHAT_MSG_PARTY:
         case CHAT_MSG_RAID:
-            Log(instanceId, player->GetGUIDLow(), "msg %s", message);
+            Log(instanceId, player->GetGUIDLow(), "msg %s", message.c_str());
             break;
         case CHAT_MSG_PARTY_LEADER:
         case CHAT_MSG_RAID_LEADER:
-            Log(instanceId, player->GetGUIDLow(), "msg_leader %s", message);
+            Log(instanceId, player->GetGUIDLow(), "msg_leader %s", message.c_str());
             break;
         case CHAT_MSG_RAID_WARNING:
-            Log(instanceId, player->GetGUIDLow(), "raid_warning %s", message);
+            Log(instanceId, player->GetGUIDLow(), "raid_warning %s", message.c_str());
             break;
         case CHAT_MSG_WHISPER:
-            Log(instanceId, player->GetGUIDLow(), "whisper %s %s", to, message);
+            Log(instanceId, player->GetGUIDLow(), "whisper %s %s", to.c_str(), message.c_str());
             break;
         case CHAT_MSG_CHANNEL:
-            Log(instanceId, player->GetGUIDLow(), "channel %s %s", channel, message);
+            Log(instanceId, player->GetGUIDLow(), "channel %s %s", channel.c_str(), message.c_str());
             break;
     }
 }
