@@ -465,7 +465,7 @@ public:
     {
        npc_maloricAI(Creature *c) : ScriptedAI(c) {}
 
-        void SpellHit(Unit* pCaster, const SpellEntry* spell)
+        void SpellHit(Unit* pCaster, const SpellInfo* spell)
         {
            if (pCaster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -519,7 +519,7 @@ public:
     {
         npc_Scarlet_OnslaughtAI(Creature *c) : ScriptedAI(c) {}
 
-        void SpellHit(Unit* pCaster, const SpellEntry* spell)
+        void SpellHit(Unit* pCaster, const SpellInfo* spell)
         {
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
             {

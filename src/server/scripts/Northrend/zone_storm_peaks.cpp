@@ -676,7 +676,7 @@ public:
                 return;
         }
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit *caster, const SpellInfo* spell)
         {
             if ((caster->GetTypeId() == TYPEID_PLAYER ) && spell->Id == SPELL_DISCIPLINING_ROD && CAST_PLR(caster)->GetQuestStatus(12906) == QUEST_STATUS_INCOMPLETE)
             {

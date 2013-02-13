@@ -266,7 +266,7 @@ class boss_eadric : public CreatureScript
         {
             if (IsHeroic() && !bDone)
                 if (caster->GetTypeId() == TYPEID_PLAYER)
-                    if (spell->Id == SPELL_HAMMER_THROWBACK_DMG && me->GetHealth() <= spell->Effects[0].BasePoints)
+                    if (spell->Id == SPELL_HAMMER_THROWBACK_DMG && me->GetHealth() <= uint32(spell->Effects[0].BasePoints))
                         DoCast(caster, SPELL_EADRIC_ACHIEVEMENT);
         }
 
@@ -918,7 +918,7 @@ class spell_gen_reflective_shield : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_reflective_shield_AuraScript);
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellInfo const * /*spellEntry*/)
             {
                 return sSpellStore.LookupEntry(SPELL_REFLECTIVE_SHIELD_TRIGGERED);
             }

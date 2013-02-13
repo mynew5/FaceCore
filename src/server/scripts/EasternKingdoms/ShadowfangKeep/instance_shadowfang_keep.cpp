@@ -218,7 +218,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 id)
+        uint64 GetData64(uint32 id) const
         {
             switch(id)
             {

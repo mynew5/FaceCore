@@ -410,7 +410,7 @@ public:
                       if (summon->GetEntry() == 37542)
                                events.ScheduleEvent(13, 3000);
                 }
-              void SetGUID(const uint64 &uiGuid, int32 /*iId*/)
+              void SetGUID(uint64 uiGuid, int32 /*iId*/)
               {
                       uiPlayer = uiGuid;
              }
