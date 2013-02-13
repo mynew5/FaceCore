@@ -40,6 +40,7 @@
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "DisableMgr.h"
+#include "NinjaInquisitor.h"
 
 bool IsWatcher(uint32 guid);
 
@@ -506,6 +507,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sLog->outError(LOG_FILTER_NETWORKIO, "CHAT: unknown message type %u, lang: %u", type, lang);
             break;
     }
+
+    sNinjaInquisitor->LogMessage(sender, type, lang, to, channel, msg);
 }
 
 void WorldSession::HandleEmoteOpcode(WorldPacket& recvData)

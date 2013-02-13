@@ -80,6 +80,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "../../../scripts/Custom/Transmogrification.h"
+#include "NinjaInquisitor.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -24121,6 +24122,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     {
         AllowedLooterSet looters = item->GetAllowedLooters();
         Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
+
+        sNinjaInquisitor->LogAutostoreLootItem(this, newitem);
 
         if (qitem)
         {
