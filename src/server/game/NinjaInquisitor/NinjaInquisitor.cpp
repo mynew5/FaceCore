@@ -131,6 +131,9 @@ void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, const
     if (!player)
         return;
 
+    if (lang == LANG_ADDON)
+        return;
+
     uint32 instanceId = GetInstanceId(player);
     if (!instanceId)
         return;
