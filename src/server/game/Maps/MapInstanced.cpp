@@ -180,9 +180,8 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             map = FindInstanceMap(newInstanceId);
             if (!map)
                 map = CreateInstance(newInstanceId, NULL, diff);
+            sNinjaInquisitor->InitializeInstance(newInstanceId);
         }
-
-        sNinjaInquisitor->InitializeInstance(newInstanceId);
     }
 
     return map;
