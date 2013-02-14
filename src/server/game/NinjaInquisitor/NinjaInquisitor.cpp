@@ -141,7 +141,7 @@ void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, std::
         {
             if (instanceId)
                 Log(instanceId, player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
-            if (uint32 rInstanceId = GetInstanceId(reciever))
+            if (uint32 rInstanceId = GetInstanceId(receiver))
                 Log(rInstanceId, player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
         }
 
