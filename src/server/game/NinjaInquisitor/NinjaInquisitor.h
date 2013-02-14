@@ -37,6 +37,7 @@ class NinjaInquisitor
         void LogMessage(Player* player, uint32 type, uint32 lang, std::string const& to, std::string const& channel, std::string const& message);
         void LogLootMasterGiveItem(Player* player, Player* receiver, Item* item);
         void LogAutostoreLootItem(Player* player, Item* item);
+        void InitializeInstance(uint32 instanceId);
     private:
         std::map<uint32, uint32> m_players_last_instance, m_players_expire_time;
         uint32 GetLastInstanceId(uint32 playerGUID);

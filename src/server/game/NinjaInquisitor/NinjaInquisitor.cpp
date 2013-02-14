@@ -106,11 +106,18 @@ void NinjaInquisitor::Log(uint32 instanceId, uint32 playerGUID, const char *str,
     vsnprintf(text, MAX_QUERY_LEN, str, ap);
     va_end(ap);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(CHAR_INS_NINJAINQUISITOR);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_NINJAINQUISITOR_LOG);
     stmt->setUInt32(0, instanceId);
     stmt->setUInt32(1, playerGUID);
     stmt->setString(2, text);
-    LoginDatabase.Execute(stmt);
+    CharacterDatabase.Execute(stmt);
+}
+
+void NinjaInquisitor::InitializeInstance(uint32 instanceId)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NINJAINQUISITOR_LOG);
+    stmt->setUInt32(0, instanceId);
+    CharacterDatabase.Execute(stmt);
 }
 
 void NinjaInquisitor::LogRandomRoll(Player* player, uint32 minimum, uint32 maximum, uint32 roll)
