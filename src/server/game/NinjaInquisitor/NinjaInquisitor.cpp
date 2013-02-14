@@ -250,9 +250,9 @@ void NinjaInquisitor::LogLootMoney(Player* player)
     }
 }
 
-void NinjaInquisitor::LogLootMasterGiveItem(Player* player, Player* reciever, Item* item)
+void NinjaInquisitor::LogLootMasterGiveItem(Player* player, Player* receiver, Item* item)
 {
-    if (!player || !reciever || !item)
+    if (!player || !receiver || !item)
         return;
 
     uint32 instanceId = GetCurrentMapInstanceId(player);
@@ -275,10 +275,10 @@ void NinjaInquisitor::LogLootMasterGiveItem(Player* player, Player* reciever, It
     }
 
     if (sourceEntry && (isCreature || isGameObject))
-        if (player == reciever)
+        if (player == receiver)
             Log(instanceId, player->GetGUIDLow(), "loot_self %s:%d %d:%d", isCreature ? "creature" : "gameobject", sourceEntry, item->GetEntry(), item->GetGUIDLow());
         else
-            Log(instanceId, player->GetGUIDLow(), "loot_give %d %s:%d %d:%d", reciever->GetGUIDLow(), isCreature ? "creature" : "gameobject", sourceEntry, item->GetEntry(), item->GetGUIDLow());
+            Log(instanceId, player->GetGUIDLow(), "loot_give %d %s:%d %d:%d", receiver->GetGUIDLow(), isCreature ? "creature" : "gameobject", sourceEntry, item->GetEntry(), item->GetGUIDLow());
 }
 
 void NinjaInquisitor::LogAutostoreLootItem(Player* player, Item* item)
