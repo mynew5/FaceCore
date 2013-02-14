@@ -34,7 +34,7 @@ class NinjaInquisitor
         void LogRandomRoll(Player* player, uint32 minimum, uint32 maximum, uint32 roll);
         void LogItemRoll(uint64 itemGUID, uint32 itemEntry, uint64 playerGUID, uint8 rollNumber, uint8 rollType);
         void LogLootMoney(Player* player);
-        void LogMessage(Player* player, uint32 type, uint32 lang, const char *to, const char *channel, const char *message);
+        void LogMessage(Player* player, uint32 type, uint32 lang, const char* to, const char* channel, const char* message);
         void LogLootMasterGiveItem(Player* player, Player* reciever, Item* item);
         void LogAutostoreLootItem(Player* player, Item* item);
     private:

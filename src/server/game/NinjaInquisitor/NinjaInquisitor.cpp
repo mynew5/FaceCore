@@ -126,7 +126,7 @@ void NinjaInquisitor::LogItemRoll(uint64 itemGUID, uint32 itemEntry, uint64 play
         Log(instanceId, GUID_LOPART(playerGUID), "itemroll %d %d:%d %d", rollType, itemEntry, GUID_LOPART(itemGUID), rollNumber);
 }
 
-void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, const char *to, const char *channel, const char *message)
+void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, const char* to, const char* channel, const char* message)
 {
     if (!player)
         return;
