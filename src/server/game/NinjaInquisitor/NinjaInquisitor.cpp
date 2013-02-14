@@ -97,11 +97,16 @@ uint32 NinjaInquisitor::GetInstanceId(Player* player)
 
 void NinjaInquisitor::Log(uint32 instanceId, uint32 playerGUID, const char *str, ...) {
     va_list ap;
-    va_start(ap, str);
     char text[MAX_QUERY_LEN];
+
+    if (!instanceId)
+        return;
+
+    va_start(ap, str);
     vsnprintf(text, MAX_QUERY_LEN, str, ap);
     va_end(ap);
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_NINJAINQUISITOR);
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(CHAR_INS_NINJAINQUISITOR);
     stmt->setUInt32(0, instanceId);
     stmt->setUInt32(1, playerGUID);
     stmt->setString(2, text);
@@ -139,10 +144,8 @@ void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, std::
     if (type == CHAT_MSG_WHISPER)
         if (Player* receiver = sObjectAccessor->FindPlayerByName(to))
         {
-            if (instanceId)
-                Log(instanceId, player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
-            if (uint32 rInstanceId = GetInstanceId(receiver))
-                Log(rInstanceId, player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
+            Log(instanceId,              player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
+            Log(GetInstanceId(receiver), player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
         }
 
     if (!instanceId)

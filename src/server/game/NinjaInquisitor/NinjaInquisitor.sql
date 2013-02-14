@@ -1,20 +1,13 @@
 
-DROP TABLE IF EXISTS `realmd`.`ninja_inquisitor_logs`;
+-- on characters
 
-CREATE TABLE `realmd`.`ninja_inquisitor_logs` (
+DROP TABLE IF EXISTS `ninja_inquisitor_logs`;
+
+CREATE TABLE `ninja_inquisitor_logs` (
     `time` INT UNSIGNED NOT NULL,
     `instance` INT UNSIGNED NOT NULL,
     `guid` INT UNSIGNED NOT NULL,
-    `event` TEXT NOT NULL
+    `event` TEXT NOT NULL,
+	FOREIGN KEY (`instance`) REFERENCES `instance` (`id`) ON DELETE CASCADE
 ) ENGINE=MyISAM;
 
-DROP TRIGGER IF EXISTS `characters`.`ninja_inquisitor_delete`;
-
-DELIMITER $$
-
-CREATE TRIGGER `characters`.`ninja_inquisitor_delete` BEFORE DELETE ON `characters`.`instance` FOR EACH ROW
-BEGIN
-    DELETE FROM `realmd`.`ninja_inquisitor_logs` WHERE `instance` = `old`.`id`;
-END$$
-
-DELIMITER ;
