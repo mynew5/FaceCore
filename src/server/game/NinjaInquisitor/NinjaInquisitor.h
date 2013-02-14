@@ -24,7 +24,6 @@
 #include "Group.h"
 #include "Guild.h"
 #include "ObjectDefines.h"
-#include "Log.h"
 
 class NinjaInquisitor
 {
