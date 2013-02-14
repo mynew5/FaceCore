@@ -126,7 +126,7 @@ void NinjaInquisitor::LogItemRoll(uint64 itemGUID, uint32 itemEntry, uint64 play
         Log(instanceId, GUID_LOPART(playerGUID), "itemroll %d %d:%d %d", rollType, itemEntry, GUID_LOPART(itemGUID), rollNumber);
 }
 
-void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, const char* to, const char* channel, const char* message)
+void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, std::string const& to, std::string const& channel, std::string const& message)
 {
     if (!player)
         return;
@@ -135,6 +135,16 @@ void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, const
         return;
 
     uint32 instanceId = GetInstanceId(player);
+
+    if (type == CHAT_MSG_WHISPER)
+        if (Player* receiver = sObjectAccessor->FindPlayerByName(to))
+        {
+            if (instanceId)
+                Log(instanceId, player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
+            if (uint32 rInstanceId = GetInstanceId(reciever))
+                Log(rInstanceId, player->GetGUIDLow(), "whisper %d %s", receiver->GetGUIDLow(), message.c_str());
+        }
+
     if (!instanceId)
         return;
 
@@ -148,33 +158,34 @@ void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, const
     switch (type)
     {
         case CHAT_MSG_SAY:
-            Log(instanceId, player->GetGUIDLow(), "say %d %s", inInstance, message);
+            Log(instanceId, player->GetGUIDLow(), "say %d %s", inInstance, message.c_str());
             break;
         case CHAT_MSG_YELL:
-            Log(instanceId, player->GetGUIDLow(), "yell %d %s", inInstance, message);
+            Log(instanceId, player->GetGUIDLow(), "yell %d %s", inInstance, message.c_str());
             break;
         case CHAT_MSG_GUILD:
-            Log(instanceId, player->GetGUIDLow(), "msg_guild %d %s", guildId, message);
+            Log(instanceId, player->GetGUIDLow(), "guild %d %s", guildId, message.c_str());
             break;
         case CHAT_MSG_OFFICER:
-            Log(instanceId, player->GetGUIDLow(), "msg_guild_officer %d %s", guildId, message);
+            Log(instanceId, player->GetGUIDLow(), "officer %d %s", guildId, message.c_str());
             break;
         case CHAT_MSG_PARTY:
+            Log(instanceId, player->GetGUIDLow(), "party %s", message.c_str());
+            break;
         case CHAT_MSG_RAID:
-            Log(instanceId, player->GetGUIDLow(), "msg %s", message);
+            Log(instanceId, player->GetGUIDLow(), "raid %s", message.c_str());
             break;
         case CHAT_MSG_PARTY_LEADER:
+            Log(instanceId, player->GetGUIDLow(), "party_leader %s", message.c_str());
+            break;
         case CHAT_MSG_RAID_LEADER:
-            Log(instanceId, player->GetGUIDLow(), "msg_leader %s", message);
+            Log(instanceId, player->GetGUIDLow(), "raid_leader %s", message.c_str());
             break;
         case CHAT_MSG_RAID_WARNING:
-            Log(instanceId, player->GetGUIDLow(), "raid_warning %s", message);
-            break;
-        case CHAT_MSG_WHISPER:
-            Log(instanceId, player->GetGUIDLow(), "whisper %s %s", to, message);
+            Log(instanceId, player->GetGUIDLow(), "raid_warning %s", message.c_str());
             break;
         case CHAT_MSG_CHANNEL:
-            Log(instanceId, player->GetGUIDLow(), "channel %s %s", channel, message);
+            Log(instanceId, player->GetGUIDLow(), "channel %s %s", channel.c_str(), message.c_str());
             break;
     }
 }

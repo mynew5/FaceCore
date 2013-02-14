@@ -508,7 +508,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             break;
     }
 
-    sNinjaInquisitor->LogMessage(sender, type, lang, to.c_str(), channel.c_str(), msg.c_str());
+    sNinjaInquisitor->LogMessage(sender, type, lang, to, channel, msg);
 }
 
 void WorldSession::HandleEmoteOpcode(WorldPacket& recvData)
