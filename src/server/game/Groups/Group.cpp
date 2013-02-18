@@ -635,7 +635,7 @@ void Group::ChangeLeader(uint64 guid)
     if (!player)
         return;
 
-    sScriptMgr->OnGroupChangeLeader(this, m_leaderGuid, guid);
+    sScriptMgr->OnGroupChangeLeader(this, guid, m_leaderGuid);
 
     if (!isBGGroup() && !isBFGroup())
     {
