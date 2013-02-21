@@ -138,6 +138,15 @@ void NinjaInquisitor::LogItemRoll(uint64 itemGUID, uint32 itemEntry, uint64 play
         Log(instanceId, GUID_LOPART(playerGUID), "itemroll %d %d:%d %d", rollType, itemEntry, GUID_LOPART(itemGUID), rollNumber);
 }
 
+void NinjaInquisitor::LogItemRollWon(uint64 itemGUID, uint32 itemEntry, uint64 playerGUID, uint8 rollNumber, uint8 rollType)
+{
+    if (!itemGUID)
+        return;
+
+    if (uint32 instanceId = GetInstanceId(playerGUID))
+        Log(instanceId, GUID_LOPART(playerGUID), "itemwon %d %d:%d %d", rollType, itemEntry, GUID_LOPART(itemGUID), rollNumber);
+}
+
 void NinjaInquisitor::LogMessage(Player* player, uint32 type, uint32 lang, std::string const& to, std::string const& channel, std::string const& message)
 {
     if (!player)

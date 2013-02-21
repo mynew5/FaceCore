@@ -867,6 +867,8 @@ void Group::SendLootRollWon(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumb
         if (itr->second != NOT_VALID)
             p->GetSession()->SendPacket(&data);
     }
+
+    sNinjaInquisitor->LogItemRollWon(sourceGuid, roll.itemid, targetGuid, rollNumber, rollType);
 }
 
 void Group::SendLootAllPassed(Roll const& roll)
