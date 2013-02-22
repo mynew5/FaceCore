@@ -2066,6 +2066,8 @@ class npc_yogg_saron_tentacle : public CreatureScript
         {
             npc_yogg_saron_tentacleAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 SetTentacleType(c->GetEntry());
                 _once = false;
@@ -2293,6 +2295,8 @@ class boss_brain_of_yogg_saron : public CreatureScript
         {
             boss_brain_of_yogg_saronAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->setFaction(FACTION_HOSTILE);
@@ -2378,6 +2382,8 @@ class boss_yogg_saron : public CreatureScript
         {
             boss_yogg_saronAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_SWIMMING);
@@ -2621,6 +2627,8 @@ class npc_influence_tentacle : public CreatureScript
         {
             npc_influence_tentacleAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
@@ -2763,6 +2771,8 @@ class npc_support_keeper : public CreatureScript
         {
             npc_support_keeperAI(Creature *c) : ScriptedAI(c) , _summons(me)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
             }
 
@@ -2912,6 +2922,8 @@ class npc_sanity_well : public CreatureScript
         {
             npc_sanity_wellAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
             }
 
@@ -2976,6 +2988,8 @@ class npc_laughting_skull : public CreatureScript
         {
             npc_laughting_skullAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 instance = c->GetInstanceScript();
             }
 
@@ -3026,6 +3040,8 @@ class npc_death_orb : public CreatureScript
         {
             npc_death_orbAI(Creature *c) : ScriptedAI(c) , _summons(me)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -3577,6 +3593,8 @@ class npc_keeper_help : public CreatureScript
         {
             npc_keeper_helpAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 instance = c->GetInstanceScript();
                 me->setFaction(FACTION_FRIENDLY);
             }

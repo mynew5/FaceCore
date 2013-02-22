@@ -686,7 +686,8 @@ class boss_thorim : public CreatureScript
                 Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1397,6 +1398,8 @@ class npc_runic_smash : public CreatureScript
         {
             npc_runic_smashAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
+
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

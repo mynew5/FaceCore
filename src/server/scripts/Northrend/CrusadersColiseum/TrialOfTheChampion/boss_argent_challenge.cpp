@@ -266,11 +266,11 @@ class boss_eadric : public CreatureScript
         {
             if (IsHeroic() && !bDone)
                 if (caster->GetTypeId() == TYPEID_PLAYER)
-                    if (spell->Id == SPELL_HAMMER_THROWBACK_DMG && me->GetHealth() <= uint32(spell->Effects[0].BasePoints))
+                    if (spell->Id == SPELL_HAMMER_THROWBACK_DMG && me->GetHealth() <= spell->Effects[0].BasePoints)
                         DoCast(caster, SPELL_EADRIC_ACHIEVEMENT);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
@@ -445,7 +445,7 @@ class boss_paletress : public CreatureScript
 
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
@@ -604,7 +604,7 @@ class npc_memory : public CreatureScript
             uiWakingNightmare = 7000;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
@@ -814,7 +814,7 @@ class npc_argent_soldier : public CreatureScript
             uiWaypoint = uiType;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -918,7 +918,7 @@ class spell_gen_reflective_shield : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_reflective_shield_AuraScript);
 
-            bool Validate(SpellInfo const * /*spellEntry*/)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 return sSpellStore.LookupEntry(SPELL_REFLECTIVE_SHIELD_TRIGGERED);
             }
