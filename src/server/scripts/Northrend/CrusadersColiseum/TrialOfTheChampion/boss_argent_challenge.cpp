@@ -918,9 +918,12 @@ class spell_gen_reflective_shield : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_reflective_shield_AuraScript);
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellInfo const * /*spellEntry*/)
             {
                 return sSpellStore.LookupEntry(SPELL_REFLECTIVE_SHIELD_TRIGGERED);
+                if (!sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_TRIGGERED))
+                     return false;
+                return true;
             }
 
             void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
