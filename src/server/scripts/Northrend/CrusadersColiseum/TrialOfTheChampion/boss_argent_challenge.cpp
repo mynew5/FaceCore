@@ -920,7 +920,6 @@ class spell_gen_reflective_shield : public SpellScriptLoader
 
             bool Validate(SpellInfo const * /*spellEntry*/)
             {
-                return sSpellStore.LookupEntry(SPELL_REFLECTIVE_SHIELD_TRIGGERED);
                 if (!sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_TRIGGERED))
                      return false;
                 return true;
