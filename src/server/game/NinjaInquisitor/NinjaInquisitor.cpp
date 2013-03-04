@@ -284,7 +284,7 @@ void NinjaInquisitor::LogLootMasterGiveItem(Player* player, Player* receiver, It
 
     uint64 lootGUID = player->GetLootGUID();
     bool isCreature, isGameObject;
-    uint32 sourceEntry;
+    uint32 sourceEntry = 0;
 
     if (isCreature = IS_CRE_OR_VEH_GUID(lootGUID))
     {
