@@ -26284,7 +26284,6 @@ void Player::UpdateDropBoostRating()
 
     if (new_DropBoostRating > m_DropBoostRating)
         m_DropBoostRating = new_DropBoostRating;
-
 }
 
 void Player::DoDropBoostIfEligible(Loot& loot, LootStore const& store, uint32 lootid, uint16 mode)

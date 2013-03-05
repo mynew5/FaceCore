@@ -1325,11 +1325,33 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
 // VISTAWOW DROP BOOST
 void LootTemplate::VistaWoWDropBoost(Loot& loot, uint16 lootMode, uint8 count) const
 {
-    if (Groups.size())
-        while (count--)
-        {
-            uint32 index = urand(1, Groups.size());
+    while (count--)
+    {
+        uint32 index = urand(0, Groups.size());
 
+        if (!index)
+        {
+            for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
+            {
+                LootStoreItem* item = *i;
+                if (!(item->lootmode & lootMode))
+                    continue;
+
+                if (!item->Roll(true))
+                    continue;
+
+                if (item->mincountOrRef < 0)
+                {
+                    if (LootTemplate const* temp = LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
+                        temp->VistaWoWDropBoost(loot, lootMode, 1);
+                }
+                else
+                    loot.AddItem(*item);
+                break;
+            }
+        }
+        else
+        {
             for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
                 if (LootGroup* group = *i)
                     if (--index == 0)
@@ -1338,6 +1360,7 @@ void LootTemplate::VistaWoWDropBoost(Loot& loot, uint16 lootMode, uint8 count) c
                         break;
                     }
         }
+    }
 }
 
 // True if template includes at least 1 quest drop entry
