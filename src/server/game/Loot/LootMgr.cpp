@@ -1334,20 +1334,18 @@ void LootTemplate::VistaWoWDropBoost(Loot& loot, uint16 lootMode, uint8 count) c
             for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
             {
                 LootStoreItem* item = *i;
-                if (!(item->lootmode & lootMode))
-                    continue;
-
-                if (!item->Roll(true))
-                    continue;
-
-                if (item->mincountOrRef < 0)
-                {
-                    if (LootTemplate const* temp = LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
-                        temp->VistaWoWDropBoost(loot, lootMode, 1);
-                }
-                else
-                    loot.AddItem(*item);
-                break;
+                if (item->lootmode & lootMode)
+                    if (item->Roll(true))
+                    {
+                        if (item->mincountOrRef < 0)
+                        {
+                            if (LootTemplate const* temp = LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
+                                temp->VistaWoWDropBoost(loot, lootMode, 1);
+                        }
+                        else
+                            loot.AddItem(*item);
+                        break;
+                    }
             }
         }
         else
