@@ -696,6 +696,7 @@ void AddSpellScripts()
 
 void AddCommandScripts()
 {
+    AddSC_vistawow_commandscript();
     AddSC_anticheat_commandscript();
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
