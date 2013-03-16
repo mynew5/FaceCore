@@ -973,7 +973,7 @@ class npc_flame_leviathan_overload_device : public CreatureScript
                 me->setActive(true);
             }
 
-            void DoAction(const int32 param)
+            void DoAction(int32 param)
             {
                 if (param == EVENT_SPELLCLICK)
                 {
@@ -1718,7 +1718,7 @@ class npc_lorekeeper : public CreatureScript
                             if (Creature* Brann = creature->FindNearestCreature(NPC_BRANN_BRONZBEARD, 1000.0f, true))
                             {
                                 Delorah->GetMotionMaster()->MovePoint(0, Brann->GetPositionX()-4, Brann->GetPositionY(), Brann->GetPositionZ());
-                                //TODO Talk(xxxx, Delorah, Branz); when reached at Brann
+                                /// @todo Delorah->AI()->Talk(xxxx, Branz->GetGUID()); when reached at branz
                             }
                         }
                     }
