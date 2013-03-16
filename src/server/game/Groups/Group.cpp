@@ -843,7 +843,7 @@ void Group::SendLootRoll(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber,
             p->GetSession()->SendPacket(&data);
     }
 
-    sNinjaInquisitor->LogItemRoll(sourceGuid, roll.itemid, targetGuid, rollNumber, rollType);
+    sNinjaInquisitor->LogItemRoll(roll.itemGUID, roll.itemid, targetGuid, rollNumber, rollType);
 }
 
 void Group::SendLootRollWon(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll)
@@ -868,7 +868,7 @@ void Group::SendLootRollWon(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumb
             p->GetSession()->SendPacket(&data);
     }
 
-    sNinjaInquisitor->LogItemRollWon(sourceGuid, roll.itemid, targetGuid, rollNumber, rollType);
+    sNinjaInquisitor->LogItemRollWon(roll.itemGUID, roll.itemid, targetGuid, rollNumber, rollType);
 }
 
 void Group::SendLootAllPassed(Roll const& roll)
