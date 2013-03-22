@@ -609,98 +609,6 @@ public:
     }
 };
 
-/*######
-## Quest:  Discipline, Maintaining Discipline (12906,13422)
-######*/
-
-enum eExhausted
-{
-    SPELL_DISCIPLINING_ROD  = 56033,
-    NPC_EXHAUSTED_VRYKUL    = 29886,
-    SAY_RAND_WORK1          = -1000555,
-    SAY_RAND_WORK2          = -1000556,
-    SAY_RAND_WORK3          = -1000557,
-    SAY_RAND_ATTACK1        = -1000558,
-    SAY_RAND_ATTACK2        = -1000559,
-    SAY_RAND_ATTACK3        = -1000560
-};
-
-class npc_exhausted_vrykul : public CreatureScript
-{
-public:
-    npc_exhausted_vrykul() : CreatureScript("npc_exhausted_vrykul") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_exhausted_vrykulAI(creature);
-    }
-
-    struct npc_exhausted_vrykulAI : public ScriptedAI
-    {
-        npc_exhausted_vrykulAI (Creature* creature) : ScriptedAI(creature)
-        {
-            Reset();
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-        }
-
-        void SpellHit(Unit *caster, const SpellInfo* spell)
-        {
-            if ((caster->GetTypeId() == TYPEID_PLAYER ) && spell->Id == SPELL_DISCIPLINING_ROD && CAST_PLR(caster)->GetQuestStatus(12906) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (me->getStandState() == UNIT_STAND_STATE_STAND)
-                    return;
-
-                switch(urand(1,2))
-                {
-                    case 1:
-                    {
-                        switch(urand(1,3))
-                        {
-                            case 1:
-                                // DoScriptText(SAY_RAND_ATTACK1, me);
-                                break;
-                            case 2:
-                                // DoScriptText(SAY_RAND_ATTACK2, me);
-                                break;
-                            case 3:
-                                // DoScriptText(SAY_RAND_ATTACK3, me);
-                                break;
-                        }
-
-                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                        me->AI()->AttackStart(caster);
-                        break;
-                    }
-                    case 2:
-                    {
-                        switch(urand(1,3))
-                        {
-                            case 1:
-                                // DoScriptText(SAY_RAND_WORK1, me);
-                                break;
-                            case 2:
-                                // DoScriptText(SAY_RAND_WORK2, me);
-                                break;
-                            case 3:
-                                // DoScriptText(SAY_RAND_WORK3, me);
-                                break;
-                        }
-                        ((Player *)caster)->KilledMonsterCredit(NPC_EXHAUSTED_VRYKUL,me->GetGUID());
-                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK);
-                        break;
-                    }
-                }
-            }
-        }
-    };
-};
-
 enum CloseRift
 {
     SPELL_DESPAWN_RIFT          = 61665
@@ -759,6 +667,5 @@ void AddSC_storm_peaks()
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
     new npc_snowblind_follower();
-    new npc_exhausted_vrykul();
     new spell_close_rift();
 }
