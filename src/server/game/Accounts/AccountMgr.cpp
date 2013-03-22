@@ -308,16 +308,6 @@ bool AccountMgr::IsPlayerAccount(uint32 gmlevel)
     return gmlevel <= SEC_MODERATOR;
 }
 
-bool AccountMgr::IsModeratorAccount(uint32 gmlevel)
-{
-    return gmlevel >= SEC_GAMEMASTER && gmlevel <= SEC_CONSOLE;
-}
-
-bool AccountMgr::IsGMAccount(uint32 gmlevel)
-{
-    return gmlevel >= SEC_GAMEMASTER && gmlevel <= SEC_CONSOLE;
-}
-
 bool AccountMgr::IsAdminAccount(uint32 gmlevel)
 {
     return gmlevel >= SEC_ADMINISTRATOR && gmlevel <= SEC_CONSOLE;
