@@ -125,7 +125,7 @@ public:
 
             if (!Pasajero_1 && (me->GetHealth() < me->GetMaxHealth() * 0.70))
             {
-                if (Creature *Bombardier1 = CAST_CRE(vehicle->GetPassenger(BOMBARDIER_1)))
+                if (Unit* Bombardier1 = vehicle->GetPassenger(BOMBARDIER_1))
                 {
                     /*Bombardier1->ExitVehicle();
                     Bombardier1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -138,7 +138,7 @@ public:
 
             if (!Pasajero_2 && (me->GetHealth() < me->GetMaxHealth() * 0.50))
             {
-                if (Creature *Bombardier2 = CAST_CRE(vehicle->GetPassenger(BOMBARDIER_2)))
+                if (Unit* Bombardier2 = vehicle->GetPassenger(BOMBARDIER_2))
                 {
                     Bombardier2->ExitVehicle();
                     Bombardier2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -151,7 +151,7 @@ public:
 
             if (!Pasajero_3 && (me->GetHealth() < me->GetMaxHealth() * 0.25))
             {
-                if (Creature *Bombardier3 = CAST_CRE(vehicle->GetPassenger(BOMBARDIER_3)))
+                if (Unit* Bombardier3 = vehicle->GetPassenger(BOMBARDIER_3))
                 {
                     Bombardier3->ExitVehicle();
                     Bombardier3->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);                    
