@@ -1053,7 +1053,7 @@ public:
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                CAST_PLR(pDoneBy)->AddItem(45127, 1);
+                pDoneBy->ToPlayer()->AddItem(45127, 1);
                 me->setFaction(35);
             }
         }
@@ -1362,7 +1362,7 @@ public:
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                CAST_PLR(pDoneBy)->AddItem(45500, 1);       //Add Mark of Champion to player
+                pDoneBy->ToPlayer()->AddItem(45500, 1);       //Add Mark of Champion to player
                 me->setFaction(35);
             }
         }

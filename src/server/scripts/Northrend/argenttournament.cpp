@@ -523,7 +523,7 @@ public:
         {
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
             {
-                if (spell->Id == SPELL_DARKMENDERS_TINCTURE && CAST_PLR(pCaster)->GetQuestStatus(QUEST_FROM_THEIR_CORPORSES_RISE) == QUEST_STATUS_INCOMPLETE)
+                if (spell->Id == SPELL_DARKMENDERS_TINCTURE && pCaster->ToPlayer()->GetQuestStatus(QUEST_FROM_THEIR_CORPORSES_RISE) == QUEST_STATUS_INCOMPLETE)
                     me->DespawnOrUnsummon();
             }           
         }
