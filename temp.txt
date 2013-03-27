@@ -1,0 +1,70 @@
+src/server/collision/VMapDefinitions.h:#define VMAP_ERROR_LOG(FILTER, ...) sLog->outError(FILTER, __VA_ARGS__)
+src/server/collision/VMapDefinitions.h:#define VMAP_DEBUG_LOG(FILTER, ...) sLog->outDebug(FILTER, __VA_ARGS__)
+src/server/collision/VMapDefinitions.h:#define VMAP_INFO_LOG(FILTER, ...) sLog->outInfo(FILTER, __VA_ARGS__)
+src/server/collision/VMapDefinitions.h:#define VMAP_ERROR_LOG(FILTER, ...) (void)sizeof(FILTER)
+src/server/collision/VMapDefinitions.h:#define VMAP_DEBUG_LOG(FILTER, ...) (void)sizeof(FILTER)
+src/server/collision/VMapDefinitions.h:#define VMAP_INFO_LOG(FILTER, ...)  (void)sizeof(FILTER)
+src/server/game/Battlefield/Battlefield.cpp:/*void Battlefield::SendWarningToAllInWar(int32 entry, ...)
+src/server/game/Battlefield/Battlefield.h:        //void SendWarningToAllInWar(int32 entry, ...); -- UNUSED
+src/server/game/Battlegrounds/Battleground.cpp:void Battleground::PSendMessageToAll(int32 entry, ChatMsg type, Player const* source, ...)
+src/server/game/Battlegrounds/Battleground.cpp:void Battleground::SendWarningToAll(int32 entry, ...)
+src/server/game/Battlegrounds/Battleground.h:        void SendWarningToAll(int32 entry, ...);
+src/server/game/Battlegrounds/Battleground.h:        void PSendMessageToAll(int32 entry, ChatMsg type, Player const* source, ...);
+src/server/game/Chat/Chat.cpp:std::string ChatHandler::PGetParseString(int32 entry, ...) const
+src/server/game/Chat/Chat.cpp:void ChatHandler::PSendSysMessage(int32 entry, ...)
+src/server/game/Chat/Chat.cpp:void ChatHandler::PSendSysMessage(const char *format, ...)
+src/server/game/Chat/Chat.h:        void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
+src/server/game/Chat/Chat.h:        void PSendSysMessage(int32     entry, ...);
+src/server/game/Chat/Chat.h:        std::string PGetParseString(int32 entry, ...) const;
+src/server/game/DataStores/DBCStructure.h:    uint32  expansion;                                       // 59 (0 - original race, 1 - tbc addon, ...)
+src/server/game/DataStores/DBCStructure.h:    uint32      expansion;                                  // 68 (0 - original race, 1 - tbc addon, ...)
+src/server/game/Handlers/MiscHandler.cpp:void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
+src/server/game/Instances/InstanceScript.cpp:void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
+src/server/game/Instances/InstanceScript.h:        void DoSendNotifyToInstance(char const* format, ...);
+src/server/game/Miscellaneous/SharedDefines.h:    SPELL_ATTR7_UNK0                             = 0x00000001, //  0 Shaman's new spells (Call of the ...), Feign Death.
+src/server/game/NinjaInquisitor/NinjaInquisitor.cpp:void NinjaInquisitor::Log(uint32 instanceId, uint32 playerGUID, const char *str, ...) {
+src/server/game/NinjaInquisitor/NinjaInquisitor.cpp.bak:void NinjaInquisitor::Log(uint32 instanceId, uint32 playerGUID, const char *str, ...) {
+src/server/game/NinjaInquisitor/NinjaInquisitor.h:        void Log(uint32 instanceId, uint32 playerGUID, const char *str, ...);
+src/server/game/NinjaInquisitor/NinjaInquisitor.h.bak:        void Log(uint32 instanceId, uint32 playerGUID, const char *str, ...);
+src/server/game/Server/WorldSession.cpp:void WorldSession::SendNotification(const char *format, ...)
+src/server/game/Server/WorldSession.cpp:void WorldSession::SendNotification(uint32 string_id, ...)
+src/server/game/Server/WorldSession.h:        void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
+src/server/game/Server/WorldSession.h:        void SendNotification(uint32 string_id, ...);
+src/server/game/Server/WorldSession.h:        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
+src/server/game/Spells/SpellScript.h:        // explicit target - target selected by caster (player, game client, or script - DoCast(explicitTarget, ...), required for spell to be cast
+src/server/game/World/World.cpp:void World::RecordTimeDiff(const char *text, ...)
+src/server/game/World/World.cpp:    ///- Update objects when the timer has passed (maps, transport, creatures, ...)
+src/server/game/World/World.cpp:void World::SendWorldText(int32 string_id, ...)
+src/server/game/World/World.cpp:void World::SendGMText(int32 string_id, ...)
+src/server/game/World/World.h:        void SendWorldText(int32 string_id, ...);
+src/server/game/World/World.h:        void SendGMText(int32 string_id, ...);
+src/server/game/World/World.h:        void RecordTimeDiff(const char * text, ...);
+src/server/shared/Cryptography/SHA1.cpp:void SHA1Hash::UpdateBigNumbers(BigNumber* bn0, ...)
+src/server/shared/Cryptography/SHA1.h:        void UpdateBigNumbers(BigNumber* bn0, ...);
+src/server/shared/Database/DatabaseWorkerPool.h:        void PExecute(const char* sql, ...)
+src/server/shared/Database/DatabaseWorkerPool.h:        void DirectPExecute(const char* sql, ...)
+src/server/shared/Database/DatabaseWorkerPool.h:        QueryResult PQuery(const char* sql, T* conn, ...)
+src/server/shared/Database/DatabaseWorkerPool.h:        QueryResult PQuery(const char* sql, ...)
+src/server/shared/Database/DatabaseWorkerPool.h:        QueryResultFuture AsyncPQuery(const char* sql, ...)
+src/server/shared/Database/QueryHolder.cpp:bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
+src/server/shared/Database/QueryHolder.h:        bool SetPQuery(size_t index, const char *format, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Database/Transaction.cpp:void Transaction::PAppend(const char* sql, ...)
+src/server/shared/Database/Transaction.h:        void PAppend(const char* sql, ...);
+src/server/shared/Debugging/WheatyExceptionReport.cpp:int __cdecl WheatyExceptionReport::_tprintf(const TCHAR * format, ...)
+src/server/shared/Debugging/WheatyExceptionReport.h:        static int __cdecl _tprintf(const TCHAR * format, ...);
+src/server/shared/Logging/Log.cpp:void Log::outTrace(LogFilterType filter, const char * str, ...)
+src/server/shared/Logging/Log.cpp:void Log::outDebug(LogFilterType filter, const char * str, ...)
+src/server/shared/Logging/Log.cpp:void Log::outInfo(LogFilterType filter, const char * str, ...)
+src/server/shared/Logging/Log.cpp:void Log::outWarn(LogFilterType filter, const char * str, ...)
+src/server/shared/Logging/Log.cpp:void Log::outError(LogFilterType filter, const char * str, ...)
+src/server/shared/Logging/Log.cpp:void Log::outFatal(LogFilterType filter, const char * str, ...)
+src/server/shared/Logging/Log.cpp:void Log::outCommand(uint32 account, const char * str, ...)
+src/server/shared/Logging/Log.h:        void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Logging/Log.h:        void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Logging/Log.h:        void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Logging/Log.h:        void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Logging/Log.h:        void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Logging/Log.h:        void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Logging/Log.h:        void outCommand(uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
+src/server/shared/Utilities/Util.cpp:void utf8printf(FILE* out, const char *str, ...)
+src/server/shared/Utilities/Util.h:void utf8printf(FILE* out, const char *str, ...);
