@@ -1137,14 +1137,6 @@ void Battleground::AddPlayer(Player* player)
     uint64 guid = player->GetGUID();
     uint32 team = player->GetBGTeam();
 
-    if (!isArena())
-    {
-        if (team == ALLIANCE)
-            player->setFaction(1);
-        else
-            player->setFaction(2);
-    }
-
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
@@ -1239,6 +1231,14 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
                     group->SendUpdate();
                 }
         }
+    }
+
+    if (!isArena())
+    {
+        if (team == ALLIANCE)
+            player->setFaction(1);
+        else
+            player->setFaction(2);
     }
 }
 
