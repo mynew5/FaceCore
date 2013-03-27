@@ -22099,6 +22099,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                 CastSpell(this, 26013, true);               // Deserter
             }
         }
+        setFactionForRace(getRace());
     }
 }
 
