@@ -710,7 +710,8 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id))
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
             if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam"))
-                player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
+                if (player->GetTeam() == player->GetBGTeam())
+                    player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
 }
 
 void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
@@ -913,7 +914,6 @@ void Battleground::EndBattleground(uint32 winner)
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
-        player->setFactionForRace(player->getRace());
 
         BlockMovement(player);
 
@@ -1071,6 +1071,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
         player->SetBGTeam(0);
+
+        player->setFactionForRace(player->getRace());
 
         if (Transport)
             player->TeleportToBGEntryPoint();
