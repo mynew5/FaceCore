@@ -3338,6 +3338,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 53313: // Entangling Roots (Rank 8) -- Nature's Grasp Proc
                 spellInfo->CastingTimeIndex = 1;
                 break;
+            case 69127: // Chill of the Throne
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NONE;
+                break;
             case 59414: // Pulsing Shockwave Aura (Loken)
                 // this flag breaks movement, remove it
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
