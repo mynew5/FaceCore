@@ -19,7 +19,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedFollowerAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "CreatureTextMgr.h"
@@ -693,137 +692,6 @@ class npc_venture_co_straggler : public CreatureScript
         }
 };
 
-//Script for Maiden Ashwood
-#define MAIDEN_DEFAULT_TEXTID 14319
-#define MAIDEN_REWARD_TEXTID 14320
-#define GOSSIP_HELLO_MAIDEN "Delighted to have helped, ma'am. Were you once the guardian of a Send legendary. Would you know From where I could find it?"
-#define SPELL_SUMMON_ASHWOOD_BRAND 62554
-
-class npc_maiden_of_ashwood_lake : public CreatureScript
-{
-public:
-    npc_maiden_of_ashwood_lake(): CreatureScript("npc_maiden_of_ashwood_lake"){}
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        if(!pPlayer->HasItemCount(44981,1,true))
-        {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_MAIDEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(MAIDEN_DEFAULT_TEXTID, pCreature->GetGUID());
-            pCreature->DespawnOrUnsummon(10000);
-            return true;
-        }
-
-        pPlayer->SEND_GOSSIP_MENU(MAIDEN_DEFAULT_TEXTID, pCreature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        switch(uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CastSpell(pPlayer,SPELL_SUMMON_ASHWOOD_BRAND,true);
-                pPlayer->SEND_GOSSIP_MENU(MAIDEN_REWARD_TEXTID, pCreature->GetGUID());
-                break;
-        }
-        return true;
-    }
-};
-
-// Quest: A Worthy weapon
-// When using the item:
-// Spawn gameobject 194239 <<
-// Spawn NPC 33723
-
-// Spawn gob 194238
-#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_01 -1850000
-#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_02 -1850001
-#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_03 -1850002
-#define NPC_TEXTID_MAIDEN_OF_DRAK_MAR_04 -1850003
-#define MAIDEN_OF_DRAK_MAR_TIMER_00 2000
-#define MAIDEN_OF_DRAK_MAR_TIMER_01 5000
-#define MAIDEN_OF_DRAK_MAR_TIMER_02 6000
-#define MAIDEN_OF_DRAK_MAR_TIMER_03 7000
-#define MAIDEN_OF_DRAK_MAR_TIMER_04 25000
-#define MAIDEN_OF_DRAK_MAR_GOB_01 194239
-#define MAIDEN_OF_DRAK_MAR_GOB_02 194238
-//Summon maiden :X: 4602.977 Y: -1600.141 Z: 156.7834 O: 0.7504916
-
-class npc_maiden_of_drak_mar : public CreatureScript
-{
-public:
-    npc_maiden_of_drak_mar(): CreatureScript("npc_maiden_of_drak_mar"){}
-
-    struct npc_maiden_of_drak_marAI : public ScriptedAI
-    {
-        uint32 phase;
-        uint32 uiPhaseTimer;
-        uint64 firstGobGuid;
-        uint64 secondGobGuid;
-
-        npc_maiden_of_drak_marAI(Creature *c) : ScriptedAI(c)
-        {
-            phase = 0;
-            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_00;
-            if(GameObject* go = me->SummonGameObject(MAIDEN_OF_DRAK_MAR_GOB_01,4602.977f,-1600.141f,156.7834f,0.7504916f,0,0,0,0,0))
-                firstGobGuid = go->GetGUID(); //Spawn leaf
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if(uiPhaseTimer <= diff)
-            {
-                phase++;
-                    switch(phase)
-                    {
-                        case 1:
-                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_01, me);
-                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_01;
-                            break;
-                        case 2:
-                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_02, me);
-                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_02;
-                            break;
-                        case 3:
-                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_03, me);
-                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_03;
-                            break;
-                        case 4:
-                            // DoScriptText(NPC_TEXTID_MAIDEN_OF_DRAK_MAR_04, me);
-                            if(GameObject* go = me->SummonGameObject(MAIDEN_OF_DRAK_MAR_GOB_02,4603.351f,-1599.288f,156.8822f,2.234018f,0,0,0,0,0))
-                                secondGobGuid = go->GetGUID(); //Spawn Blade GO
-                            uiPhaseTimer = MAIDEN_OF_DRAK_MAR_TIMER_04;
-                            break;
-                        case 5:
-                            if(GameObject* go = GameObject::GetGameObject(*me,firstGobGuid))
-                                go->RemoveFromWorld();// Despawn leaf
-                            if(GameObject* go = GameObject::GetGameObject(*me,secondGobGuid))
-                                go->RemoveFromWorld();// Despawn Blade GO
-                            me->DespawnOrUnsummon();// Despawn maiden
-                            break;
-                        default:
-                            if(GameObject* go = GameObject::GetGameObject(*me,firstGobGuid))
-                                go->RemoveFromWorld();
-                            if(GameObject* go = GameObject::GetGameObject(*me,secondGobGuid))
-                                go->RemoveFromWorld();
-                            me->DespawnOrUnsummon();
-                            break;
-                    }
-            }
-            else
-            {
-                uiPhaseTimer -= diff;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_maiden_of_drak_marAI(pCreature);
-    }
-};
-
 void AddSC_grizzly_hills()
 {
     new npc_emily();
@@ -834,6 +702,4 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
-    new npc_maiden_of_ashwood_lake;
-    new npc_maiden_of_drak_mar;
 }
