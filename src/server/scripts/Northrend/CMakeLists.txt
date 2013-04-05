@@ -189,7 +189,6 @@ set(scripts_STAT_SRCS
   Northrend/Gundrak/boss_gal_darah.cpp
   Northrend/Gundrak/boss_moorabi.cpp
   Northrend/Gundrak/boss_eck.cpp
-  Northrend/argenttournament.cpp
   Northrend/zone_borean_tundra.cpp
   Northrend/zone_howling_fjord.cpp
   Northrend/zone_dalaran.cpp
