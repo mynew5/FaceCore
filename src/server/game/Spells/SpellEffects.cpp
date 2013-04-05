@@ -967,9 +967,8 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
     {
-        values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
+        if (m_spellInfo->Effects[effIndex].BasePoints == 0)
+            values.AddSpellMod((SpellValueMod)effIndex, damage);
     }
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
