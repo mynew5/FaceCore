@@ -6214,17 +6214,17 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_UNIT:
         {
-            ASSERT(_hiCreatureGuid < 0x00FFFFFE && "Creature guid overflow!");
+            ASSERT(_hiCreatureGuid < 0xFFFFFFFE && "Creature guid overflow!");
             return _hiCreatureGuid++;
         }
         case HIGHGUID_PET:
         {
-            ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
+            ASSERT(_hiPetGuid < 0xFFFFFFFE && "Pet guid overflow!");
             return _hiPetGuid++;
         }
         case HIGHGUID_VEHICLE:
         {
-            ASSERT(_hiVehicleGuid < 0x00FFFFFF && "Vehicle guid overflow!");
+            ASSERT(_hiVehicleGuid < 0xFFFFFFFE && "Vehicle guid overflow!");
             return _hiVehicleGuid++;
         }
         case HIGHGUID_PLAYER:
@@ -6234,7 +6234,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_GAMEOBJECT:
         {
-            ASSERT(_hiGoGuid < 0x00FFFFFE && "Gameobject guid overflow!");
+            ASSERT(_hiGoGuid < 0xFFFFFFFE && "Gameobject guid overflow!");
             return _hiGoGuid++;
         }
         case HIGHGUID_CORPSE:
