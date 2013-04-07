@@ -274,13 +274,15 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
                 // final heal
                 int32 stack = GetStackAmount();
-                int32 healAmount = aurEff->GetAmount();
+                int32 healAmount = aurEff->GetAmount() * stack;
                 if (Unit* caster = GetCaster())
                 {
+                    /*
                     healAmount = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, stack);
                     healAmount = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, stack);
 
                     GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+                    */
 
                     // restore mana
                     int32 returnMana = CalculatePct(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2;
