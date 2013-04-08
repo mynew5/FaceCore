@@ -14,7 +14,6 @@ set(scripts_STAT_SRCS
   Custom/Transmogrification.h
   Custom/arena_teamTop.cpp
   Custom/mod_ArenaWatcher.cpp
-  Custom/argent_tournament.cpp
 )
 
 message("  -> Prepared: Custom")
