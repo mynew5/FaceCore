@@ -141,35 +141,6 @@ enum TrashSpells
     //Darkfallen Tactician
     SPELL_SHADOWSTEP                        = 70431,
     SPELL_BLOOD_SAP                         = 70432,
-
-//----------FROST WING----------//
-    //Ymirjar Deathbringer
-    SPELL_BANISH                            = 71298,
-    SPELL_DEATHS_EMBRACE_10N                = 71299,
-    SPELL_DEATHS_EMBRACE_25N                = 71300,
-    SPELL_SHADOW_BOLT_YMIRJAR_10N           = 71296,
-    SPELL_SHADOW_BOLT_YMIRJAR_25N           = 71297,
-    SPELL_SUMMON_YMIRJAR                    = 71303,
-
-    //Ymirjar Frostbinder
-    SPELL_ARCTIC_CHILL                      = 71270,
-    SPELL_FROZEN_ORB                        = 71274,
-    SPELL_TWISTED_WINDS                     = 71306,
-    SPELL_SPIRIT_STREAM                     = 69929,
-
-    //Ymirjar Battle-Maiden
-    SPELL_ADRENALINE_RUSH                   = 71258,
-    SPELL_BARBARIC_STRIKE                   = 71257,
-
-    //Ymirjar Huntress
-    SPELL_ICE_TRAP                          = 71249,
-    SPELL_RAPID_SHOT                        = 71251,
-    SPELL_SHOOT                             = 71253,
-    SPELL_VOLLEY                            = 71252,
-    SPELL_SUMMON_WARHAWK                    = 71705,
-
-    //Ymirjar Warlord
-    SPELL_WHIRLWIND                         = 41056,
 };
 
 enum TrashEvents
@@ -239,7 +210,7 @@ public:
             events.ScheduleEvent(EVENT_WEBWRAP, 12000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -302,7 +273,7 @@ public:
             events.ScheduleEvent(EVENT_GLACIALBLAST, 13000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -354,7 +325,7 @@ public:
             events.ScheduleEvent(EVENT_SHIELDBASH, 8000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -407,7 +378,7 @@ public:
             events.ScheduleEvent(EVENT_SABERLASH, 8000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -464,7 +435,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOWNOVA, 23000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -524,7 +495,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOWMEND, urand(10000, 20000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -595,7 +566,7 @@ public:
             DoCast(me, SPELL_AURAOFDARKNESS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -662,7 +633,7 @@ public:
             events.ScheduleEvent(EVENT_CURSEOFAGONY, 10000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -728,7 +699,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOWCLEAVE, 8000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
              //Return since we have no target
             if (!UpdateVictim())
@@ -780,7 +751,7 @@ class npc_valkyr_herald : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -828,7 +799,7 @@ class npc_blighted_abomination : public CreatureScript
                 m_uiHOOK_Timer = 5000;
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -893,7 +864,7 @@ class npc_vengeful_fleshreapert : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -955,7 +926,7 @@ class npc_plague_scientist : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1028,7 +999,7 @@ class npc_pustulating_horror : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1080,7 +1051,7 @@ class npc_decaying_colossus : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1130,7 +1101,7 @@ class npc_darkfallen_archmage : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1204,7 +1175,7 @@ class npc_darkfallen_blood_knight : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1277,7 +1248,7 @@ class npc_darkfallen_noble : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1345,7 +1316,7 @@ class npc_vampiric_fiend : public CreatureScript
                 DoCast(me, SPELL_DISEASE_CLOUD);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1392,7 +1363,7 @@ class npc_darkfallen_advisor : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1450,7 +1421,7 @@ class npc_darkfallen_commander : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1506,7 +1477,7 @@ class npc_darkfallen_lieutenant : public CreatureScript
                 DoCast(me, SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1564,7 +1535,7 @@ class npc_darkfallen_tactician : public CreatureScript
                 DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1607,301 +1578,188 @@ class npc_darkfallen_tactician : public CreatureScript
         }
 };
 
-class npc_ymirjar_deathbringer : public CreatureScript
+/*
+   Recuperador de anillos perdidos.
+*/
+
+#define GMSG 537006
+
+class npc_icc_rep_rings : public CreatureScript
 {
-    public:
-        npc_ymirjar_deathbringer() : CreatureScript("npc_ymirjar_deathbringer") { }
+public:
+    npc_icc_rep_rings() : CreatureScript("npc_icc_rep_rings") { }
 
-        struct npc_ymirjar_deathbringerAI : public ScriptedAI
+    enum AshenRings
+    {
+        ASHEN_VERDICT = 1156,
+        C_F = 50377,
+        H_F = 50378,
+        MS_F = 52569,
+        MA_F = 50376,
+        T_F = 50375,
+        C_H = 50384,
+        H_H = 50386,
+        MS_H = 52570,
+        MA_H = 50387,
+        T_H = 50388,
+        C_R = 50397,
+        H_R = 50399,
+        MS_R = 52571,
+        MA_R = 50401,
+        T_R = 50403,
+        C_E = 50398,
+        H_E = 50400,
+        MS_E = 52572,
+        MA_E = 50402,
+        T_E = 50404,
+        QUEST_CHOOSE_YOUR_PATH = 24815
+    };
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        uint32 friendly = 3000;
+        uint32 honored = 9000;
+        uint32 revered = 21000;
+        uint32 exalted = 42000;
+        uint32 value = player->GetReputation(ASHEN_VERDICT);
+
+        if (value >= friendly && value < honored)
         {
-            npc_ymirjar_deathbringerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-            uint32 m_uiBANISH_Timer;
-            uint32 m_uiEMBRACE_Timer;
-            uint32 m_uiBOLT_Timer;
-
-            void Reset()
+            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
+                !player->HasItemCount(T_F,1) && player->GetQuestStatus(QUEST_CHOOSE_YOUR_PATH) == QUEST_STATUS_COMPLETE)
             {
-                m_uiBANISH_Timer = urand(5000, 10000);
-                m_uiEMBRACE_Timer = urand(10000, 15000);
-                m_uiBOLT_Timer = urand(1000, 2000);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+3);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+4);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+5);
+                player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
+                return true;
             }
-
-            void JustDied(Unit* killer)
-            {
-                DoCast(me,SPELL_SOUL_FEAST_ALL);
-            }
-
-            void UpdateAI(const uint32 uiDiff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (m_uiEMBRACE_Timer <= uiDiff)
-                {
-                    DoCast(me, RAID_MODE(SPELL_DEATHS_EMBRACE_10N, SPELL_DEATHS_EMBRACE_25N, SPELL_DEATHS_EMBRACE_10N, SPELL_DEATHS_EMBRACE_25N));
-                    m_uiEMBRACE_Timer = urand(15000, 25000);
-                }
-                else
-                    m_uiEMBRACE_Timer -= uiDiff;
-
-                if (m_uiBANISH_Timer <= uiDiff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_BANISH);
-
-                    m_uiBANISH_Timer = urand(15000, 25000);
-                }
-                else
-                    m_uiBANISH_Timer -= uiDiff;
-
-                if (m_uiBOLT_Timer <= uiDiff)
-                {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT_YMIRJAR_10N, SPELL_SHADOW_BOLT_YMIRJAR_25N, SPELL_SHADOW_BOLT_YMIRJAR_10N, SPELL_SHADOW_BOLT_YMIRJAR_25N));
-                    m_uiBOLT_Timer = 2000;
-                }
-                else
-                    m_uiBOLT_Timer -= uiDiff;
- 
-                DoMeleeAttackIfReady();   
-            }
-        };
-
-        CreatureAI *GetAI(Creature *creature) const
-        {
-            return new npc_ymirjar_deathbringerAI(creature);
         }
-};
 
-class npc_ymirjar_frostbinder : public CreatureScript
-{
-    public:
-        npc_ymirjar_frostbinder() : CreatureScript("npc_ymirjar_frostbinder") { }
-
-        struct npc_ymirjar_frostbinderAI : public ScriptedAI
+        if (value >= honored && value < revered)
         {
-            npc_ymirjar_frostbinderAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-            uint32 m_uiORB_Timer;
-
-            void Reset()
+            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
+                !player->HasItemCount(T_F,1) && !player->HasItemCount(C_H,1) && !player->HasItemCount(H_H,1) && !player->HasItemCount(MS_H,1) &&
+                !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1))
             {
-                m_uiORB_Timer = 1000;
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+6);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+7);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+8);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+9);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+10);
+                player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
+                return true;
             }
-
-            void JustDied(Unit* killer)
-            {
-                DoCast(me,SPELL_SOUL_FEAST_ALL);
-            }
-
-            void UpdateAI(const uint32 uiDiff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (m_uiORB_Timer <= uiDiff)
-                {
-                    DoCastAOE(SPELL_FROZEN_ORB);
-                    m_uiORB_Timer = urand(3000, 5000);
-                }
-                else
-                    m_uiORB_Timer -= uiDiff;
-
-                DoMeleeAttackIfReady();   
-            }
-        };
-
-        CreatureAI *GetAI(Creature *creature) const
-        {
-            return new npc_ymirjar_frostbinderAI(creature);
         }
-};
 
-class npc_ymirjar_battlemaiden : public CreatureScript
-{
-    public:
-        npc_ymirjar_battlemaiden() : CreatureScript("npc_ymirjar_battlemaiden") { }
-
-        struct npc_ymirjar_battlemaidenAI : public ScriptedAI
+        if (value >= revered && value < exalted)
         {
-            npc_ymirjar_battlemaidenAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-            uint32 m_uiRUSH_Timer;
-            uint32 m_uiSTRIKE_Timer;
-
-            void Reset()
+            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
+                !player->HasItemCount(T_F,1) && !player->HasItemCount(C_H,1) && !player->HasItemCount(H_H,1) && !player->HasItemCount(MS_H,1) &&
+                !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1) && !player->HasItemCount(C_R,1) && !player->HasItemCount(H_R,1) &&
+                !player->HasItemCount(MS_R,1) && !player->HasItemCount(MA_R,1) && !player->HasItemCount(T_R,1))
             {
-                m_uiRUSH_Timer = urand(10000, 15000);
-                m_uiSTRIKE_Timer = urand(1000, 5000);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+11);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+12);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+13);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+14);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+15);
+                player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
+                return true;
             }
-
-            void JustDied(Unit* killer)
-            {
-                DoCast(me,SPELL_SOUL_FEAST_ALL);
-            }
-
-            void UpdateAI(const uint32 uiDiff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (m_uiSTRIKE_Timer <= uiDiff)
-                {
-                    DoCast(me->getVictim(), SPELL_BARBARIC_STRIKE);
-                    m_uiSTRIKE_Timer = urand(2000, 3000);
-                }
-                else
-                    m_uiSTRIKE_Timer -= uiDiff;
-
-                if (m_uiRUSH_Timer <= uiDiff)
-                {
-                    DoCast(me, SPELL_ADRENALINE_RUSH);
-                    m_uiRUSH_Timer = urand(15000, 25000);
-                }
-                else
-                    m_uiRUSH_Timer -= uiDiff;
-
-                DoMeleeAttackIfReady();   
-            }
-        };
-
-        CreatureAI *GetAI(Creature *creature) const
-        {
-            return new npc_ymirjar_battlemaidenAI(creature);
         }
-};
 
-class npc_ymirjar_huntress : public CreatureScript
-{
-    public:
-        npc_ymirjar_huntress() : CreatureScript("npc_ymirjar_huntress") { }
-
-        struct npc_ymirjar_huntressAI : public ScriptedAI
+        if (value >= exalted)
         {
-            npc_ymirjar_huntressAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-            uint32 m_uiTRAP_Timer;
-            uint32 m_uiRSHOT_Timer;
-            uint32 m_uiSHOT_Timer;
-            uint32 m_uiVOLLEY_Timer;
-
-            void Reset()
+            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
+                !player->HasItemCount(T_F,1) && !player->HasItemCount(C_H,1) && !player->HasItemCount(H_H,1) && !player->HasItemCount(MS_H,1) &&
+                !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1) && !player->HasItemCount(C_R,1) && !player->HasItemCount(H_R,1) &&
+                !player->HasItemCount(MS_R,1) && !player->HasItemCount(MA_R,1) && !player->HasItemCount(T_R,1) && !player->HasItemCount(C_E,1) &&
+                !player->HasItemCount(H_E,1) && !player->HasItemCount(MS_E,1) && !player->HasItemCount(MA_E,1) && !player->HasItemCount(T_E,1))
             {
-                m_uiTRAP_Timer = urand(5000, 15000);
-                m_uiRSHOT_Timer = urand(10000, 15000);
-                m_uiSHOT_Timer = urand(1000, 2000);
-                m_uiVOLLEY_Timer = urand(5000, 15000);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+16);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+17);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+18);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+19);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+20);
+                player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
+                return true;
             }
-
-            void JustDied(Unit* killer)
-            {
-                DoCast(me,SPELL_SOUL_FEAST_ALL);
-            }
-
-            void EnterCombat(Unit* /*target*/)
-            {
-                if (Is25ManRaid())
-                    DoCast(SPELL_SUMMON_WARHAWK);
-            }
-
-            void UpdateAI(const uint32 uiDiff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (m_uiRSHOT_Timer <= uiDiff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_RAPID_SHOT);
-
-                    m_uiRSHOT_Timer = urand(15000, 25000);
-                }
-                else
-                    m_uiRSHOT_Timer -= uiDiff;
-
-                if (m_uiVOLLEY_Timer <= uiDiff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target,SPELL_VOLLEY);
-
-                    m_uiVOLLEY_Timer = urand(10000, 15000);
-                }
-                else
-                    m_uiVOLLEY_Timer -= uiDiff;
- 
-                if (m_uiTRAP_Timer <= uiDiff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_ICE_TRAP);
-
-                    m_uiTRAP_Timer = urand(30000, 35000);
-                }
-                else
-                    m_uiTRAP_Timer -= uiDiff;
-
-                if (me->isAttackReady())
-                {
-                    if (me->IsWithinMeleeRange(me->getVictim()))
-                        DoMeleeAttackIfReady();
-                    else if (m_uiSHOT_Timer <= uiDiff)
-                    {
-                        DoCast(me->getVictim(),SPELL_SHOOT);
-                        m_uiSHOT_Timer = 1000;
-                    }
-                    else
-					    m_uiSHOT_Timer -= uiDiff;
-                }
-            }
-        };
-
-        CreatureAI *GetAI(Creature *creature) const
-        {
-            return new npc_ymirjar_huntressAI(creature);
         }
-};
+    }
 
-class npc_ymirjar_warlord : public CreatureScript
-{
-    public:
-        npc_ymirjar_warlord() : CreatureScript("npc_ymirjar_warlord") { }
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
 
-        struct npc_ymirjar_warlordAI : public ScriptedAI
+        switch (uiAction)
         {
-            npc_ymirjar_warlordAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-            uint32 m_uiWHIRLWIND_Timer;
-
-            void Reset()
-            {
-                m_uiWHIRLWIND_Timer = urand(5000, 15000);
-            }
-
-            void JustDied(Unit* killer)
-            {
-                DoCast(me,SPELL_SOUL_FEAST_ALL);
-            }
-
-            void UpdateAI(const uint32 uiDiff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (m_uiWHIRLWIND_Timer <= uiDiff)
-                {
-                    DoCastAOE(SPELL_WHIRLWIND);
-                    m_uiWHIRLWIND_Timer = urand(12000, 20000);
-                }
-                else
-                    m_uiWHIRLWIND_Timer -= uiDiff;
-
-                DoMeleeAttackIfReady();   
-            }
-        };
-
-        CreatureAI *GetAI(Creature *creature) const
-        {
-            return new npc_ymirjar_warlordAI(creature);
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->AddItem(C_F,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                player->AddItem(H_F,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                player->AddItem(MS_F,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+4:
+                player->AddItem(MA_F,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                player->AddItem(T_F,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+6:
+                player->AddItem(C_H,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+7:
+                player->AddItem(H_H,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+8:
+                player->AddItem(MS_H,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+9:
+                player->AddItem(MA_H,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+10:
+                player->AddItem(T_H,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+11:
+                player->AddItem(C_R,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+12:
+                player->AddItem(H_R,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+13:
+                player->AddItem(MS_R,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+14:
+                player->AddItem(MA_R,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+15:
+                player->AddItem(T_R,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+16:
+                player->AddItem(C_E,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+17:
+                player->AddItem(H_E,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+18:
+                player->AddItem(MS_E,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+19:
+                player->AddItem(MA_E,1);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+20:
+                player->AddItem(T_E,1);
+                break;
         }
+        player->CLOSE_GOSSIP_MENU();
+        return true;
+    }
 };
 
 void AddSC_icc_trash()
@@ -1929,9 +1787,5 @@ void AddSC_icc_trash()
     new npc_darkfallen_commander();
     new npc_darkfallen_lieutenant();
     new npc_darkfallen_tactician();
-    new npc_ymirjar_deathbringer();
-    new npc_ymirjar_frostbinder();
-    new npc_ymirjar_battlemaiden();
-    new npc_ymirjar_huntress();
-    new npc_ymirjar_warlord();
+    new npc_icc_rep_rings();
 }

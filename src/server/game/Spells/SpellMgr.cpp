@@ -200,6 +200,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_LIMITONLY;
             break;
         }
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Storm, Earth and Fire - Earthgrab
+            if (spellproto->SpellFamilyFlags[2] & 0x4000)
+                return DIMINISHING_LIMITONLY;
+            break;
+        }
         default:
             break;
     }
@@ -3014,6 +3021,15 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectTriggerSpell[0] = 36325; // They Must Burn Bomb Drop (DND)
                 break;
             case 49838: // Stop Time
+            case 5171: // Slice and Dice rank1
+            case 6774: // Slice and Dice rank2
+            case 52916: // Honor Among Thieves
+            case 3600:  // Earthbind totem effect
+            case 49376: // Feral Charge (Cat)
+            case 61138: // Feral Charge (Cat) effect
+            case 50259: // Feral charge (Cat) effect 2
+            case 61132: // Feral Charge (cat) effect 3
+            case 52610: // Savage Roar
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
             case 61407: // Energize Cores
@@ -3083,6 +3099,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 54171: // Divine Storm
                 spellInfo->MaxAffectedTargets = 3;
                 break;
+            case 71464: // Divine Surge
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS;
+                spellInfo->DurationIndex = 28;          // 5 seconds
             case 66588: // Flaming Spear
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
@@ -3519,6 +3538,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 71159: // Awaken Plagued Zombies
                 spellInfo->DurationIndex = 21;
+                break;
+            case 69508: // Slime Spray
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
                 break;
             case 70530: // Volatile Ooze Beam Protection (Professor Putricide)
                 spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AURA; // for an unknown reason this was SPELL_EFFECT_APPLY_AREA_AURA_RAID
