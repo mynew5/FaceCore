@@ -2927,6 +2927,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Roar
                 if (spellInfo->SpellFamilyFlags[0] & 0x8)
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+                // Rake
+                else if (spellInfo->SpellFamilyFlags[0] & 0x1000 && spellInfo->SpellIconID == 494)
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
             default:
                 break;
