@@ -187,7 +187,17 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
             }
         }
 
-        _type = (path || waterPath) ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
+        // Check for swimming or flying shortcut
+        if (_sourceUnit->GetTypeId() == TYPEID_UNIT)
+        {
+            if ((startPoly == INVALID_POLYREF && _sourceUnit->GetBaseMap()->IsUnderWater(startPos.x, startPos.y, startPos.z)) || (endPoly == INVALID_POLYREF && _sourceUnit->GetBaseMap()->IsUnderWater(endPos.x, endPos.y, endPos.z)))
+                _type = ((Creature*)_sourceUnit)->canSwim() ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
+            else
+                _type = ((Creature*)_sourceUnit)->CanFly() ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
+        }
+        else
+            _type = PATHFIND_NOPATH;
+
         return;
     }
 
