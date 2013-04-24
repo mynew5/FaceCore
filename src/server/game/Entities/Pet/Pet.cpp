@@ -942,25 +942,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
 
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
-
-            if (GetEntry() == 26125)
-            {
-                // remove Corpse Explosion visual from ghouls
-                if (HasAura(51270))
-                    RemoveAura(51270);
-
-                // ghoul should inherit full owners hit chance
-                m_modMeleeHitChance = GetOwner()->m_modMeleeHitChance;
-            }
-
             break;
         }
         case HUNTER_PET:
         {
-            // use generic combatreach- and boundingradius values, TODO: find correct ones
-            SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 1.0f);
-            SetFloatValue(UNIT_FIELD_COMBATREACH, 1.0f); // DEFAULT_COMBAT_REACH?
-
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(petlevel)*PET_XP_FACTOR));
             //these formula may not be correct; however, it is designed to be close to what it should be
             //this makes dps 0.5 of pets level
@@ -1068,16 +1053,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 10*petlevel);
                         SetCreateHealth(28 + 30*petlevel);
                     }
-
-                    // convert DK melee haste into the gargoyles spell haste, should it be like that? /tibbi
-                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
-                    ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
-
-                    // also make gargoyle benefit from haste auras, like unholy presence
-                    int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-                    ApplyCastTimePercentMod(meleeHaste, true);
-
-                    SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.33f));
+                    SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
