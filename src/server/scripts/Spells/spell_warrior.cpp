@@ -149,7 +149,6 @@ class spell_warr_reset_melee : public SpellScriptLoader
 
             void HandleCharge(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->ModifyHealth(-1000); // debug
                 GetCaster()->resetAttackTimer(BASE_ATTACK);
                 if (GetCaster()->haveOffhandWeapon())
                     GetCaster()->resetAttackTimer(OFF_ATTACK);
