@@ -134,6 +134,40 @@ class spell_warr_bloodthirst_heal : public SpellScriptLoader
         }
 };
 
+class spell_warr_reset_melee : public SpellScriptLoader
+{
+    public:
+        spell_warr_reset_melee() : SpellScriptLoader("spell_warr_reset_melee") { }
+        class spell_warr_reset_melee_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_reset_melee_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                return true;
+            }
+
+            void HandleCharge(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->ModifyHealth(-1000); // debug
+                GetCaster()->resetAttackTimer(BASE_ATTACK);
+                if (GetCaster()->haveOffhandWeapon())
+                    GetCaster()->resetAttackTimer(OFF_ATTACK);
+                GetCaster()->resetAttackTimer(RANGED_ATTACK);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_reset_melee_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_reset_melee_SpellScript();
+        }
+};
+
 // -100 - Charge
 class spell_warr_charge : public SpellScriptLoader
 {
@@ -805,4 +839,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+    new spell_warr_reset_melee();
 }
