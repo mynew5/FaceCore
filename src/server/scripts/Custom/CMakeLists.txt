@@ -14,6 +14,8 @@ set(scripts_STAT_SRCS
   Custom/Transmogrification.h
   Custom/arena_teamTop.cpp
   Custom/mod_ArenaWatcher.cpp
+  Custom/DamageCounter.h
+  Custom/DamageCounter.cpp
 )
 
 message("  -> Prepared: Custom")
