@@ -73,7 +73,7 @@ void DamageCounter::CombatComplete()
     for (std::map<uint32, uint32>::const_iterator itr = DamageTable.begin(); itr != DamageTable.end(); ++itr)
     {
         stmt->setUInt32(2, itr->first);
-        stmt->setFloat(3, itr->second / delta_time);
+        stmt->setFloat(3, float(itr->second) / delta_time);
         CharacterDatabase.Execute(stmt);
     }
 
