@@ -27,6 +27,8 @@ DamageCounter::~DamageCounter()
 
 void DamageCounter::CombatBegin(Unit* unit)
 {
+    sWorld->SendWorldText(LANG_AUTO_BROADCAST, "DamageCounter::CombatBegin()");
+
     begin_time = getMSTime();
 
     entry = unit->GetEntry();
@@ -51,6 +53,21 @@ void DamageCounter::CombatBegin(Unit* unit)
 
 void DamageCounter::InputDamage(Unit* attacker, uint32 damage)
 {
+    std::ostringstream ss;
+    ss << "DamageCounter::InputDamage() ";
+
+    if (attacker)
+    {
+        ss << attacker->GetName();
+        if (Player* player = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
+            ss << " in behalf of " << player->GetName();
+    }
+    else
+        ss << "UNKNOWN";
+    ss << " damaged creature for " << damage << " damage";
+
+    sWorld->SendWorldText(LANG_AUTO_BROADCAST, ss.str().c_str());
+
     if (!attacker)
         return;
 
@@ -60,6 +77,8 @@ void DamageCounter::InputDamage(Unit* attacker, uint32 damage)
 
 void DamageCounter::CombatComplete()
 {
+    sWorld->SendWorldText(LANG_AUTO_BROADCAST, "DamageCounter::CombatComplete()");
+
     if (DamageTable.empty())
         return;
 
@@ -70,6 +89,10 @@ void DamageCounter::CombatComplete()
 
     for (std::map<uint32, uint32>::const_iterator itr = DamageTable.begin(); itr != DamageTable.end(); ++itr)
     {
+        std::ostringstream ss;
+        ss << "GUID:" << itr->first << " did " << itr->second << " total damage";
+        sWorld->SendWorldText(LANG_AUTO_BROADCAST, ss.str().c_str());
+
         stmt->setUInt32(0, entry);
         stmt->setUInt32(1, mode);
         stmt->setUInt32(2, itr->first);

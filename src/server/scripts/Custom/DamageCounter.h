@@ -17,6 +17,7 @@
 #define DAMAGECOUNTER_H
 
 #include "Database/DatabaseEnv.h"
+#include "Language.h"
 #include "Player.h"
 
 class DamageCounter
