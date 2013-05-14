@@ -64,7 +64,7 @@ void DamageCounter::CombatComplete()
     if (DamageTable.empty())
         return;
 
-    float delta_time = GetMSTimeDiffToNow(begin_time) / 1000.0f;
+    float delta_time = float(GetMSTimeDiffToNow(begin_time)) / 1000.0f;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAMAGECOUNTER_LOG);
     stmt->setUInt32(0, entry);
@@ -77,5 +77,5 @@ void DamageCounter::CombatComplete()
         CharacterDatabase.Execute(stmt);
     }
 
-    DamageTable.clear();
+    DamageTable.clear();    
 }
