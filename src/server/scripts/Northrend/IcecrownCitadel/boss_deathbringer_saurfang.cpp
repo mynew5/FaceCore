@@ -314,7 +314,6 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                _DamageCounter.CombatComplete();
             }
 
             void AttackStart(Unit* victim)
@@ -348,7 +347,10 @@ class boss_deathbringer_saurfang : public CreatureScript
             void DamageTaken(Unit* attacker, uint32& damage)
             {
                 if (damage >= me->GetHealth())
+                {
                     damage = me->GetHealth() - 1;
+                    _DamageCounter.CombatComplete();
+                }
 
                 _DamageCounter.InputDamage(attacker, damage);
 
