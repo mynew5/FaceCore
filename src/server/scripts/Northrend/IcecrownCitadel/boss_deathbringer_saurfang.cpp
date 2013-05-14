@@ -314,6 +314,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _DamageCounter.CombatComplete();
             }
 
             void AttackStart(Unit* victim)

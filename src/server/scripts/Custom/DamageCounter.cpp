@@ -65,15 +65,19 @@ void DamageCounter::CombatComplete()
 
     float delta_time = float(GetMSTimeDiffToNow(begin_time)) / 1000.0f;
 
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAMAGECOUNTER_LOG);
+
     for (std::map<uint32, uint32>::const_iterator itr = DamageTable.begin(); itr != DamageTable.end(); ++itr)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAMAGECOUNTER_LOG);
         stmt->setUInt32(0, entry);
         stmt->setUInt32(1, mode);
         stmt->setUInt32(2, itr->first);
         stmt->setFloat(3, float(itr->second) / delta_time);
-        CharacterDatabase.Execute(stmt);
+        trans->Append(stmt);
     }
+
+    CharacterDatabase.CommitTransaction(trans);
 
     DamageTable.clear();    
 }
