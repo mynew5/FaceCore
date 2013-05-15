@@ -17,7 +17,6 @@
 #define DAMAGECOUNTER_H
 
 #include "Database/DatabaseEnv.h"
-#include "Language.h"
 #include "Player.h"
 
 class DamageCounter
@@ -29,6 +28,7 @@ class DamageCounter
         void InputDamage(Unit* attacker, uint32 damage);
         void CombatComplete();
     private:
+        bool in_combat;
         uint32 entry;
         uint32 mode;
         uint32 begin_time;

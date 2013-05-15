@@ -17,7 +17,7 @@
 
 DamageCounter::DamageCounter()
 {
-    // nothing to initialize
+    in_combat = false;
 }
 
 DamageCounter::~DamageCounter()
@@ -27,8 +27,7 @@ DamageCounter::~DamageCounter()
 
 void DamageCounter::CombatBegin(Unit* unit)
 {
-    sWorld->SendWorldText(LANG_AUTO_BROADCAST, "DamageCounter::CombatBegin()");
-
+    in_combat = true;
     begin_time = getMSTime();
 
     entry = unit->GetEntry();
@@ -53,22 +52,7 @@ void DamageCounter::CombatBegin(Unit* unit)
 
 void DamageCounter::InputDamage(Unit* attacker, uint32 damage)
 {
-    std::ostringstream ss;
-    ss << "DamageCounter::InputDamage() ";
-
-    if (attacker)
-    {
-        ss << attacker->GetName();
-        if (Player* player = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
-            ss << " in behalf of " << player->GetName();
-    }
-    else
-        ss << "UNKNOWN";
-    ss << " damaged creature for " << damage << " damage";
-
-    sWorld->SendWorldText(LANG_AUTO_BROADCAST, ss.str().c_str());
-
-    if (!attacker)
+    if (!attacker || !in_combat)
         return;
 
     if (Player* player = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -77,28 +61,17 @@ void DamageCounter::InputDamage(Unit* attacker, uint32 damage)
 
 void DamageCounter::CombatComplete()
 {
-    sWorld->SendWorldText(LANG_AUTO_BROADCAST, "DamageCounter::CombatComplete()");
-
-    if (DamageTable.empty())
+    if (DamageTable.empty() || !in_combat)
         return;
+
+    in_combat = false;
 
     float delta_time = float(GetMSTimeDiffToNow(begin_time)) / 1000.0f;
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAMAGECOUNTER_LOG);
 
     for (std::map<uint32, uint32>::const_iterator itr = DamageTable.begin(); itr != DamageTable.end(); ++itr)
-    {
-        std::ostringstream ss;
-        ss << "GUID:" << itr->first << " did " << itr->second << " total damage";
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, ss.str().c_str());
-
-        stmt->setUInt32(0, entry);
-        stmt->setUInt32(1, mode);
-        stmt->setUInt32(2, itr->first);
-        stmt->setFloat(3, float(itr->second) / delta_time);
-        trans->Append(stmt);
-    }
+        trans->PAppend("INSERT INTO `dps_counters` (`entry`, `mode`, `guid`, `dps`) VALUES (%d, %d, %d, %f) ON DUPLICATE KEY UPDATE `dps` = GREATEST(`dps`, VALUES(`dps`))", entry, mode, itr->first, float(itr->second) / delta_time);
 
     CharacterDatabase.CommitTransaction(trans);
 

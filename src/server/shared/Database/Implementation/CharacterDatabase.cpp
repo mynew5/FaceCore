@@ -594,5 +594,4 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHAR_PET_BY_SLOT, "DELETE FROM character_pet WHERE owner = ? AND (slot = ? OR slot > ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_NINJAINQUISITOR_LOG, "INSERT INTO ninja_inquisitor_logs (time, instance, guid, event) VALUES (UNIX_TIMESTAMP(), ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_NINJAINQUISITOR_LOG, "DELETE FROM ninja_inquisitor_logs WHERE instance = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_DAMAGECOUNTER_LOG, "INSERT INTO dps_counters (entry, mode, guid, dps) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE dps = GREATEST(dps, VALUES(dps))", CONNECTION_ASYNC);
 }
