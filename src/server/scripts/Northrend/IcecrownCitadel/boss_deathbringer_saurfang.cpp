@@ -350,10 +350,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _DamageCounter.InputDamage(attacker, damage);
 
                 if (damage >= me->GetHealth())
-                {
                     damage = me->GetHealth() - 1;
-                    _DamageCounter.CombatComplete();
-                }
 
                 if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
                 {
@@ -364,6 +361,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 if (!_dead && me->GetHealth() < FightWonValue)
                 {
+                    _DamageCounter.CombatComplete();
                     _dead = true;
                     _JustDied();
                     _EnterEvadeMode();
