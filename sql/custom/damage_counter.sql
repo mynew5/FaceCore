@@ -5,5 +5,6 @@ CREATE TABLE `dps_counters` (
 	`mode` INT UNSIGNED NOT NULL,
 	`guid` INT UNSIGNED NOT NULL,
 	`dps` FLOAT NOT NULL,
-	PRIMARY KEY (`entry`, `mode`, `guid`)
-);
+	`competition` INT UNSIGNED NOT NULL DEFAULT 0,
+	PRIMARY KEY (`entry`, `mode`, `guid`, `competition`)
+) ENGINE=InnoDB;
