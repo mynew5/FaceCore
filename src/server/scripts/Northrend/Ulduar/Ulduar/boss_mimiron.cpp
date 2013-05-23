@@ -687,7 +687,7 @@ class boss_leviathan_mk : public CreatureScript
                         phase = PHASE_NULL;
                         if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
                             Mimiron->AI()->DoAction(DO_ACTIVATE_VX001);
-                        if (Creature* turret = (e->GetVehicleKit()->GetPassenger(3))->ToCreature())
+                        if (Creature* turret = (me->GetVehicleKit()->GetPassenger(3))->ToCreature())
                             turret->Kill(turret, false);
                         me->SetSpeed(MOVE_RUN, 1.5f, true);
                         me->GetMotionMaster()->MovePoint(0, 2790.11f, 2595.83f, 364.32f);
