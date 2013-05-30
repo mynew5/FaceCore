@@ -278,9 +278,9 @@ class boss_mimiron : public CreatureScript
                 _EnterCombat();
                 instance->SetBossState(DATA_MIMIRON, IN_PROGRESS);
                 if (MimironHardMode)
-                    TalkToMap(SAY_HARDMODE_ON);
+                    Talk(SAY_HARDMODE_ON);
                 else
-                    TalkToMap(SAY_AGGRO);
+                    Talk(SAY_AGGRO);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_INTRO_2, 10000, 0, PHASE_INTRO);
@@ -301,7 +301,7 @@ class boss_mimiron : public CreatureScript
 
             void EndEncounter()
             {
-                TalkToMap(SAY_V07TRON_DEATH);
+                Talk(SAY_V07TRON_DEATH);
                 DespawnCreatures(34362, 100);
                 me->setFaction(35);
 
@@ -414,7 +414,7 @@ class boss_mimiron : public CreatureScript
                             events.ScheduleEvent(EVENT_INTRO_5, 2500, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_5:
-                            TalkToMap(SAY_MKII_ACTIVATE);
+                            Talk(SAY_MKII_ACTIVATE);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             events.ScheduleEvent(EVENT_INTRO_6, 6000, 0, PHASE_INTRO);
                             break;
@@ -434,7 +434,7 @@ class boss_mimiron : public CreatureScript
                             }
                             break;
                         case EVENT_VX001_1:
-                            TalkToMap(SAY_MKII_DEATH);
+                            Talk(SAY_MKII_DEATH);
                             events.ScheduleEvent(EVENT_VX001_2, 10000, 0, PHASE_VX001_ACTIVATION);
                             break;
                         case EVENT_VX001_2:
@@ -476,7 +476,7 @@ class boss_mimiron : public CreatureScript
                             }
                             break;
                         case EVENT_VX001_6:
-                            TalkToMap(SAY_VX001_ACTIVATE);
+                            Talk(SAY_VX001_ACTIVATE);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             events.ScheduleEvent(EVENT_VX001_7, 10000, 0, PHASE_VX001_ACTIVATION);
                             events.CancelEvent(EVENT_VX001_6);
@@ -511,7 +511,7 @@ class boss_mimiron : public CreatureScript
                             events.ScheduleEvent(EVENT_AERIAL_2, 2500, 0, PHASE_AERIAL_ACTIVATION);
                             break;
                         case EVENT_AERIAL_2:
-                            TalkToMap(SAY_VX001_DEATH);
+                            Talk(SAY_VX001_DEATH);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             events.ScheduleEvent(EVENT_AERIAL_3, 5000, 0, PHASE_AERIAL_ACTIVATION);
                             break;
@@ -532,7 +532,7 @@ class boss_mimiron : public CreatureScript
                             break;
                         case EVENT_AERIAL_5:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                            TalkToMap(SAY_AERIAL_ACTIVATE);
+                            Talk(SAY_AERIAL_ACTIVATE);
                             events.ScheduleEvent(EVENT_AERIAL_6, 8000, 0, PHASE_AERIAL_ACTIVATION);
                             break;
                         case EVENT_AERIAL_6:
@@ -555,7 +555,7 @@ class boss_mimiron : public CreatureScript
                                 {
                                     me->EnterVehicle(VX_001, 1);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                                    TalkToMap(SAY_AERIAL_DEATH);
+                                    Talk(SAY_AERIAL_DEATH);
                                 }
                                 events.ScheduleEvent(EVENT_V0L7R0N_2, 5000, 0, PHASE_V0L7R0N_ACTIVATION);
                             }
@@ -582,7 +582,7 @@ class boss_mimiron : public CreatureScript
                                         AerialUnit->CanFly();
                                         AerialUnit->SetDisableGravity(false);
                                         AerialUnit->EnterVehicle(VX_001, 3);
-                                        TalkToMap(SAY_V07TRON_ACTIVATE);
+                                        Talk(SAY_V07TRON_ACTIVATE);
                                     }
                                 events.ScheduleEvent(EVENT_V0L7R0N_4, 10000, 0, PHASE_V0L7R0N_ACTIVATION);
                             }
@@ -600,7 +600,7 @@ class boss_mimiron : public CreatureScript
                             }
                             break;
                         case EVENT_ENRAGE:
-                            TalkToMap(SAY_BERSERK);
+                            Talk(SAY_BERSERK);
                             for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
                                  if (Creature* creature = me->GetCreature(*me, instance->GetData64(data)))
                                      creature->AI()->DoAction(DO_ENTER_ENRAGE);
@@ -665,9 +665,9 @@ class boss_leviathan_mk : public CreatureScript
             void KilledUnit(Unit* /*who*/)
             {
                 if (phase == PHASE_LEVIATHAN_SOLO)
-                    TalkToMap(SAY_MKII_SLAY);
+                    Talk(SAY_MKII_SLAY);
                 else
-                    TalkToMap(SAY_V07TRON_SLAY);
+                    Talk(SAY_V07TRON_SLAY);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
@@ -947,9 +947,9 @@ class boss_vx_001 : public CreatureScript
                         if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
                         {
                             if (phase == PHASE_VX001_SOLO)
-                                TalkToMap(SAY_VX001_SLAY);
+                                Talk(SAY_VX001_SLAY);
                             else
-                                TalkToMap(SAY_V07TRON_SLAY);
+                                Talk(SAY_V07TRON_SLAY);
                         }
             }
 
@@ -1207,9 +1207,9 @@ class boss_aerial_unit : public CreatureScript
                         if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
                         {
                             if (phase == PHASE_AERIAL_SOLO)
-                                TalkToMap(SAY_AERIAL_SLAY);
+                                Talk(SAY_AERIAL_SLAY);
                             else
-                                TalkToMap(SAY_V07TRON_SLAY);
+                                Talk(SAY_V07TRON_SLAY);
                         }
             }
 
