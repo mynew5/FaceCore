@@ -420,6 +420,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 underMapValueZ = -400.0f;
                 break;
              case 631: // Icecrown Citadel
+                underMapValueZ = -3.0f;
+                break;
              default:
                 underMapValueZ = -500.0f;
                 break;
