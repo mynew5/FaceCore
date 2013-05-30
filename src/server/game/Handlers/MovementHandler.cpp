@@ -398,7 +398,34 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     {
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        if (movementInfo.pos.GetPositionZ() < -500.0f || (plrMover->GetMapId() == 631 && movementInfo.pos.GetPositionZ() < -3.0f))
+        float underMapValueZ;
+        switch (plrMover->GetMapId())
+        {
+             case 617: // Dalaran Sewers
+                underMapValueZ = 3.0f;
+                break;
+             case 618: // Ring of Valor
+                underMapValueZ = 28.0f;
+                break;
+             case 562: // Blade Edge Arena
+                underMapValueZ = -10.0f;
+                break;
+             case 559: // Nagrand arena
+                underMapValueZ = -18.0f;
+                break;
+             case 572: // Lordearon
+                underMapValueZ = 28.0f;
+                break;
+             case 571: // Northrend
+                underMapValueZ = -400.0f;
+                break;
+             case 631: // Icecrown Citadel
+             default:
+                underMapValueZ = -500.0f;
+                break;
+        }
+
+        if (movementInfo.pos.GetPositionZ() < underMapValueZ)
         {
             if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(_player)))
             {
@@ -416,11 +443,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 }
             }
         }
-        else if (movementInfo.pos.GetPositionZ() < -50.0f)
-            if (plrMover->InBattleground())
-                if (Battleground* bg = plrMover->GetBattleground())
-                    if (bg->isArena())
-                        bg->HandlePlayerUnderMap(_player);
     }
 }
 
