@@ -766,6 +766,7 @@ class World
 
         void ReloadRBAC();
 
+        void BroadcastWintergraspState();
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

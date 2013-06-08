@@ -46,7 +46,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-
+#include "BattlefieldMgr.h"
 
 //bot
 #include "Config.h"
@@ -1043,6 +1043,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             } while (result->NextRow());
         }
     }
+
+    if (sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE))
+        if (Battlefield* battlefieldWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
+            pCurrChar->SendUpdateWorldState(4354, uint32(time(NULL)) + (battlefieldWG->IsWarTime() ? battlefieldWG->GetTimer() : 0));
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
     delete holder;

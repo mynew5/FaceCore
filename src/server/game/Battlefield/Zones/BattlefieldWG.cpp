@@ -278,6 +278,7 @@ void BattlefieldWG::OnBattleStart()
     UpdateCounterVehicle(true);
     // Send start warning to all players
     SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_START);
+    sWorld->BroadcastWintergraspState();
 }
 
 void BattlefieldWG::UpdateCounterVehicle(bool init)
@@ -421,6 +422,8 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         SendWarningToAllInZone((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_WIN_KEEP : BATTLEFIELD_WG_TEXT_WIN_KEEP + 1);
     else // defend alli/horde
         SendWarningToAllInZone((GetDefenderTeam() == TEAM_ALLIANCE) ? BATTLEFIELD_WG_TEXT_DEFEND_KEEP : BATTLEFIELD_WG_TEXT_DEFEND_KEEP + 1);
+
+    sWorld->BroadcastWintergraspState();
 }
 
 // *******************************************************
