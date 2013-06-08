@@ -25,9 +25,9 @@ public:
         static ChatCommand npcbotCommandTable[] =
         {
             { "info",           SEC_PLAYER,         false, &HandleNpcBotInfoCommand,                    "", NULL },
-            { "add",            SEC_PLAYER,         false, &HandleNpcBotAddCommand,                     "", NULL },
-            { "revive",         SEC_MODERATOR,      false, &HandleNpcBotReviveCommand,                  "", NULL },
-            { "remove",         SEC_PLAYER,         false, &HandleNpcBotRemoveCommand,                  "", NULL },
+            { "add",            SEC_GAMEMASTER,     false, &HandleNpcBotAddCommand,                     "", NULL },
+            { "revive",         SEC_GAMEMASTER,     false, &HandleNpcBotReviveCommand,                  "", NULL },
+            { "remove",         SEC_GAMEMASTER,     false, &HandleNpcBotRemoveCommand,                  "", NULL },
             { "reset",          SEC_PLAYER,         false, &HandleNpcBotResetCommand,                   "", NULL },
             { "command",        SEC_PLAYER,         false, &HandleNpcBotCommandCommand,                 "", NULL },
             { "distance",       SEC_PLAYER,         false, &HandleNpcBotDistanceCommand,                "", NULL },
@@ -43,6 +43,7 @@ public:
             { "npcbot",         SEC_PLAYER,         false, NULL,                          "", npcbotCommandTable },
             { NULL,             0,                  false, NULL,                                        "", NULL }
         };
+
         return commandTable;
     }
 

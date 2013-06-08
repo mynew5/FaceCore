@@ -2950,7 +2950,7 @@ uint8 Player::GetNpcBotsCount() const
 
 uint8 Player::GetMaxNpcBots() const
 {
-    return (GetSession()->GetSecurity() == SEC_PLAYER) ?  m_maxNpcBots : MAX_NPCBOTS;
+    return (GetSession()->GetSecurity() <= SEC_MODERATOR) ?  m_maxNpcBots : MAX_NPCBOTS;
 }
 
 bool Player::HaveBot() const
