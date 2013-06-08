@@ -3107,7 +3107,11 @@ void World::BroadcastWintergraspState()
         for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
             if (WorldSession* session = itr->second)
                 if (Player* player = session->GetPlayer())
+                {
+                    battlefieldWG->SendInitWorldStatesTo(player);
                     player->SendUpdateWorldState(4354, uint32(time(NULL)) + (battlefieldWG->IsWarTime() ? battlefieldWG->GetTimer() : 0));
+                    player->SendInitWorldStates(player->GetZoneId(), player->GetAreaId());
+                }
 }
 
 /**

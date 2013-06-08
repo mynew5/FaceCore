@@ -1046,7 +1046,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     if (sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE))
         if (Battlefield* battlefieldWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
+        {
+            battlefieldWG->SendInitWorldStatesTo(pCurrChar);
             pCurrChar->SendUpdateWorldState(4354, uint32(time(NULL)) + (battlefieldWG->IsWarTime() ? battlefieldWG->GetTimer() : 0));
+            pCurrChar->SendInitWorldStates(pCurrChar->GetZoneId(), pCurrChar->GetAreaId());
+        }
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
     delete holder;
