@@ -2050,13 +2050,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         if (GetTypeId() == TYPEID_PLAYER)
             dodge_chance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
         else
-        {
-            // check if its a DK ghoul, he should also benefit from owner expertise
-            if (GetEntry() == 26125)
-                dodge_chance -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100);
-
             dodge_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        }
 
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
@@ -2083,13 +2077,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         if (GetTypeId() == TYPEID_PLAYER)
             parry_chance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
         else
-        {
-            // check if its a DK ghoul, he should also benefit from owner expertise
-            if (GetEntry() == 26125)
-                parry_chance -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100);
-
             parry_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        }
 
         if (victim->GetTypeId() == TYPEID_PLAYER || !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
@@ -2640,6 +2628,8 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
                 reflectchance += (*i)->GetAmount();
         if (reflectchance > 0 && roll_chance_i(reflectchance))
         {
+            // Start triggers for remove charges if need (trigger only for victim, and mark as active spell)
+            ProcDamageAndSpell(victim, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, BASE_ATTACK, spell);
             return SPELL_MISS_REFLECT;
         }
     }
@@ -3434,15 +3424,6 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
 
     Unit* caster = aura->GetCaster();
 
-    // adding back armor decreased by Enrage talent of druids
-    if (aura->GetId() == 5229)
-    {
-        if (caster->GetShapeshiftForm() == FORM_BEAR)
-            caster->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 27, true);
-        else if (caster->GetShapeshiftForm() == FORM_DIREBEAR)
-            caster->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 16, true);
-    }
-
     // Remove all pointers from lists here to prevent possible pointer invalidation on spellcast/auraapply/auraremove
     m_appliedAuras.erase(i);
 
@@ -3486,9 +3467,11 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     ASSERT(!aurApp->GetEffectMask());
 
     // Remove totem at next update if totem loses its aura
-    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && ToCreature()->isTotem())
+    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && ToCreature()->isTotem()&& ToTotem()->GetSummonerGUID() == aura->GetCasterGUID())
+    {
         if (ToTotem()->GetSpell() == aura->GetId() && ToTotem()->GetTotemType() == TOTEM_PASSIVE)
             ToTotem()->setDeathState(JUST_DIED);
+    }
 
     // Remove aurastates only if were not found
     if (!auraStateFound)
@@ -5199,6 +5182,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 33494;
                     break;
                 }
+                // TODO: can this go to DB instead?
                 // Item - Icecrown 25 Normal Tank Weapon Proc
                 case 71871:
                 {
@@ -7267,25 +7251,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                 if (pPet && pPet->getVictim() && damage && procSpell)
                 {
-                    pPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    pPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     uint32 procDmg = damage / 2;
                     pPet->SendSpellNonMeleeDamageLog(pPet->getVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
                     pPet->DealDamage(pPet->getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
                     break;
-                }
-                else // copy 50% melee damage
-                if (pPet && pPet->getVictim() && damage && !procSpell)
-                {
-                    CalcDamageInfo damageInfo;
-                    CalculateMeleeDamage(pPet->getVictim(), 0, &damageInfo, BASE_ATTACK);
-                    damageInfo.attacker = pPet;
-                    damageInfo.damage = damageInfo.damage / 2;
-                    // Send log damage message to client
-                    pPet->DealDamageMods(pPet->getVictim(),damageInfo.damage,&damageInfo.absorb);
-                    pPet->SendAttackStateUpdate(&damageInfo);
-                    pPet->ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
-                    pPet->DealMeleeDamage(&damageInfo,true);
                 }
                 else
                     return false;
@@ -11247,15 +11216,6 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
     if (!spellInfo || !spellInfo->Effects[index].IsEffect())
         return false;
 
-    if (spellInfo->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
-        return false;
-
-    // Anti-magic Shell; immune to magical aura effects, poisons, diseases
-    if (HasAura(48707, EFFECT_0))
-        if ((spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !spellInfo->_IsPositiveSpell() && spellInfo->Effects[index].Effect == SPELL_EFFECT_APPLY_AURA) ||
-            (spellInfo->Dispel == DISPEL_DISEASE || spellInfo->Dispel == DISPEL_POISON))
-            return true;
-
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 effect = spellInfo->Effects[index].Effect;
     SpellImmuneList const& effectList = m_spellImmune[IMMUNITY_EFFECT];
@@ -12433,8 +12393,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         AddPct(speed, slow);
         if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
         {
-            float baseSpeed = (GetTypeId() == TYPEID_UNIT ? ToCreature()->GetCreatureTemplate()->speed_walk : 1.0f);
-            float min_speed = (minSpeedMod / 100.0f) * baseSpeed;
+            float min_speed = minSpeedMod / 100.0f;
             if (speed < min_speed)
                 speed = min_speed;
         }
@@ -16563,10 +16522,6 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     }
     else
     {
-        // Bladestorm
-        if (player->HasAura(46924))
-            return;
-
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
 

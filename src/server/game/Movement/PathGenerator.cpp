@@ -486,6 +486,8 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
 
+    // TODO: check if this custom patch works
+
     // Custom Point for Bugged Zone (By Quentis)
     float startEndDist = Dist3DSqr(GetStartPosition(), GetEndPosition());
 

@@ -1729,15 +1729,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     }
     else
     {
-        // adding back armor decreased by Enrage talent of druids
-        if (target->HasAura(5229))
-        {
-            if (target->GetShapeshiftForm() == FORM_BEAR)
-                target->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 27, true);
-            else if (target->GetShapeshiftForm() == FORM_DIREBEAR)
-                target->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 16, true);
-        }
-
         // reset model id if no other auras present
         // may happen when aura is applied on linked event on aura removal
         if (!target->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
@@ -5405,7 +5396,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         if (caster->GetOwner()->IsMounted())
                             caster->Mount(29736);
                         else if (caster->IsMounted())
-                                 caster->Dismount();
+                            caster->Dismount();
                     }
                     break;
             }
