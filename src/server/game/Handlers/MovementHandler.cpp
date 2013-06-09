@@ -403,7 +403,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 underMapValueZ = 3.0f;
                 break;
              case 618: // Ring of Valor
-                underMapValueZ = 28.0f;
+                underMapValueZ = -10.0f;
                 break;
              case 562: // Blade Edge Arena
                 underMapValueZ = -10.0f;
