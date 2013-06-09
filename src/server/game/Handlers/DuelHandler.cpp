@@ -52,9 +52,9 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     player->SendDuelCountdown(3000);
     plTarget->SendDuelCountdown(3000);
 
-    // VistaWoW fast duels
     player->RemoveArenaSpellCooldowns(true);
     plTarget->RemoveArenaSpellCooldowns(true);
+
     player->SetHealth(player->GetMaxHealth());
     player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
     plTarget->SetHealth(plTarget->GetMaxHealth());

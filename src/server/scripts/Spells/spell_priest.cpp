@@ -377,8 +377,7 @@ class spell_pri_penance : public SpellScriptLoader
 
             bool Load()
             {
-                if (GetCaster() && GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->ToCreature()->GetIAmABot())
-                    return true;
+                if (GetCaster() && GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->ToCreature()->GetIAmABot()) return true;
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 

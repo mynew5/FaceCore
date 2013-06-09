@@ -113,6 +113,9 @@ static Location BrokenWP[]=
 #define CREATURE_DEFENDER           23216
 #define CREATURE_BROKEN             23319
 
+// Creature Entrys
+#define NPC_SHADE_OF_AKAMA          22841
+
 const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
 class mob_ashtongue_channeler : public CreatureScript

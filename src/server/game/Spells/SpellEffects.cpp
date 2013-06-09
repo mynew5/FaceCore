@@ -298,7 +298,6 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
 
         m_caster->CastSpell(m_caster, spellID, true);
     }
-
     //Death pact should affect only his ghoul
     if (m_spellInfo->Id == 48743)
     {
@@ -1934,6 +1933,15 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
             m_caster->CastSpell(unitTarget, Trinity::Containers::SelectRandomContainerElement(avalibleElixirs), true, m_CastItem);
         }
     }
+
+    // Enrage talent armor decreasing
+    if (m_spellInfo->Id == 5229)
+    {
+        if (m_caster->GetShapeshiftForm() == FORM_BEAR)
+            unitTarget->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 27, false);
+        else if (m_caster->GetShapeshiftForm() == FORM_DIREBEAR)
+            unitTarget->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 16, false);
+    }
 }
 
 void Spell::EffectEnergizePct(SpellEffIndex effIndex)
@@ -3250,7 +3258,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (m_spellInfo->BaseLevel >= 66)
                     // check for daze
                     if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                        spell_bonus += (m_spellInfo->Effects[EFFECT_0].CalcValue() * 0.35f);
+                        spell_bonus += (m_spellInfo->Effects[EFFECT_0].CalcValue() * 0.35);
             }
             if (m_spellInfo->SpellFamilyFlags[0] & 0x8000000) // Mocking Blow
             {
@@ -3302,7 +3310,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 }
 
                 if (found)
-                    totalDamagePercentMod *= 1.2f;          // 120% if poisoned
+                    totalDamagePercentMod *= 1.20f;          // 120% if poisoned
             }
             break;
         }
@@ -5855,7 +5863,7 @@ void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (Player* player = m_caster->ToPlayer())
+    if (Player* player = (Player*)m_caster)
     {
         player->SetCanTitanGrip(true);
         if (player->HasTwoHandWeaponInOneHand() && !player->HasAura(49152))

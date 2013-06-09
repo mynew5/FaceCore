@@ -655,7 +655,7 @@ class boss_leviathan_mk : public CreatureScript
                 me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
                 phase = PHASE_NULL;
                 events.SetPhase(PHASE_NULL);
-                if (Creature *turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
+                if (Creature *turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                 {
                     turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                     turret->SetReactState(REACT_PASSIVE);
@@ -688,7 +688,7 @@ class boss_leviathan_mk : public CreatureScript
                         phase = PHASE_NULL;
                         if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
                             Mimiron->AI()->DoAction(DO_ACTIVATE_VX001);
-                        if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
+                        if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                             turret->Kill(turret, false);
                         me->SetSpeed(MOVE_RUN, 1.5f, true);
                         me->GetMotionMaster()->MovePoint(0, 2790.11f, 2595.83f, 364.32f);
@@ -719,7 +719,7 @@ class boss_leviathan_mk : public CreatureScript
                     events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT, 60000, 0, PHASE_LEVIATHAN_SOLO);
                 }
 
-                if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
+                if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                 {
                     turret->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                     turret->SetReactState(REACT_AGGRESSIVE);
@@ -1105,11 +1105,11 @@ class boss_vx_001 : public CreatureScript
                                 break;
                             case EVENT_ROCKET_STRIKE:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                    if (Creature* missile = me->GetVehicleKit()->GetPassenger(5)->ToCreature())
+                                    if (Creature* missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(5)))
                                         missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                                 if (phase == PHASE_VX001_ASSEMBLED)
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                        if (Creature* missile = me->GetVehicleKit()->GetPassenger(6)->ToCreature())
+                                        if (Creature* missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(6)))
                                             missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                                 events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
                                 break;

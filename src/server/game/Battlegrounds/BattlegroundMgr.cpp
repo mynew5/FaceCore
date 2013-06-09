@@ -84,6 +84,10 @@ void BattlegroundMgr::Update(uint32 diff)
     {
         BattlegroundContainer& bgs = itr1->second.m_Battlegrounds;
         BattlegroundContainer::iterator itrDelete = bgs.begin();
+
+        if (bgs.empty())
+            continue;
+
         // first one is template and should not be deleted
         for (BattlegroundContainer::iterator itr = ++itrDelete; itr != bgs.end();)
         {
@@ -893,8 +897,6 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
         uint32 team = player->GetBGTeam();
-        if (team == 0)
-            team = player->GetTeam();
 
         bg->GetTeamStartLoc(team, x, y, z, O);
         TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);

@@ -1531,6 +1531,15 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (!IsInMap(obj))
         return false;
 
+    // Hack for ice tomb's gameobject
+    if (obj->GetTypeId() == TYPEID_UNIT)
+        if (obj->GetEntry() == 36980 || obj->GetEntry() == 38320 || obj->GetEntry() == 38321 || obj->GetEntry() == 38322 /* Ice Tomb */)
+            return true;
+
+    if (GetTypeId() == TYPEID_UNIT)
+        if (GetEntry() == 36980 || GetEntry() == 38320 || GetEntry() == 38321 || GetEntry() == 38322 /* Ice Tomb */)
+            return true;
+
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
     return IsWithinLOS(ox, oy, oz);
@@ -2647,6 +2656,15 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     if (GetAI)
         summon->AIM_Initialize(GetAI(summon));
     return summon;
+}
+
+Player * WorldObject::FindNearestPlayer(float range, bool alive) const
+{
+    Player * player = NULL;
+    Trinity::AnyPlayerInObjectRangeCheck check(this, range, alive);
+    Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
+    VisitNearbyWorldObject(range, searcher);
+    return player;
 }
 
 /**

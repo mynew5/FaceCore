@@ -318,6 +318,7 @@ class instance_pit_of_saron : public InstanceMapScript
             uint64 _tyrannusEventGUID;
             uint64 _jainaOrSylvanas1GUID;
             uint64 _jainaOrSylvanas2GUID;
+            uint64 uiIceWall;
 
             uint32 _teamInInstance;
         };
