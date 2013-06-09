@@ -369,12 +369,9 @@ class spell_warr_execute : public SpellScriptLoader
                     int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
                     caster->CastCustomSpell(target, SPELL_WARRIOR_EXECUTE, &bp, NULL, NULL, true, NULL, NULL, GetOriginalCaster()->GetGUID());
                     // Item - Warrior T10 Melee 4P Bonus
-                    if (Aura * aura = caster->GetAura(52437))
+                    if (Aura* aura = caster->GetAura(52437))
                         if (aura->GetCharges())
-                        {
                             caster->ToPlayer()->RestoreSpellMods(GetSpell(), 52437);
-                            //aura->DropCharge();
-                        }
                 }
             }
 

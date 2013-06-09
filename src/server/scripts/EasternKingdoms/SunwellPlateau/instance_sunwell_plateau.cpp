@@ -87,6 +87,7 @@ public:
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
             /*** Creatures ***/
             Kalecgos_Dragon         = 0;
             Kalecgos_Human          = 0;

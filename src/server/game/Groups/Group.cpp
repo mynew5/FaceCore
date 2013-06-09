@@ -412,7 +412,7 @@ bool Group::AddMember(Player* player)
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
-    if (IS_PLAYER_GUID(player->GetGUID()))
+    if (IS_PLAYER_GUID(player->GetGUID())) // NpcBot
     {
     if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
     {
