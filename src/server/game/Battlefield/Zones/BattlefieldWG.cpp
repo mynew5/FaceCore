@@ -485,6 +485,8 @@ uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId) const
 
 void BattlefieldWG::OnCreatureCreate(Creature* creature)
 {
+    m_Map->AddToActive(creature);
+
     // Accessing to db spawned creatures
     switch (creature->GetEntry())
     {
@@ -556,8 +558,10 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
     }
 }
 
-void BattlefieldWG::OnCreatureRemove(Creature* /*creature*/)
+void BattlefieldWG::OnCreatureRemove(Creature* creature)
 {
+    m_Map->RemoveFromActive(creature);
+
 /* possibly can be used later
     if (IsWarTime())
     {
@@ -589,9 +593,17 @@ void BattlefieldWG::OnCreatureRemove(Creature* /*creature*/)
     }*/
 }
 
+
+void BattlefieldWG::OnGameObjectRemove(GameObject* go)
+{
+    m_Map->RemoveFromActive(go);
+}
+
 void BattlefieldWG::OnGameObjectCreate(GameObject* go)
 {
     uint8 workshopId = 0;
+
+    m_Map->AddToActive(go);
 
     switch (go->GetEntry())
     {
