@@ -65,7 +65,7 @@ public:
             player->isInFlight() ||
             player->isCharmed() ||
             bot_ai::CCed(player) ||
-            (player->GetLevel() > 79))
+            (player->getLevel() > 79))
         {
             handler->SendSysMessage("You cannot do this right now");
             return false;
