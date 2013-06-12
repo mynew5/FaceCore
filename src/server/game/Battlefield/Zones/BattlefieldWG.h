@@ -354,11 +354,6 @@ class BattlefieldWG : public Battlefield
         void OnGameObjectCreate(GameObject* go);
 
         /**
-         * \brief Called when a gameobject is removed
-         */
-        void OnGameObjectRemove(GameObject* go);
-
-        /**
          * \brief Called when a wall/tower is broken
          * - Update quest
          */
