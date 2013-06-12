@@ -209,7 +209,7 @@ public:
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        Player* pPlayer = itr->getSource();
+                        Player* pPlayer = itr->GetSource();
                         if (pPlayer)
                             me->GetMap()->ToInstanceMap()->PermBindAllPlayers(pPlayer);
                     }
@@ -486,7 +486,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (!target)
-                    target = me->getVictim();
+                    target = me->GetVictim();
                 DoCast(target, SPELL_AGONY_CURSE);
                     AgonyCurseTimer = 20000;
             }else AgonyCurseTimer -= diff;

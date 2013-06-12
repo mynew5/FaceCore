@@ -108,10 +108,10 @@ void AggroAllPlayers(Creature* pTemp)
     {
         if(Player* player = i->getSource())
         {
-            if (player->isGameMaster())
+            if (player->IsGameMaster())
                 continue;
 
-            if (player->isAlive())
+            if (player->IsAlive())
             {
                 pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 pTemp->SetReactState(REACT_AGGRESSIVE);
@@ -311,7 +311,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         Player* player = itr->getSource();
-                        if (player && !player->isGameMaster() && player->isAlive())
+                        if (player && !player->IsGameMaster() && player->IsAlive())
                         {
                             // Handle combat variable
                             if (combat)
@@ -369,7 +369,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
                 Map::PlayerList const &players = pMap->GetPlayers();
                 for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+                    if (itr->getSource() && itr->getSource()->IsAlive() && !itr->getSource()->IsGameMaster())
                         return true;
                 }
             }
@@ -577,7 +577,7 @@ class boss_warrior_toc5 : public CreatureScript
                     for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         Player* player = itr->getSource();
-                        if (player && !player->isGameMaster() && me->IsInRange(player,8.0f,25.0f,false))
+                        if (player && !player->IsGameMaster() && me->IsInRange(player,8.0f,25.0f,false))
                         {
                             DoResetThreat();
                             me->AddThreat(player,5.0f);
@@ -1023,7 +1023,7 @@ class boss_hunter_toc5 : public CreatureScript
                 Map::PlayerList const &players = pMap->GetPlayers();
                 for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+                    if (itr->getSource() && itr->getSource()->IsAlive() && !itr->getSource()->IsGameMaster())
                         return;
                 }
 
@@ -1139,7 +1139,7 @@ class boss_hunter_toc5 : public CreatureScript
                         for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             Player* player = itr->getSource();
-                            if (player && !player->isGameMaster() && me->IsInRange(player,5.0f,30.0f,false))
+                            if (player && !player->IsGameMaster() && me->IsInRange(player,5.0f,30.0f,false))
                             {
                                 DoCast(target,SPELL_MULTI_SHOT);
                                 break;
@@ -1233,7 +1233,7 @@ class boss_rouge_toc5 : public CreatureScript
                 Map::PlayerList const &players = pMap->GetPlayers();
                 for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+                    if (itr->getSource() && itr->getSource()->IsAlive() && !itr->getSource()->IsGameMaster())
                         return;
                 }
 

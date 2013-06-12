@@ -707,7 +707,7 @@ public:
         }
         void UpdateAI(uint32 diff)
         {
-            if(!me->getVictim())
+            if(!me->GetVictim())
                 AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
         }
     };
