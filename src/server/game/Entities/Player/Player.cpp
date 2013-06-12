@@ -671,6 +671,9 @@ Player::Player(WorldSession* session): Unit(true)
     m_speakTime = 0;
     m_speakCount = 0;
 
+    // VISTAWOW ANTICHEAT
+    m_anticheat = new AntiCheat(this);
+
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
