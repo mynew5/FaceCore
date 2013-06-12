@@ -3363,7 +3363,7 @@ class npc_lonely_turkey : public CreatureScript
 
             void Reset()
             {
-                if (me->isSummon())
+                if (me->IsSummon())
                     if (Unit* owner = me->ToTempSummon()->GetSummoner())
                         me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + 25 * cos(owner->GetOrientation()), owner->GetPositionY() + 25 * cos(owner->GetOrientation()), owner->GetPositionZ());
 
