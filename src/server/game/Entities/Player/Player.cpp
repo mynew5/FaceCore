@@ -671,12 +671,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_speakTime = 0;
     m_speakCount = 0;
 
-    // VISTAWOW ANTICHEAT
-    m_anticheat = new AntiCheat(this);
-
-    // VISTAWOW DROP BOOST
-    m_DropBoostRating = 0;
-
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
@@ -9727,11 +9721,6 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                     group->UpdateLooterGuid(go, true);
 
                 loot->FillLoot(lootid, LootTemplates_Gameobject, this, !groupRules, false, go->GetLootMode());
-
-
-                // VISTAWOW DROP BOOST
-                if (group && GetInstanceId() && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST)
-                    DoDropBoostIfEligible(*loot, LootTemplates_Gameobject, lootid, go->GetLootMode());
 
                 // get next RR player (for next loot)
                 if (groupRules)
@@ -27076,104 +27065,6 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
         stmt->setUInt64(2, itr->second);
         trans->Append(stmt);
     }
-}
-
-// VISTAWOW DROP BOOST
-
-static const float gs_general_scale         = 1.8618f;
-static const float gs_quality_scales[]      = { 0.005f, 0.005f, 1.0f, 1.0f, 1.0f, 1.3f, 1.0f };
-static const float gs_type_scales[]         = { 0.0f, 1.0f, 0.5625f, 0.75f, 0.0f, 1.0f, 0.75f, 1.0f, 0.75f, 0.5625f, 0.75f, 0.5625f, 0.5625f, 1.0f, 1.0f, 0.3164f, 0.5625f, 2.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.3164f, 0.3164f, 0.0f, 0.3164f };
-static const float gs_lowlevel_flat[]       = { 8.0f, 8.0f, 8.0f, 0.75f, 26.0f, 26.0f, 0.75f };
-static const float gs_lowlevel_mult[]       = { 2.0f, 2.0f, 2.0f, 1.8f, 1.2f, 1.2f, 1.8f };
-static const float gs_highlevel_flat[]      = { 73.0f, 73.0f, 73.0f, 81.375f, 91.45f, 91.45f, 81.375f };
-static const float gs_highlevel_mult[]      = { 1.0f, 1.0f, 1.0f, 0.8125f, 0.65f, 0.65f, 0.8125f };
-static const uint32 gs_generic_slot_type[]  = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 12, 16, 13, 14, 26, 19 };
-
-                                             // normal, heroic, raid 10, raid 25, raid 10 heroic, raid 25 heroic
-static const uint32 dp_requirement_levels[] = { 3000, 3500, 4000, 4500, 5000, 5000 };
-static const uint8 dp_requirement_counts[]  = {    2,    2,    2,    5,    2,    5 };
-static const uint8 dp_drop_bonuses[]        = {    1,    1,    1,    2,    1,    2 };
-
-uint32 CalcItemGearScore(uint32 type, uint32 quality, uint32 level) {
-    float _level = float(level);
-    if (quality > 6)
-    {
-        quality = 3;
-        _level  = 187.05f;
-    }
-
-    if (_level > 120.0f)
-        _level = (_level - gs_highlevel_flat[quality]) / gs_highlevel_mult[quality] * gs_general_scale;
-    else
-        _level = (_level - gs_lowlevel_flat[quality]) / gs_lowlevel_mult[quality] * gs_general_scale;
-
-    return uint32(floor(std::max(0.0f, _level * gs_type_scales[type] * gs_quality_scales[quality])));
-}
-
-void Player::UpdateDropBoostRating()
-{
-    uint32 new_DropBoostRating = 0;
-    uint32 item_gearscore      = 0;
-    bool is_titan_grip         = false;
-
-    Item* mainhand = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    Item* offhand  = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-    if (mainhand && offhand)
-        if (ItemTemplate const* temp = mainhand->GetTemplate())
-            if (temp->InventoryType == INVTYPE_2HWEAPON)
-                is_titan_grip = true;
-
-    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
-    {
-        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-        {
-            if (ItemTemplate const* temp = item->GetTemplate())
-                item_gearscore = CalcItemGearScore(temp->InventoryType, std::max<uint32>(temp->Quality, 2), std::max<uint32>(temp->ItemLevel, 158));
-            else
-                item_gearscore = CalcItemGearScore(gs_generic_slot_type[i], 2, 158);
-        }
-        else if (i != EQUIPMENT_SLOT_OFFHAND)
-            item_gearscore = CalcItemGearScore(gs_generic_slot_type[i], 2, 158);
-
-        if (is_titan_grip && ((i == EQUIPMENT_SLOT_MAINHAND) || (i == EQUIPMENT_SLOT_OFFHAND)))
-            item_gearscore >>= 1;
-
-        new_DropBoostRating += item_gearscore;
-    }
-
-    if (new_DropBoostRating > m_DropBoostRating)
-        m_DropBoostRating = new_DropBoostRating;
-}
-
-void Player::DoDropBoostIfEligible(Loot& loot, LootStore const& store, uint32 lootid, uint16 mode)
-{
-    uint8 index = 0;
-    uint8 count = 0;
-
-    if (Group* group = GetGroup())
-        if (Map* map = GetMap())
-        {
-            if (map->IsRaid())
-            {
-                if (map->Is25ManRaid())
-                    index = map->IsHeroic() ? 5 : 3;
-                else
-                    index = map->IsHeroic() ? 4 : 2;
-            }
-            else
-                index = map->IsHeroic() ? 1 : 0;
-
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                if (Player* player = itr->getSource())
-                    if (IsAtGroupRewardDistance(player))
-                        if (dp_requirement_levels[index] >= player->GetDropBoostRating())
-                            count++;
-
-            if (count >= dp_requirement_counts[index])
-                if (LootTemplate const* temp = store.GetLootFor(lootid))
-                    temp->VistaWoWDropBoost(loot, mode, dp_drop_bonuses[index]);
-        }
 }
 
 // VISTAWOW ANTICHEAT
