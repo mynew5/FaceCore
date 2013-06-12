@@ -178,7 +178,7 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-	     if (pCreature->isQuestGiver())
+	     if (pCreature->IsQuestGiver())
             	pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
 	     if (pPlayer->GetQuestStatus(24451)!=QUEST_STATUS_NONE){
@@ -208,7 +208,7 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-	     if (pCreature->isQuestGiver())
+	     if (pCreature->IsQuestGiver())
             	pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
 	     if (pPlayer->GetQuestStatus(20439)!=QUEST_STATUS_NONE){
@@ -253,7 +253,7 @@ public:
 
     bool OnGossipHello (Player* pPlayer, Creature* pCreature)
     {
-        if (pCreature->isQuestGiver() && pCreature->GetZoneId() != ZONE_DALARAN)
+        if (pCreature->IsQuestGiver() && pCreature->GetZoneId() != ZONE_DALARAN)
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
         if(pPlayer->HasItemCount(ITEM_ACANE_MAGIC_MASTERY,1,false))
