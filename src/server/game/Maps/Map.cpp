@@ -2182,7 +2182,7 @@ uint32 Map::GetPlayersCountExceptGMs() const
         if (!itr->GetSource()->IsGameMaster())
         {
             ++count;
-            count += itr->getSource()->GetNpcBotsCount();
+            count += itr->GetSource()->GetNpcBotsCount();
         }
     return count;
 }

@@ -1147,8 +1147,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 Map::PlayerList const &players = instance->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    Player* player = itr->getSource();
-                    if (player->isGameMaster())
+                    Player* player = itr->GetSource();
+                    if (player->IsGameMaster())
                         continue;
 
                     if (player->HasAchieved(mode == 25 ? ACHIEVEMENT_FROZEN_THRONE_25 : ACHIEVEMENT_FROZEN_THRONE_10))
@@ -1227,7 +1227,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             {
                                 Map::PlayerList const &players = instance->GetPlayers();
                                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                    if (Player* player = itr->getSource())
+                                    if (Player* player = itr->GetSource())
                                         player->RepopAtGraveyard();
                             }
                             Events.ScheduleEvent(EVENT_CHECK_HERO_ACHIEVEMENT, 10000);

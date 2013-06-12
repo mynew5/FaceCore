@@ -1859,8 +1859,8 @@ public:
             events.Update(diff);
 
             bool hasCC = false;
-            if (me->GetCharmerOrOwnerGUID() && me->getVictim())
-                hasCC = me->getVictim()->HasAuraType(SPELL_AURA_MOD_CONFUSE);
+            if (me->GetCharmerOrOwnerGUID() && me->GetVictim())
+                hasCC = me->GetVictim()->HasAuraType(SPELL_AURA_MOD_CONFUSE);
 
             if (hasCC)
             {

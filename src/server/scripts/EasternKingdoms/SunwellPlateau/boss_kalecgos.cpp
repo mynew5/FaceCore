@@ -404,7 +404,7 @@ public:
             Map::PlayerList const &PlayerList = map->GetPlayers();
             Map::PlayerList::const_iterator i;
             for(i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if(Player* i_pl = i->getSource())
+                if(Player* i_pl = i->GetSource())
                     if(i_pl->HasAuraEffect(AURA_SPECTRAL_REALM,0))
                         i_pl->RemoveAurasDueToSpell(AURA_SPECTRAL_REALM);
         }
@@ -493,7 +493,7 @@ public:
 
             if(CorruptionStrikeTimer <= diff)
             {
-                if(TryDoCast(me->getVictim(), SPELL_CORRUPTION_STRIKE))
+                if(TryDoCast(me->GetVictim(), SPELL_CORRUPTION_STRIKE))
                 {
                     Talk(SAY_SATH_SPELL2);
                     CorruptionStrikeTimer = 13000;
@@ -554,12 +554,12 @@ public:
 
             if(ResetThreat <= diff)
             {
-                if ( ( me->getVictim()->HasAuraEffect(AURA_SPECTRAL_REALM,0)) && (me->getVictim()->GetTypeId() == TYPEID_PLAYER) )
+                if ( ( me->GetVictim()->HasAuraEffect(AURA_SPECTRAL_REALM,0)) && (me->GetVictim()->GetTypeId() == TYPEID_PLAYER) )
                 {
                     ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
                     for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
-                        if(((*itr)->getUnitGuid()) ==  (me->getVictim()->GetGUID()))
+                        if(((*itr)->getUnitGuid()) ==  (me->GetVictim()->GetGUID()))
                         {
                             (*itr)->removeReference();
                             break;
@@ -567,8 +567,8 @@ public:
                     }
                 }
 
-                if(me->getVictim() && (me->getVictim()->HasAuraEffect(AURA_SPECTRAL_REALM,0) || me->GetPositionZ() < DRAGON_REALM_Z-10))
-                    me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
+                if(me->GetVictim() && (me->GetVictim()->HasAuraEffect(AURA_SPECTRAL_REALM,0) || me->GetPositionZ() < DRAGON_REALM_Z-10))
+                    me->getThreatManager().modifyThreatPercent(me->GetVictim(), -100);
 
                 ResetThreat = 1000;
             }else ResetThreat -= diff;
@@ -640,7 +640,7 @@ public:
             {
                 //this is a hack. we need to find a victim without aura in core
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-                if( target && target->isAlive() && !(target->HasAuraEffect(AURA_SPECTRAL_EXHAUSTION, 0)) )
+                if( target && target->IsAlive() && !(target->HasAuraEffect(AURA_SPECTRAL_EXHAUSTION, 0)) )
                 {
                     if(TryDoCast(target, SPELL_SPECTRAL_BLAST))
                         SpectralBlastTimer = 20000+(rand()%5000);
@@ -746,7 +746,7 @@ public:
 
             if(HeroicStrikeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HEROIC_STRIKE);
+                DoCast(me->GetVictim(), SPELL_HEROIC_STRIKE);
                 HeroicStrikeTimer = 2000;
             }else HeroicStrikeTimer -= diff;
 

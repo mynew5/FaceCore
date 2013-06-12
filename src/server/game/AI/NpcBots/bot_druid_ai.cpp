@@ -53,7 +53,7 @@ public:
             {
                 me->ModifyPower(POWER_MANA, - int32(info->CalcPowerCost(me, info->GetSchoolMask())));
                 mana = me->GetPower(POWER_MANA);
-                if (Unit* u = me->getVictim())
+                if (Unit* u = me->GetVictim())
                     GetInPosition(true, false, u);
             }
 
@@ -91,7 +91,7 @@ public:
             if (b_attackers.empty())
             {
                 Unit* u = me->SelectNearestTarget(5);
-                if (u && u->isInCombat() && u->isTargetableForAttack())
+                if (u && u->IsInCombat() && u->isTargetableForAttack())
                 {
                     if (doCast(me, WARSTOMP))
                     {
@@ -124,7 +124,7 @@ public:
                 uint8 DIScount = 0;
                 for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
-                    Player* tPlayer = itr->getSource();
+                    Player* tPlayer = itr->GetSource();
                     if (!tPlayer || tPlayer->isDead()) continue;
                     if (me->GetExactDist(tPlayer) > 30) continue;
                     if (tPlayer->GetHealth()*100 / tPlayer->GetMaxHealth() < 75)
@@ -150,7 +150,7 @@ public:
                 }
             }//endif unitlist
 
-            Unit* u = master->getVictim();
+            Unit* u = master->GetVictim();
             if (master->getAttackers().size() > 4 || 
               (!master->getAttackers().empty() && 
                 u != NULL && u->GetHealth() > me->GetMaxHealth()*17))
@@ -196,7 +196,7 @@ public:
 
             if (GetHealthPCT(me) < 75)
                 HealTarget(me, GetHealthPCT(me), diff);
-            opponent = me->getVictim();
+            opponent = me->GetVictim();
             if (opponent)
                 StartAttack(opponent, true);
             else
@@ -220,7 +220,7 @@ public:
         {
             if (GetHealthPCT(me) < 75)
                 HealTarget(me, GetHealthPCT(me), diff);
-            opponent = me->getVictim();
+            opponent = me->GetVictim();
             if (opponent)
                 StartAttack(opponent, true);
             else
@@ -249,7 +249,7 @@ public:
         void doBalanceActions(uint32 diff)
         {
             removeFeralForm(true, true);
-            opponent = me->getVictim();
+            opponent = me->GetVictim();
             if (opponent)
             {
                 if (!IsCasting())
@@ -311,7 +311,7 @@ public:
             Unit* healTarget = NULL;
             for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* tPlayer = itr->getSource();
+                Player* tPlayer = itr->GetSource();
                 if (!tPlayer || (tPlayer->isDead() && !tPlayer->HaveBot())) continue;
                 if (me->GetExactDist(tPlayer) > 39) continue;
                 if (GetHealthPCT(tPlayer) < 80)
@@ -362,7 +362,7 @@ public:
             if (me->GetShapeshiftForm() == FORM_NONE && me->getPowerType() != POWER_MANA)
                 me->setPowerType(POWER_MANA);
             if (IAmDead()) return;
-            if (!me->getVictim())
+            if (!me->GetVictim())
                 Evade();
             else if (me->GetShapeshiftForm() == FORM_DIREBEAR ||
                 me->GetShapeshiftForm() == FORM_BEAR ||
@@ -374,7 +374,7 @@ public:
                 rage = me->GetPower(POWER_RAGE);
                 if (ragetimer2 <= diff)
                 {
-                    if (me->isInCombat() && me->getLevel() >= 30)
+                    if (me->IsInCombat() && me->getLevel() >= 30)
                     {
                         if (rage < 990 && rage >= 0)
                             me->SetPower(POWER_RAGE, rage + uint32(10.f*rageIncomeMult));//1 rage per 2 sec
@@ -385,7 +385,7 @@ public:
                 }
                 if (ragetimer <= diff)
                 {
-                    if (!me->isInCombat())
+                    if (!me->IsInCombat())
                     {
                         if (rage > 10.f*rageLossMult)
                             me->SetPower(POWER_RAGE, rage - uint32(10.f*rageLossMult));//-1 rage per 1.5 sec
@@ -432,7 +432,7 @@ public:
             }
 
             MassGroupHeal(master, diff);
-            if (!me->isInCombat())
+            if (!me->IsInCombat())
                 DoNonCombatActions(diff);
             else
                 CheckBattleRez(diff);
@@ -444,7 +444,7 @@ public:
                 return;
 
             //debug
-            opponent = me->getVictim();
+            opponent = me->GetVictim();
 
             if (GetHealthPCT(me) < 75)
             {
@@ -457,7 +457,7 @@ public:
 
             if (DamagePossible() && opponent != NULL)
             {
-                Unit* u = opponent->getVictim();
+                Unit* u = opponent->GetVictim();
                 //if the target is attacking us, we want to go bear
                 if (BEAR_FORM && !CCed(opponent) && 
                     (u == me || (tank == me && IsInBotParty(u))) || 
@@ -477,7 +477,7 @@ public:
                         doBearActions(diff);
                 }
                 else
-                if (CAT_FORM && master->getVictim() != opponent && tank && 
+                if (CAT_FORM && master->GetVictim() != opponent && tank && 
                     u == tank && u != me && 
                     opponent->GetMaxHealth() < tank->GetMaxHealth()*3)
                 {
@@ -506,11 +506,11 @@ public:
             if (!target || target->isDead()) return false;
             if (tank == me && hp > 35) return false;
             if (hp > 50 && me->GetShapeshiftForm() != FORM_NONE) return false;//do not waste heal if in feral or so
-            if (Rand() > 50 + 20*target->isInCombat() + 50*master->GetMap()->IsRaid() - 50*me->GetShapeshiftForm()) return false;
+            if (Rand() > 50 + 20*target->IsInCombat() + 50*master->GetMap()->IsRaid() - 50*me->GetShapeshiftForm()) return false;
             if (me->GetExactDist(target) > 40) return false;
 
             if ((hp < 15 || (hp < 35 && target->getAttackers().size() > 2)) && 
-                Nature_Swiftness_Timer <= diff && (target->isInCombat() || !target->getAttackers().empty()))
+                Nature_Swiftness_Timer <= diff && (target->IsInCombat() || !target->getAttackers().empty()))
             {
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
@@ -565,7 +565,7 @@ public:
                 }
             }
             //maintain HoTs
-            Unit* u = target->getVictim();
+            Unit* u = target->GetVictim();
             Creature* boss = u && u->ToCreature() && u->ToCreature()->isWorldBoss() ? u->ToCreature() : NULL;
             bool tanking = tank == target && boss;
             if (( (hp < 80 || GetLostHP(target) > 3500 || tanking) && 
@@ -610,8 +610,8 @@ public:
         bool BuffTarget(Unit* target, uint32 diff)
         {
             if (GC_Timer > diff || Rand() > 40) return false;
-            if (me->isInCombat() && !master->GetMap()->IsRaid()) return false;
-            if (target && target->isAlive() && me->GetExactDist(target) < 30)
+            if (me->IsInCombat() && !master->GetMap()->IsRaid()) return false;
+            if (target && target->IsAlive() && me->GetExactDist(target) < 30)
             {
                 if (!HasAuraName(target, MARK_OF_THE_WILD))
                     if (doCast(target, MARK_OF_THE_WILD))
@@ -648,9 +648,9 @@ public:
         {
             Unit* iTarget = NULL;
 
-            if (master->isInCombat() && GetManaPCT(master) < 20 && !master->HasAura(INNERVATE))
+            if (master->IsInCombat() && GetManaPCT(master) < 20 && !master->HasAura(INNERVATE))
                 iTarget = master;
-            else if (me->isInCombat() && GetManaPCT(me) < 20 && !me->HasAura(INNERVATE))
+            else if (me->IsInCombat() && GetManaPCT(me) < 20 && !me->HasAura(INNERVATE))
                 iTarget = me;
 
             Group* group = master->GetGroup();
@@ -659,7 +659,7 @@ public:
                 for (uint8 i = 0; i != master->GetMaxNpcBots(); ++i)
                 {
                     Creature* bot = master->GetBotMap(i)->_Cre();
-                    if (!bot || !bot->isInCombat() || bot->isDead()) continue;
+                    if (!bot || !bot->IsInCombat() || bot->isDead()) continue;
                     if (me->GetExactDist(bot) > 30) continue;
                     if (GetManaPCT(bot) < minmanaval && !bot->HasAura(INNERVATE))
                     {
@@ -672,8 +672,8 @@ public:
             {
                 for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
-                    Player* tPlayer = itr->getSource();
-                    if (tPlayer == NULL || !tPlayer->IsInWorld() || !tPlayer->isInCombat() || tPlayer->isDead()) continue;
+                    Player* tPlayer = itr->GetSource();
+                    if (tPlayer == NULL || !tPlayer->IsInWorld() || !tPlayer->IsInCombat() || tPlayer->isDead()) continue;
                     if (me->GetExactDist(tPlayer) > 30) continue;
                     if (GetManaPCT(tPlayer) < minmanaval && !tPlayer->HasAura(INNERVATE))
                     {
@@ -686,7 +686,7 @@ public:
             {
                 for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
-                    Player* tPlayer = itr->getSource();
+                    Player* tPlayer = itr->GetSource();
                     if (tPlayer == NULL || !tPlayer->HaveBot()) continue;
                     for (uint8 i = 0; i != tPlayer->GetMaxNpcBots(); ++i)
                     {
@@ -727,7 +727,7 @@ public:
             if (!gr)
             {
                 Unit* target = master;
-                if (master->isAlive()) return;
+                if (master->IsAlive()) return;
                 if (master->isRessurectRequested()) return; //ressurected
                 if (master->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
                     target = (Unit*)master->GetCorpse();
@@ -751,9 +751,9 @@ public:
             }
             for (GroupReference* itr = gr->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* tPlayer = itr->getSource();
+                Player* tPlayer = itr->GetSource();
                 Unit* target = tPlayer;
-                if (!tPlayer || tPlayer->isAlive()) continue;
+                if (!tPlayer || tPlayer->IsAlive()) continue;
                 if (tPlayer->isRessurectRequested()) continue; //ressurected
                 if (tPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
                     target = (Unit*)tPlayer->GetCorpse();

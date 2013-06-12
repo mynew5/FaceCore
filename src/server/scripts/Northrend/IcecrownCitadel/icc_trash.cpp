@@ -341,7 +341,7 @@ public:
                 switch(eventId)
                 {
                     case EVENT_SHIELDBASH:
-                        DoCast(me->getVictim(), SPELL_SHIELDBASH);
+                        DoCast(me->GetVictim(), SPELL_SHIELDBASH);
                         events.RescheduleEvent(EVENT_SHIELDBASH, 8000);
                         break;
                 }
@@ -398,7 +398,7 @@ public:
                         events.RescheduleEvent(EVENT_DISRUPTINGSHOUT, 8000);
                         break;
                     case EVENT_SABERLASH:
-                        DoCast(me->getVictim(), SPELL_SABERLASH, true);
+                        DoCast(me->GetVictim(), SPELL_SABERLASH, true);
                         events.RescheduleEvent(EVENT_SABERLASH, 8000);
                         break;
                 }
@@ -715,7 +715,7 @@ public:
                 switch(eventId)
                 {
                     case EVENT_SHADOWCLEAVE:
-                        DoCast(me->getVictim(), SPELL_SHADOWCLEAVE);
+                        DoCast(me->GetVictim(), SPELL_SHADOWCLEAVE);
                         events.RescheduleEvent(EVENT_SHADOWCLEAVE, 8000);
                         break;
                 }
@@ -758,7 +758,7 @@ class npc_valkyr_herald : public CreatureScript
 
                 if (m_uiESSENCE_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_SEVERED_ESSENCE_10N, SPELL_SEVERED_ESSENCE_25N, SPELL_SEVERED_ESSENCE_10N, SPELL_SEVERED_ESSENCE_25N));
+                    DoCast(me->GetVictim(), RAID_MODE(SPELL_SEVERED_ESSENCE_10N, SPELL_SEVERED_ESSENCE_25N, SPELL_SEVERED_ESSENCE_10N, SPELL_SEVERED_ESSENCE_25N));
                     m_uiESSENCE_Timer = urand(2000, 8000);
                 }
                 else
@@ -824,7 +824,7 @@ class npc_blighted_abomination : public CreatureScript
  
                 if (m_uiCLEAVE_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCast(me->GetVictim(), SPELL_CLEAVE);
 
                     m_uiCLEAVE_Timer = 6000;
                 }
@@ -962,7 +962,7 @@ class npc_plague_scientist : public CreatureScript
  
                 if (m_uiBLAST_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_PLAGUE_BLAST);
+                    DoCast(me->GetVictim(), SPELL_PLAGUE_BLAST);
                     m_uiBLAST_Timer = urand(2000, 3000);
                 }
                 else
@@ -1058,7 +1058,7 @@ class npc_decaying_colossus : public CreatureScript
 
                 if (m_uiSTOMP_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N, SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N));
+                    DoCast(me->GetVictim(), RAID_MODE(SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N, SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N));
                     m_uiSTOMP_Timer = urand(15000, 25000);
                 }
                 else
@@ -1108,7 +1108,7 @@ class npc_darkfallen_archmage : public CreatureScript
 
                 if (m_uiAMPLIFY_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N, SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N));
+                    DoCast(me->GetVictim(), RAID_MODE(SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N, SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N));
                     m_uiAMPLIFY_Timer = urand(15000, 20000);
                 }
                 else
@@ -1126,7 +1126,7 @@ class npc_darkfallen_archmage : public CreatureScript
 
                 if (m_uiFIREBALL_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_FIREBALL_10N, SPELL_FIREBALL_25N, SPELL_FIREBALL_10N, SPELL_FIREBALL_25N));
+                    DoCast(me->GetVictim(), RAID_MODE(SPELL_FIREBALL_10N, SPELL_FIREBALL_25N, SPELL_FIREBALL_10N, SPELL_FIREBALL_25N));
                     m_uiFIREBALL_Timer = urand(3000, 4000);
                 }
                 else
@@ -1182,7 +1182,7 @@ class npc_darkfallen_blood_knight : public CreatureScript
 
                 if (m_uiSTRIKE_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_UNHOLY_STRIKE);
+                    DoCast(me->GetVictim(), SPELL_UNHOLY_STRIKE);
                     m_uiSTRIKE_Timer = urand(3000, 4000);
                 }
                 else
@@ -1200,9 +1200,9 @@ class npc_darkfallen_blood_knight : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoCast(me->getVictim(),SPELL_BLOOD_MIRROR_DUMMY);
-                        me->getVictim()->CastSpell(target,SPELL_BLOOD_MIRROR_DAMAGE,true);
-                        me->CastSpell(me->getVictim(),SPELL_BLOOD_MIRROR_BUFF,true);
+                        DoCast(me->GetVictim(),SPELL_BLOOD_MIRROR_DUMMY);
+                        me->GetVictim()->CastSpell(target,SPELL_BLOOD_MIRROR_DAMAGE,true);
+                        me->CastSpell(me->GetVictim(),SPELL_BLOOD_MIRROR_BUFF,true);
                         m_uiMIRROR_Timer = urand(32000, 37000);
                     }
                 }
@@ -1255,7 +1255,7 @@ class npc_darkfallen_noble : public CreatureScript
 
                 if (m_uiBOLT_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N, SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N));
+                    DoCast(me->GetVictim(), RAID_MODE(SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N, SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N));
                     m_uiBOLT_Timer = urand(4000, 5000);
                 }
                 else
@@ -1370,7 +1370,7 @@ class npc_darkfallen_advisor : public CreatureScript
 
                 if (m_uiLICH_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N, SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N));
+                    DoCast(me->GetVictim(), RAID_MODE(SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N, SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N));
                     m_uiLICH_Timer = 10000;
                 }
                 else
@@ -1484,7 +1484,7 @@ class npc_darkfallen_lieutenant : public CreatureScript
 
                 if (m_uiREND_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N, SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N));
+                    DoCast(me->GetVictim(), RAID_MODE(SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N, SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N));
                     m_uiREND_Timer = 25000;
                 }
                 else
@@ -1542,7 +1542,7 @@ class npc_darkfallen_tactician : public CreatureScript
 
                 if (m_uiSTRIKE_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_UNHOLY_STRIKE);
+                    DoCast(me->GetVictim(), SPELL_UNHOLY_STRIKE);
                     m_uiSTRIKE_Timer = 6000;
                 }
                 else

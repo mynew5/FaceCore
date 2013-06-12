@@ -1690,7 +1690,7 @@ class npc_strangulate_vehicle : public CreatureScript
                             summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL_DAMAGE_AURA);
 
                             // Teleport to main tank location, otherwise we might land under the map or inside defile
-                            if (Unit* victim = lichKing->getVictim())
+                            if (Unit* victim = lichKing->GetVictim())
                                 summoner->NearTeleportTo(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 1.0f, victim->GetOrientation());
                             else // In heroic, all players are inside frostmourne, teleport to our own location
                             {

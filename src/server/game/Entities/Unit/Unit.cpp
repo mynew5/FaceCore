@@ -349,7 +349,7 @@ void Unit::Update(uint32 p_time)
         }
     }
     // update combat timer also for npcbots
-    if (isInCombat() && GetTypeId() == TYPEID_UNIT && !getVictim() && (ToCreature()->GetIAmABot() || ToCreature()->GetIAmABotsPet()))
+    if (IsInCombat() && GetTypeId() == TYPEID_UNIT && !GetVictim() && (ToCreature()->GetIAmABot() || ToCreature()->GetIAmABotsPet()))
     {
         if (m_HostileRefManager.isEmpty())
         {
@@ -5564,7 +5564,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Meteor Fists
                 case 66725:
                 {
-                    target = getVictim();
+                    target = GetVictim();
                     triggered_spell_id = 66765;
                     break;
                 }

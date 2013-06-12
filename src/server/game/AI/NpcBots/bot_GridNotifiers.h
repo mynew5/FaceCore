@@ -22,7 +22,7 @@ class NearestHostileUnitCheck
         {
             if (!me->IsWithinDistInMap(u, m_range))
                 return false;
-            if (!u->isInCombat())
+            if (!u->IsInCombat())
                 return false;
             if (!ai->CanBotAttack(u, byspell))
                 return false;
@@ -30,12 +30,12 @@ class NearestHostileUnitCheck
                 return false;
             if (!AttackCCed && (u->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING | UNIT_STATE_DISTRACTED | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE)))
                 return false;//do not allow CCed units if checked
-            //if (u->HasUnitState(UNIT_STATE_CASTING) && (u->GetTypeId() == TYPEID_PLAYER || u->isPet()))
+            //if (u->HasUnitState(UNIT_STATE_CASTING) && (u->GetTypeId() == TYPEID_PLAYER || u->IsPet()))
             //    for (uint8 i = 0; i != CURRENT_MAX_SPELL; ++i)
             //        if (Spell* spell = u->GetCurrentSpell(i))
             //            if (ai->IsInBotParty(spell->m_targets.GetUnitTarget()))
             //                return true;
-            if (!ai->IsInBotParty(u->getVictim()))
+            if (!ai->IsInBotParty(u->GetVictim()))
                 return false;
 
             m_range = me->GetDistance(u);   // use found unit range as new range limit for next check
@@ -58,13 +58,13 @@ class HostileDispelTargetCheck
         bool operator()(Unit* u)
         {
             if (u->IsWithinDistInMap(me, m_range) && 
-                u->isAlive() && 
+                u->IsAlive() && 
                 u->InSamePhase(me) && 
-                u->isInCombat() && 
+                u->IsInCombat() && 
                 u->isTargetableForAttack() && 
                 u->IsVisible() && 
                 u->GetReactionTo(me) < REP_NEUTRAL && 
-                ai->IsInBotParty(u->getVictim()))
+                ai->IsInBotParty(u->GetVictim()))
             {
                 if (checksteal && u->IsImmunedToSpell(sSpellMgr->GetSpellInfo(30449))) return false;//immune to steal
                 if (!checksteal)
@@ -115,7 +115,7 @@ class AffectedTargetCheck
             if (needhostile == 2 && !(gr && gr->IsMember(u->GetGUID()))) return false;
             if (needhostile == 3 && !u->IsFriendlyTo(checker)) return false;
 
-            if (u->isAlive() && checker->IsWithinDistInMap(u, m_range))
+            if (u->IsAlive() && checker->IsWithinDistInMap(u, m_range))
             {
                 Unit::AuraMap const &Auras = u->GetOwnedAuras();
                 for (Unit::AuraMap::const_iterator itr = Auras.begin(); itr != Auras.end(); ++itr)
@@ -148,7 +148,7 @@ class PolyUnitCheck
                 return false;
             if (!me->IsWithinDistInMap(u, m_range))
                 return false;
-            if (!u->isInCombat() || !u->isAlive() || !u->getVictim())
+            if (!u->IsInCombat() || !u->IsAlive() || !u->GetVictim())
                 return false;
             if (u->GetCreatureType() != CREATURE_TYPE_HUMANOID && 
                 u->GetCreatureType() != CREATURE_TYPE_BEAST)
@@ -199,17 +199,17 @@ class FearUnitCheck
                 return false;
             if (!u->InSamePhase(me))
                 return false;
-            if (!u->isInCombat())
+            if (!u->IsInCombat())
                 return false;
             if (u->GetCreatureType() == CREATURE_TYPE_UNDEAD)
                 return false;
-            if (!u->isAlive())
+            if (!u->IsAlive())
                 return false;
             if (!u->isTargetableForAttack())
                 return false;
             if (!u->IsVisible())
                 return false;
-            if (u->getAttackers().size() > 1 && u->getVictim() != me)
+            if (u->getAttackers().size() > 1 && u->GetVictim() != me)
                 return false;
             if (u->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING | UNIT_STATE_DISTRACTED | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE))
                 return false;
@@ -237,19 +237,19 @@ class StunUnitCheck
         {
             if (!me->IsWithinDistInMap(u, m_range))
                 return false;
-            if (!u->isInCombat())
+            if (!u->IsInCombat())
                 return false;
-            if (me->getVictim() == u)
+            if (me->GetVictim() == u)
                 return false;
             if (me->GetTypeId() == TYPEID_UNIT)
                 if (Player* mymaster = me->ToCreature()->GetBotOwner())
-                    if (mymaster->getVictim() == u)
+                    if (mymaster->GetVictim() == u)
                         return false;
             if (!u->InSamePhase(me))
                 return false;
             if (u->GetReactionTo(me) > REP_NEUTRAL)
                 return false;
-            if (!u->isAlive())
+            if (!u->IsAlive())
                 return false;
             if (!u->IsVisible())
                 return false;
@@ -293,17 +293,17 @@ class UndeadCCUnitCheck
                 return false;
             if (!u->InSamePhase(me))
                 return false;
-            if (!u->isInCombat())
+            if (!u->IsInCombat())
                 return false;
             if (u->GetReactionTo(me) > REP_NEUTRAL)
                 return false;
-            if (!u->isAlive())
+            if (!u->IsAlive())
                 return false;
             if (!u->isTargetableForAttack())
                 return false;
             if (!u->IsVisible())
                 return false;
-            if (me->getVictim() == u && u->getVictim() == me)
+            if (me->GetVictim() == u && u->GetVictim() == me)
                 return false;
             if (!u->getAttackers().empty())
                 return false;
@@ -346,9 +346,9 @@ class RootUnitCheck
                 return false;
             if (!me->IsWithinDistInMap(u, m_range))
                 return false;
-            if (!u->isAlive())
+            if (!u->IsAlive())
                 return false;
-            if (!u->isInCombat())
+            if (!u->IsInCombat())
                 return false;
             if (me->GetDistance(u) < 8)
                 return false;
@@ -390,7 +390,7 @@ class CastingUnitCheck
         {
             if (!me->IsWithinDistInMap(u, m_range))
                 return false;
-            if (!u->isAlive())
+            if (!u->IsAlive())
                 return false;
             if (!u->InSamePhase(me))
                 return false;
@@ -436,7 +436,7 @@ class SecondEnemyCheck
         {
             if (u == mytar)
                 return false;//We need to find SECONDARY target
-            if (!u->isInCombat())
+            if (!u->IsInCombat())
                 return false;
             if (u->isMoving() != mytar->isMoving())//only when both targets idle or both moving
                 return false;

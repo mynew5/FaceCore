@@ -2535,25 +2535,25 @@ void Player::RemoveFromWorld()
 void Player::RefreshBot(uint32 diff)
 {
     if (m_botTimer > 0) return;
-    m_botTimer = 100 + isInFlight()*3000;//x2 ms //temp hack
+    m_botTimer = 100 + IsInFlight()*3000;//x2 ms //temp hack
     if (!HaveBot()) return;
 
     //addition for revive timer (maybe we should check whole party?)
-    bool partyInCombat = isInCombat();
+    bool partyInCombat = IsInCombat();
     if (!partyInCombat)
     {
         for (uint8 i = 0; i != GetMaxNpcBots(); ++i)
         {
             if (Creature* bot = m_botmap[i]->m_creature)
             {
-                if (bot->isInCombat())
+                if (bot->IsInCombat())
                 {
                     partyInCombat = true;
                     break;
                 }
                 else if (Creature* pet = bot->GetBotsPet())
                 {
-                    if (pet->isInCombat())
+                    if (pet->IsInCombat())
                     {
                         partyInCombat = true;
                         break;
@@ -2575,13 +2575,13 @@ void Player::RefreshBot(uint32 diff)
         {
             if (m_botmap[i]->m_reviveTimer > diff)
             {
-                if (!isInCombat())
+                if (!IsInCombat())
                     m_botmap[i]->m_reviveTimer -= diff;
             }
             else if (m_botmap[i]->m_reviveTimer > 0)
                 m_botmap[i]->m_reviveTimer = 0;
         }
-        if ((m_bot->isDead() || !m_bot->isAlive()) && isAlive() && !isInCombat() && !InArena() && !isInFlight() && 
+        if ((m_bot->isDead() || !m_bot->IsAlive()) && IsAlive() && !IsInCombat() && !InArena() && !IsInFlight() && 
             !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH) && 
             m_botmap[i]->m_reviveTimer == 0 && 
             !HasInvisibilityAura() && !HasStealthAura())
@@ -2590,13 +2590,13 @@ void Player::RefreshBot(uint32 diff)
             continue;
         }
         //BOT MUST DIE SUPPORT
-        if (isInFlight() || !GetGroup() || !GetGroup()->IsMember(m_bot->GetGUID()))//even if bot is dead
+        if (IsInFlight() || !GetGroup() || !GetGroup()->IsMember(m_bot->GetGUID()))//even if bot is dead
         {
-            RemoveBot(guid, !isInFlight());
+            RemoveBot(guid, !IsInFlight());
             continue;
         }
         //TELEPORT/OUTRUN SUPPORT
-        if (!isInFlight() && isAlive() && (m_bot->isAlive() || m_bot->GetMapId() != GetMapId()))
+        if (!IsInFlight() && IsAlive() && (m_bot->IsAlive() || m_bot->GetMapId() != GetMapId()))
         {
             float maxdist;
             if (GetMap()->IsDungeon())
@@ -2619,7 +2619,7 @@ void Player::RefreshBot(uint32 diff)
         m_bot = NULL;
     }//end for botmap
     //BOT CREATION/RECREATION SUPPORT
-    if (!isInFlight() && isAlive() && !HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && GetBotMustBeCreated() && !RestrictBots())
+    if (!IsInFlight() && IsAlive() && !HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && GetBotMustBeCreated() && !RestrictBots())
         for (uint8 pos = 0; pos != GetMaxNpcBots(); ++pos)
             if (m_botmap[pos]->m_entry != 0 && m_botmap[pos]->m_guid == 0)
                 CreateBot(m_botmap[pos]->m_entry, m_botmap[pos]->m_race, m_botmap[pos]->m_class, m_botmap[pos]->tank);
@@ -2748,9 +2748,9 @@ void Player::RemoveBot(uint64 guid, bool final, bool eraseFromDB)
 
 void Player::CreateBot(uint32 botentry, uint8 botrace, uint8 botclass, bool istank, bool revive)
 {
-    if (IsBeingTeleported() || isInFlight()) return; //don't create bot yet
+    if (IsBeingTeleported() || IsInFlight()) return; //don't create bot yet
     if (isDead() && !revive) return; //not to revive by command so abort
-    if (isInCombat()) return;
+    if (IsInCombat()) return;
 
     if (m_bot != NULL && revive)
     {
@@ -2796,7 +2796,7 @@ void Player::CreateBot(uint32 botentry, uint8 botrace, uint8 botclass, bool ista
         uint32 count = 0;
         Map::PlayerList const& plMap = map->GetPlayers();
         for (Map::PlayerList::const_iterator itr = plMap.begin(); itr != plMap.end(); ++itr)
-            if (Player* player = itr->getSource())
+            if (Player* player = itr->GetSource())
                 count += (1 + player->GetNpcBotsCount());
 
         //check "more" cuz current bot is queued and we are to choose to remove it or not
@@ -19736,7 +19736,7 @@ bool Player::CheckInstanceLoginValid()
     if (!map)
         return false;
 
-    if (!map->IsDungeon() || isGameMaster())
+    if (!map->IsDungeon() || IsGameMaster())
         return true;
 
     // recheck for full instance

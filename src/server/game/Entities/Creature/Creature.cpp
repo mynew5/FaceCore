@@ -2593,7 +2593,7 @@ void Creature::SetBotTank(Unit* newtank)
             }
         }
         bot_AI->UpdateHealth();
-        if (!isInCombat())
+        if (!IsInCombat())
             SetBotCommandState(COMMAND_FOLLOW, true);
     }
     bot_AI->SetBotTank(newtank);

@@ -59,11 +59,11 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
         handler->SetSentErrorMessage(true);
-        if (/*player->isInCombat() ||*/
+        if (/*player->IsInCombat() ||*/
             player->isDead() ||
-            !player->isAlive() ||
-            player->isInFlight() ||
-            player->isCharmed() ||
+            !player->IsAlive() ||
+            player->IsInFlight() ||
+            player->IsCharmed() ||
             bot_ai::CCed(player) ||
             (player->getLevel() > 79))
         {
@@ -167,7 +167,7 @@ public:
             if (Unit* unit = bot_ai::GetBotGroupMainTank(group))
             {
                 bool bot = unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetIAmABot();
-                handler->PSendSysMessage("Main tank is %s (%s%s).", unit->GetName().c_str(), (bot ? "npcbot" : "player"), (unit->isAlive() ? "" : ", dead"));
+                handler->PSendSysMessage("Main tank is %s (%s%s).", unit->GetName().c_str(), (bot ? "npcbot" : "player"), (unit->IsAlive() ? "" : ", dead"));
                 handler->SetSentErrorMessage(true);
                 return true;
             }
@@ -263,7 +263,7 @@ public:
                     if (cre->GetBotClass() == i)
                     {
                         ++count;
-                        if (cre->isAlive())
+                        if (cre->IsAlive())
                             ++alivecount;
                     }
                 }
@@ -316,7 +316,7 @@ public:
         if (dist >= 0 && dist <= 75)
         {
             owner->SetBotFollowDist(dist);
-            if (!owner->isInCombat() && owner->HaveBot())
+            if (!owner->IsInCombat() && owner->HaveBot())
             {
                 for (uint8 i = 0; i != owner->GetMaxNpcBots(); ++i)
                 {
@@ -330,11 +330,11 @@ public:
             {
                 for (GroupReference* itr = gr->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
-                    Player* pl = itr->getSource();
+                    Player* pl = itr->GetSource();
                     if (pl && pl->IsInWorld() && pl->GetMap() == owner->GetMap())
                     {
                         pl->SetBotFollowDist(dist);
-                        if (!pl->isInCombat() && pl->HaveBot())
+                        if (!pl->IsInCombat() && pl->HaveBot())
                         {
                             for (uint8 i = 0; i != pl->GetMaxNpcBots(); ++i)
                             {
@@ -469,7 +469,7 @@ public:
         }
         if (master && master->GetGUID() == owner->GetGUID())
         {
-            if (master->isInCombat() && master->GetSession()->GetSecurity() == SEC_PLAYER)
+            if (master->IsInCombat() && master->GetSession()->GetSecurity() == SEC_PLAYER)
             {
                 handler->PSendSysMessage("Cannot reset bots in combat!");
                 handler->SetSentErrorMessage(true);
@@ -516,7 +516,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        if (owner->isInFlight())
+        if (owner->IsInFlight())
         {
             handler->PSendSysMessage("Bot revival is disabled in flight");
             handler->SetSentErrorMessage(true);
@@ -616,7 +616,7 @@ public:
         owner->RefreshBot(0);
         if (owner->GetNpcBotsCount() > bots)
         {
-            if (owner->isInCombat())
+            if (owner->IsInCombat())
                 handler->PSendSysMessage("NpcBot successfully created (%s). Will appear out of combat", owner->GetName().c_str());
             else
                 handler->PSendSysMessage("NpcBot successfully created (%s).", owner->GetName().c_str());

@@ -211,7 +211,7 @@ class boss_eadric : public CreatureScript
                 Map::PlayerList const &players = pMap->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                     if (itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+                     if (itr->GetSource() && itr->GetSource()->IsAlive() && !itr->GetSource()->IsGameMaster())
                          return;
                 }
                 
@@ -386,7 +386,7 @@ class boss_paletress : public CreatureScript
                 Map::PlayerList const &players = pMap->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+                    if (itr->GetSource() && itr->GetSource()->IsAlive() && !itr->GetSource()->IsGameMaster())
                         return;
                 }
 
@@ -674,7 +674,7 @@ class npc_memory : public CreatureScript
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (summoner && summoner->isAlive())
+                    if (summoner && summoner->IsAlive())
                         summoner->ToCreature()->AI()->SetData(1,0);
                 }
             }
