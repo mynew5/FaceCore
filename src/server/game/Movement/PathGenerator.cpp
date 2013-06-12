@@ -172,7 +172,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         BuildShortcut();
         bool path = _sourceUnit->GetTypeId() == TYPEID_UNIT && _sourceUnit->ToCreature()->CanFly();
 
-        bool waterPath = _sourceUnit->GetTypeId() == TYPEID_UNIT && _sourceUnit->ToCreature()->canSwim();
+        bool waterPath = _sourceUnit->GetTypeId() == TYPEID_UNIT && _sourceUnit->ToCreature()->CanSwim();
         if (waterPath)
         {
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
@@ -192,7 +192,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (_sourceUnit->GetTypeId() == TYPEID_UNIT)
         {
             if ((startPoly == INVALID_POLYREF && _sourceUnit->GetBaseMap()->IsUnderWater(startPos.x, startPos.y, startPos.z)) || (endPoly == INVALID_POLYREF && _sourceUnit->GetBaseMap()->IsUnderWater(endPos.x, endPos.y, endPos.z)))
-                _type = ((Creature*)_sourceUnit)->canSwim() ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
+                _type = ((Creature*)_sourceUnit)->CanSwim() ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
             else
                 _type = ((Creature*)_sourceUnit)->CanFly() ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
         }
@@ -217,7 +217,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             if (_sourceUnit->GetBaseMap()->IsUnderWater(p.x, p.y, p.z))
             {
                 TC_LOG_DEBUG(LOG_FILTER_MAPS, "++ BuildPolyPath :: underWater case\n");
-                if (owner->canSwim())
+                if (owner->CanSwim())
                     buildShotrcut = true;
             }
             else
@@ -628,11 +628,11 @@ void PathGenerator::CreateFilter()
     if (_sourceUnit->GetTypeId() == TYPEID_UNIT)
     {
         Creature* creature = (Creature*)_sourceUnit;
-        if (creature->canWalk())
+        if (creature->CanWalk())
             includeFlags |= NAV_GROUND;          // walk
 
         // creatures don't take environmental damage
-        if (creature->canSwim())
+        if (creature->CanSwim())
             includeFlags |= (NAV_WATER | NAV_MAGMA | NAV_SLIME);           // swim
     }
     else // assume Player

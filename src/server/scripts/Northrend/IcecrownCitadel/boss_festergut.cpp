@@ -123,7 +123,7 @@ class boss_festergut : public CreatureScript
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
                     _gasDummyGUID = gasDummy->GetGUID();
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                    if (professor->isAlive())
+                    if (professor->IsAlive())
                         professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
                 DoZoneInCombat();
             }
@@ -137,7 +137,7 @@ class boss_festergut : public CreatureScript
                 _JustDied();
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                    if (professor->isAlive())
+                    if (professor->IsAlive())
                         professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
 
                 RemoveBlight();
@@ -192,7 +192,7 @@ class boss_festergut : public CreatureScript
                                 DoCast(me, SPELL_PUNGENT_BLIGHT);
                                 _inhaleCounter = 0;
                                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                                    if (professor->isAlive())
+                                    if (professor->IsAlive())
                                         professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
                                 events.RescheduleEvent(EVENT_GAS_SPORE, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             }
@@ -339,7 +339,7 @@ class npc_stinky_icc : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (Creature* festergut = me->GetCreature(*me, _instance->GetData64(DATA_FESTERGUT)))
-                    if (festergut->isAlive())
+                    if (festergut->IsAlive())
                         festergut->AI()->Talk(SAY_STINKY_DEAD);
             }
 

@@ -303,8 +303,8 @@ public:
             Map::PlayerList const &PlayerList = ((InstanceMap*)me->GetMap())->GetPlayers();
             for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                Player* i_pl = i->getSource();
-                if(i_pl && i_pl->isAlive() && i_pl->HasAuraEffect(SPELL_FOG_CHARM,0))
+                Player* i_pl = i->GetSource();
+                if(i_pl && i_pl->IsAlive() && i_pl->HasAuraEffect(SPELL_FOG_CHARM,0))
                     i_pl->DealDamage(i_pl,i_pl->GetHealth(),0,DIRECT_DAMAGE,SPELL_SCHOOL_MASK_NORMAL,0,false);
             }
         }
@@ -591,13 +591,13 @@ public:
                     Timer[EVENT_BERSERK] = 10000;
                     break;
                 case EVENT_CLEAVE:
-                    me->CastSpell(me->getVictim(), SPELL_CLEAVE, false);
+                    me->CastSpell(me->GetVictim(), SPELL_CLEAVE, false);
                     Timer[EVENT_CLEAVE] = 5000 + rand()%5 * 1000;
                     break;
                 case EVENT_CORROSION:
                     if(!me->IsNonMeleeSpellCasted(false))
                     {
-                        me->CastSpell(me->getVictim(), SPELL_CORROSION, false);
+                        me->CastSpell(me->GetVictim(), SPELL_CORROSION, false);
                         Timer[EVENT_CORROSION] = 20000 + rand()%10 * 1000;
                     }
                     break;
@@ -707,7 +707,7 @@ public:
         }
         void UpdateAI(uint32 diff)
         {
-            if(!me->getVictim())
+            if(!me->GetVictim())
                 AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
         }
     };
@@ -775,8 +775,8 @@ public:
                 Map::PlayerList const &PlayerList = map->GetPlayers();
                 for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if (Player* i_pl = i->getSource())
-                        if (i_pl->isAlive() && me->IsInDist2d(i_pl,20))
+                    if (Player* i_pl = i->GetSource())
+                        if (i_pl->IsAlive() && me->IsInDist2d(i_pl,20))
                         {
                             const SpellInfo *spellinfo = sSpellMgr->GetSpellInfo(SPELL_FOG_FORCE);
                             SpellHitTarget(i_pl,spellinfo);

@@ -50,7 +50,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Creature* creatureTarget = GetHitCreature())
-                if (!creatureTarget->isPet() && creatureTarget->GetEntry() == _originalEntry)
+                if (!creatureTarget->IsPet() && creatureTarget->GetEntry() == _originalEntry)
                 {
                     creatureTarget->UpdateEntry(_newEntry);
                     if (_shouldAttack && creatureTarget->IsAIEnabled)
@@ -83,6 +83,47 @@ class spell_q55_sacred_cleansing : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_1, NPC_MORBENT, NPC_WEAKENED_MORBENT, true);
+        }
+};
+
+// 9712 - Thaumaturgy Channel
+enum ThaumaturgyChannel
+{
+    SPELL_THAUMATURGY_CHANNEL = 21029
+};
+
+class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
+{
+    public:
+        spell_q2203_thaumaturgy_channel() : SpellScriptLoader("spell_q2203_thaumaturgy_channel") { }
+
+        class spell_q2203_thaumaturgy_channel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q2203_thaumaturgy_channel_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_THAUMATURGY_CHANNEL))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, SPELL_THAUMATURGY_CHANNEL, false);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q2203_thaumaturgy_channel_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_q2203_thaumaturgy_channel_AuraScript();
         }
 };
 
@@ -1674,6 +1715,7 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
+    new spell_q2203_thaumaturgy_channel();
     new spell_q5206_test_fetid_skull();
     new spell_q6124_6129_apply_salve();
     new spell_q10255_administer_antidote();

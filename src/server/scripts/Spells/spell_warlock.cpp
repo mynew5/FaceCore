@@ -357,7 +357,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
             {
                 if (Creature* targetCreature = GetHitCreature())
                 {
-                    if (targetCreature->isPet())
+                    if (targetCreature->IsPet())
                     {
                         CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
                         switch (ci->family)
@@ -434,7 +434,7 @@ public:
             //Unit *caster = GetCaster();
             // Get DoTs on target by owner (15% increase by dot)
             // need to get this here from SpellEffects.cpp ?
-            // damage *= float(100.f + 15.f * caster->getVictim()->GetDoTsByCaster(caster->GetOwnerGUID())) / 100.f;
+            // damage *= float(100.f + 15.f * caster->GetVictim()->GetDoTsByCaster(caster->GetOwnerGUID())) / 100.f;
         }
 
         // For Improved Felhunter
@@ -444,7 +444,7 @@ public:
             if(!caster) { return; };
 
             // break if our caster is not a pet
-            if(!(caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->isPet())) { return; };
+            if(!(caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsPet())) { return; };
 
             // break if pet has no owner and/or owner is not a player
             Unit *owner = caster->GetOwner();

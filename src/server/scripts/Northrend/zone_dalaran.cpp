@@ -80,7 +80,7 @@ public:
 
             Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
 
-            if (!player || player->isGameMaster() || player->IsBeingTeleported() ||
+            if (!player || player->IsGameMaster() || player->IsBeingTeleported() ||
                 // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
                 player->HasAura(SPELL_SUNREAVER_DISGUISE_FEMALE) || player->HasAura(SPELL_SUNREAVER_DISGUISE_MALE) ||
                 player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE))
@@ -144,7 +144,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (!creature->isVendor() || !creature->isTrainer())
+        if (!creature->IsVendor() || !creature->IsTrainer())
             return false;
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
@@ -178,7 +178,7 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-	     if (pCreature->isQuestGiver())
+	     if (pCreature->IsQuestGiver())
             	pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
 	     if (pPlayer->GetQuestStatus(24451)!=QUEST_STATUS_NONE){
@@ -208,7 +208,7 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-	     if (pCreature->isQuestGiver())
+	     if (pCreature->IsQuestGiver())
             	pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
 	     if (pPlayer->GetQuestStatus(20439)!=QUEST_STATUS_NONE){
@@ -253,7 +253,7 @@ public:
 
     bool OnGossipHello (Player* pPlayer, Creature* pCreature)
     {
-        if (pCreature->isQuestGiver() && pCreature->GetZoneId() != ZONE_DALARAN)
+        if (pCreature->IsQuestGiver() && pCreature->GetZoneId() != ZONE_DALARAN)
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
         if(pPlayer->HasItemCount(ITEM_ACANE_MAGIC_MASTERY,1,false))

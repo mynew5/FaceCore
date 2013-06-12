@@ -241,7 +241,6 @@ class LootTemplate
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
         bool addConditionItem(Condition* cond);
         bool isReference(uint32 id);
-        void VistaWoWDropBoost(Loot& loot, uint16 lootMode, uint8 count) const;
 
     private:
         LootStoreItemList Entries;                          // not grouped only

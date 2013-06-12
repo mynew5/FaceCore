@@ -339,7 +339,7 @@ class boss_sindragosa : public CreatureScript
                         DoZoneInCombat(me, 100.0f);
 
                         // Sindragosa should be in combat here, otherwise EnterEvadeMode and despawn
-                        if (!me->isInCombat())
+                        if (!me->IsInCombat())
                             EnterEvadeMode(); 
                         break;
                     case POINT_TAKEOFF:
@@ -426,10 +426,10 @@ class boss_sindragosa : public CreatureScript
                         return;
 
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        if (i->getSource())
-                            if (i->getSource()->isAlive())
-                                if (i->getSource()->GetPositionZ() < 195.0f && i->getSource()->GetDistance2d(4379.1f, 2485.4f) < 100.0f)
-                                    i->getSource()->TeleportTo(631, 4419.190f, 2484.570f, 205.0f, 3.141593f);
+                        if (i->GetSource())
+                            if (i->GetSource()->IsAlive())
+                                if (i->GetSource()->GetPositionZ() < 195.0f && i->GetSource()->GetDistance2d(4379.1f, 2485.4f) < 100.0f)
+                                    i->GetSource()->TeleportTo(631, 4419.190f, 2484.570f, 205.0f, 3.141593f);
                 }
             }
 
@@ -1136,7 +1136,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
 
-                if (!GetHitUnit()->isAlive() || !_targetCount)
+                if (!GetHitUnit()->IsAlive() || !_targetCount)
                     return;
 
                 float resistance = float(GetHitUnit()->GetResistance(SpellSchoolMask(GetSpellInfo()->SchoolMask)));
@@ -1501,9 +1501,9 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
 
                 if (unit && caster)
                 {
-                    if (caster->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && caster->getVictim())
+                    if (caster->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && caster->GetVictim())
                     {
-                        if (caster->getVictim()->GetGUID() != unit->GetGUID()) // exclude tank
+                        if (caster->GetVictim()->GetGUID() != unit->GetGUID()) // exclude tank
                         {
                             float x, y, z;
                             caster->GetPosition(x, y, z);

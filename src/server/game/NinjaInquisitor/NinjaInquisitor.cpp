@@ -85,7 +85,7 @@ uint32 NinjaInquisitor::GetInstanceId(Player* player)
     if (!instanceId)
         if (Group* group = player->GetGroup())
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                if (Player* member = itr->getSource())
+                if (Player* member = itr->GetSource())
                     if (instanceId = GetLastInstanceId(member))
                         break;
 
@@ -232,7 +232,7 @@ void NinjaInquisitor::LogLootMoney(Player* player)
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* member = itr->getSource();
+            Player* member = itr->GetSource();
             if (!member)
                 continue;
 
@@ -261,7 +261,7 @@ void NinjaInquisitor::LogLootMoney(Player* player)
         case HIGHGUID_VEHICLE:
         {
             Creature* creature = player->GetMap()->GetCreature(lootGUID);
-            if (creature && !creature->isAlive() && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
+            if (creature && !creature->IsAlive() && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
                 if (Loot* loot = &creature->loot)
                 {
                     uint32 goldPerPlayer = uint32(loot->gold / playersNear.size());

@@ -53,7 +53,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_A) || player->GetQuestRewardStatus(QUEST_RETURN_TO_AG_H))
@@ -242,7 +242,7 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        if (pCreature->isQuestGiver())
+        if (pCreature->IsQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
         if (pPlayer->GetQuestRewardStatus(QUEST_BLOOD_OATH_HORDE) && pPlayer->getQuestStatusMap()[QUEST_BLOOD_OATH_HORDE].CreatureOrGOCount[0] >= 5)
@@ -627,7 +627,7 @@ public:
 
     bool OnGossipHello(Player *player, Creature *pCreature)
     {
-        if (pCreature->isQuestGiver())
+        if (pCreature->IsQuestGiver())
             player->PrepareQuestMenu(pCreature->GetGUID());
 
         if (pCreature->GetEntry() == NPC_HIGH_ABBOT_LANDGREN_ENTRY && player->GetQuestStatus(QUEST_A_FALL_FROM_GRACE) == QUEST_STATUS_INCOMPLETE && player->getQuestStatusMap()[QUEST_A_FALL_FROM_GRACE].CreatureOrGOCount[0] == 1 && (player->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_MALE) || player->HasAura(SPELL_SCARLET_RAVEN_PRIEST_IMAGE_FEMALE)))

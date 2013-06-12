@@ -134,7 +134,7 @@ class mob_titanium_thunderer : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_COUNTERATTACK:
-                            DoCast(me->getVictim(), SPELL_COUNTERATTACK);
+                            DoCast(me->GetVictim(), SPELL_COUNTERATTACK);
                             events.ScheduleEvent(EVENT_COUNTERATTACK, urand(16000, 18000));
                             break;
                         case EVENT_DEADLY_THROW:
@@ -252,7 +252,7 @@ class mob_titanium_siegebreaker : public CreatureScript
                             events.ScheduleEvent(EVENT_BLADE_TURNING, 15000);
                             break;
                         case EVENT_PENETRATING_STRIKE:
-                            DoCast(me->getVictim(), SPELL_PENETRATING_STRIKE);
+                            DoCast(me->GetVictim(), SPELL_PENETRATING_STRIKE);
                             events.ScheduleEvent(EVENT_PENETRATING_STRIKE, urand(10000, 12000));
                             break;
                         case EVENT_PIERCING_HOWL:

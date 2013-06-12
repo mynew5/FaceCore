@@ -465,7 +465,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         roundRobinPlayer = lootOwner->GetGUID();
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-            if (Player* player = itr->getSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
+            if (Player* player = itr->GetSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
                 FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
 
         for (uint8 i = 0; i < items.size(); ++i)
@@ -1315,68 +1315,6 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
     for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
         if (LootGroup* group = *i)
             group->Process(loot, lootMode);
-}
-
-// VISTAWOW DROP BOOST
-void LootTemplate::VistaWoWDropBoost(Loot& loot, uint16 lootMode, uint8 count) const
-{
-    if (Entries.size() || Groups.size())
-        while (count--)
-        {
-            uint32 index = urand(uint32(Entries.size() == 0), Groups.size());
-
-            if (!index)
-            {
-                float roll = frand(0.0f, 100.0f);
-                int32 offset = urand(1, Entries.size());
-
-                for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
-                {
-                    LootStoreItem* item = *i;
-                    if (item->lootmode & lootMode)
-                        if (--offset <= 0)
-                            if ((roll -= item->chance) <= 0.0f)
-                            {
-                                if (item->mincountOrRef < 0)
-                                {
-                                    if (LootTemplate const* temp = LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
-                                        temp->VistaWoWDropBoost(loot, lootMode, 1);
-                                }
-                                else
-                                    loot.AddItem(*item);
-                                break;
-                            }
-                }
-
-                if (roll > 0.0f)
-                    for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
-                    {
-                        LootStoreItem* item = *i;
-                        if (item->lootmode & lootMode)
-                            if ((roll -= item->chance) <= 0.0f)
-                            {
-                                if (item->mincountOrRef < 0)
-                                {
-                                    if (LootTemplate const* temp = LootTemplates_Reference.GetLootFor(-item->mincountOrRef))
-                                        temp->VistaWoWDropBoost(loot, lootMode, 1);
-                                }
-                                else
-                                    loot.AddItem(*item);
-                                break;
-                            }
-                    }
-            }
-            else
-            {
-                for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
-                    if (LootGroup* group = *i)
-                        if (--index == 0)
-                        {
-                            group->Process(loot, lootMode);
-                            break;
-                        }
-            }
-        }
 }
 
 // True if template includes at least 1 quest drop entry

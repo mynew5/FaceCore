@@ -323,11 +323,11 @@ public:
             me->MonsterSay(SAY_DEATH, 0, 0);
 
             if (Creature* Baxter = me->GetCreature(*me, pInstance->GetData64(DATA_BAXTER)))
-                if (Baxter->isAlive())
+                if (Baxter->IsAlive())
                     me->SetLootRecipient(NULL);
 
             if (Creature* Frye = me->GetCreature(*me, pInstance->GetData64(DATA_FRYE)))
-                if (Frye->isAlive())
+                if (Frye->IsAlive())
                     me->SetLootRecipient(NULL);
         }
 
@@ -433,11 +433,11 @@ public:
         void JustDied(Unit* /*Killer*/)
         {
             if (Creature* Hummel = me->GetCreature(*me, pInstance->GetData64(DATA_HUMMEL)))
-                if (Hummel->isAlive())
+                if (Hummel->IsAlive())
                     me->SetLootRecipient(NULL);
 
             if (Creature* Frye = me->GetCreature(*me, pInstance->GetData64(DATA_FRYE)))
-                if (Frye->isAlive())
+                if (Frye->IsAlive())
                     me->SetLootRecipient(NULL);
         }
 
@@ -530,11 +530,11 @@ public:
         void JustDied(Unit* /*Killer*/)
         {
             if (Creature* Hummel = me->GetCreature(*me, pInstance->GetData64(DATA_HUMMEL)))
-                if (Hummel->isAlive())
+                if (Hummel->IsAlive())
                     me->SetLootRecipient(NULL);
 
             if (Creature* Baxter = me->GetCreature(*me, pInstance->GetData64(DATA_BAXTER)))
-                if (Baxter->isAlive())
+                if (Baxter->IsAlive())
                     me->SetLootRecipient(NULL);
         }
 

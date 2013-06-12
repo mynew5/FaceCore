@@ -1130,11 +1130,6 @@ class Player : public Unit, public GridObject<Player>
         // VISTAWOW ANTICHEAT
         AntiCheat* GetAntiCheat() { return m_anticheat; };
 
-        // VISTAWOW DROP BOOST
-        void UpdateDropBoostRating();
-        uint32 GetDropBoostRating() { return m_DropBoostRating; };
-        void DoDropBoostIfEligible(Loot& loot, LootStore const& store, uint32 lootid, uint16 mode);
-
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
@@ -1182,7 +1177,7 @@ class Player : public Unit, public GridObject<Player>
                                                             // mount_id can be used in scripting calls
         bool isAcceptWhispers() const { return m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
-        bool isGameMaster() const { return m_ExtraFlags & PLAYER_EXTRA_GM_ON; }
+        bool IsGameMaster() const { return m_ExtraFlags & PLAYER_EXTRA_GM_ON; }
         void SetGameMaster(bool on);
         bool isGMChat() const { return m_ExtraFlags & PLAYER_EXTRA_GM_CHAT; }
         void SetGMChat(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_GM_CHAT; else m_ExtraFlags &= ~PLAYER_EXTRA_GM_CHAT; }
@@ -2010,7 +2005,7 @@ class Player : public Unit, public GridObject<Player>
         void SetCanBlock(bool value);
         bool CanTitanGrip() const { return m_canTitanGrip; }
         void SetCanTitanGrip(bool value) { m_canTitanGrip = value; }
-        bool CanTameExoticPets() const { return isGameMaster() || HasAuraType(SPELL_AURA_ALLOW_TAME_PET_TYPE); }
+        bool CanTameExoticPets() const { return IsGameMaster() || HasAuraType(SPELL_AURA_ALLOW_TAME_PET_TYPE); }
 
         void SetRegularAttackTime();
         void SetBaseModValue(BaseModGroup modGroup, BaseModType modType, float value) { m_auraBaseMod[modGroup][modType] = value; }
@@ -2334,7 +2329,7 @@ class Player : public Unit, public GridObject<Player>
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
         //bool isActiveObject() const { return true; }
-        bool canSeeSpellClickOn(Creature const* creature) const;
+        bool CanSeeSpellClickOn(Creature const* creature) const;
 
         uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
@@ -2706,9 +2701,6 @@ class Player : public Unit, public GridObject<Player>
 
         // VISTAWOW ANTICHEAT
         AntiCheat* m_anticheat;
-
-        // VISTAWOW DROP BOOST
-        uint32 m_DropBoostRating;
 
         MapReference m_mapRef;
 

@@ -166,7 +166,7 @@ class npc_arena_watcher : public CreatureScript
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (ArenaWatcherEnable && (!ArenaWatcherOnlyGM || player->isGameMaster()) && !player->InBattlegroundQueue())
+        if (ArenaWatcherEnable && (!ArenaWatcherOnlyGM || player->IsGameMaster()) && !player->InBattlegroundQueue())
         {
             uint32 arenasCount[MAX_ARENA_SLOT] = {0, 0, 0};
 
@@ -233,7 +233,7 @@ class npc_arena_watcher : public CreatureScript
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (!ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->isGameMaster()) || player->InBattlegroundQueue())
+        if (!ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->IsGameMaster()) || player->InBattlegroundQueue())
             return true;
 
         if (action <= GOSSIP_OFFSET)
@@ -372,7 +372,7 @@ class npc_arena_watcher : public CreatureScript
         player->PlayerTalkClass->ClearMenus();
         player->CLOSE_GOSSIP_MENU();
 
-        if (!ArenaWatcherToPlayers || !ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->isGameMaster()) || !*targetName || player->InBattlegroundQueue())
+        if (!ArenaWatcherToPlayers || !ArenaWatcherEnable || (ArenaWatcherOnlyGM && !player->IsGameMaster()) || !*targetName || player->InBattlegroundQueue())
             return true;
 
         if (uiSender == GOSSIP_SENDER_MAIN)
@@ -387,7 +387,7 @@ class npc_arena_watcher : public CreatureScript
                             sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_WORLD, player->GetGUID());
                         else if (!target->InArena())
                             sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_ARENA, player->GetGUID());
-                        else if (target->isGameMaster())
+                        else if (target->IsGameMaster())
                             sCreatureTextMgr->SendChat(creature, SAY_TARGET_IS_GM, player->GetGUID());
                         else
                         {
