@@ -59,7 +59,7 @@ void ConfusedMovementGenerator<T>::DoReset(T* unit)
 template<class T>
 bool ConfusedMovementGenerator<T>::DoUpdate(T* unit, uint32 diff)
 {
-    return; // Temporarily disable ConfusedMovementGenerator until #7704 is fixed
+    return true; // Temporarily disable ConfusedMovementGenerator until #7704 is fixed
 
     if (unit->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return true;
