@@ -80,7 +80,7 @@ void ArenaWatcherAfterTeleport(Player* player)
 
     if (ArenaWatcherFly)
     {
-        player->SendMovementSetCanFly(true);
+        player->SetDisableGravity(true, false);
         player->SetCanFly(true);
     }
 
@@ -107,7 +107,7 @@ void ArenaWatcherEnd(Player* player)
         ArenaWatcherPlayers.erase(itr);
         player->ResurrectPlayer(100.0f, false);
         player->SetVisible(true);
-        player->SendMovementSetCanFly(false);
+        player->SetDisableGravity(false, false);
         player->SetCanFly(false);
         player->SetSpeed(MOVE_WALK, 1.0f, true);
         player->SetSpeed(MOVE_RUN, 1.0f, true);
