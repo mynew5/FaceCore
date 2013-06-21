@@ -891,7 +891,7 @@ void BattlefieldWG::SendInitWorldStatesToAll()
                 SendInitWorldStatesTo(player);
 }
 
-void BattlefieldWG::BrokenWallOrTower(TeamId /*team*/)
+void BattlefieldWG::BrokenWallOrTower(TeamId team)
 {
     if (team == GetDefenderTeam())
     {
