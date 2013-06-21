@@ -142,6 +142,13 @@ enum WintergraspAreaIds
     AREA_THE_CHILLED_QUAGMIRE       = 4589
 };
 
+enum CreditsWintergrasp
+{
+ QUEST_VICTORY_WINTERGRASP_A = 13181,
+ QUEST_VICTORY_WINTERGRASP_H = 13183,
+ CREDIT_TOWERS = 35074,
+};
+
 /*#########################
  *####### Graveyards ######
  *#########################*/
@@ -1193,7 +1200,8 @@ struct BfWGGameObjectBuilding
                 break;
         }
 
-        m_WG->BrokenWallOrTower(TeamId(m_Team));
+        if (m_Type == BATTLEFIELD_WG_OBJECTTYPE_TOWER)
+            m_WG->BrokenWallOrTower(TeamId(m_Team));
     }
 
     void Init(GameObject* go, uint32 type, uint32 worldstate, uint32 nameid)

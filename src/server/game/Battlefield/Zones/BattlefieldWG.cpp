@@ -283,6 +283,9 @@ void BattlefieldWG::OnBattleStart()
 
 void BattlefieldWG::UpdateCounterVehicle(bool init)
 {
+    if (!IsWarTime())
+    return;
+
     if (init)
     {
         SetData(BATTLEFIELD_WG_DATA_VEHICLE_H, 0);
@@ -375,6 +378,18 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         {
             player->CastSpell(player, SPELL_ESSENCE_OF_WINTERGRASP, true);
             player->CastSpell(player, SPELL_VICTORY_REWARD, true);
+            if (GetData(BATTLEFIELD_WG_DATA_DAMAGED_TOWER_DEF))
+                player->CastSpell(player, SPELL_DAMAGED_BUILDING, true);
+            else
+                if (!GetData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_DEF))
+                    player->CastSpell(player, SPELL_INTACT_BUILDING, true);
+            if (GetData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_ATT))
+                player->CastSpell(player, SPELL_DESTROYED_TOWER, true);
+            else
+                if (GetData(BATTLEFIELD_WG_DATA_DAMAGED_TOWER_ATT))
+                    player->CastSpell(player, SPELL_DAMAGED_TOWER, true);
+            player->AreaExploredOrEventHappens(QUEST_VICTORY_WINTERGRASP_A);
+            player->AreaExploredOrEventHappens(QUEST_VICTORY_WINTERGRASP_H);
             // Send Wintergrasp victory achievement
             DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WIN_WG, player);
             // Award achievement for succeeding in Wintergrasp in 10 minutes or less
@@ -384,8 +399,17 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     }
 
     for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
+    {
         if (Player* player = sObjectAccessor->FindPlayer(*itr))
+        {
             player->CastSpell(player, SPELL_DEFEAT_REWARD, true);
+            if (GetData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_DEF))
+                player->CastSpell(player, SPELL_DESTROYED_TOWER, true);
+            else
+                if (GetData(BATTLEFIELD_WG_DATA_DAMAGED_TOWER_DEF))
+                    player->CastSpell(player, SPELL_DAMAGED_TOWER, true);
+        }
+    }
 
     for (uint8 team = 0; team < 2; ++team)
     {
@@ -869,15 +893,14 @@ void BattlefieldWG::SendInitWorldStatesToAll()
 
 void BattlefieldWG::BrokenWallOrTower(TeamId /*team*/)
 {
-// might be some use for this in the future. old code commented out below. KL
-/*    if (team == GetDefenderTeam())
+    if (team == GetDefenderTeam())
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
+        for (GuidSet::const_iterator itr = m_PlayersInWar[GetDefenderTeam()].begin(); itr != m_PlayersInWar[GetDefenderTeam()].end(); ++itr)
         {
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                IncrementQuest(player, WGQuest[player->GetTeamId()][2], true);
+                player->KilledMonsterCredit(CREDIT_TOWERS, 0);
         }
-    }*/
+    }
 }
 
 // Called when a tower is broke
@@ -951,6 +974,14 @@ void BattlefieldWG::ProcessEvent(WorldObject* obj, uint32 eventId)
 
                 if (build->GetGOInfo()->building.destroyedEvent == eventId)
                     (*itr)->Destroyed();
+
+                // Add Support of Quests Toppling the Towers & Southern Sabotage
+                if (go->GetEntry()==190356 || go->GetEntry()==190357 || go->GetEntry()==190358)
+                {
+                    for (GuidSet::const_iterator itr = m_PlayersInWar[GetDefenderTeam()].begin(); itr != m_PlayersInWar[GetDefenderTeam()].end(); ++itr)
+                        if (Player* player = sObjectAccessor->FindPlayer(*itr))
+                            player->RewardPlayerAndGroupAtEvent(35074, go);
+                }
 
                 break;
             }
