@@ -47,7 +47,7 @@ enum Spells
     SPELL_STRIKE                    = 15580, // Combat
     SPELL_ENCAGE                    = 16045, // Combat
     // Cast on player by altar
-    SPELL_EMBERSEER_START           = 16533
+    SPELL_EMBERSEER_OBJECT_VISUAL   = 16532
 };
 
 enum Events
@@ -82,7 +82,7 @@ public:
         {
             if (instance)
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
 
                 // Apply auras on spawn and reset
                 // DoCast(me, SPELL_FIRE_SHIELD_TRIGGER); // Need to find this in old DBC if possible
@@ -111,9 +111,7 @@ public:
         void SetData(uint32 type, uint32 data)
         {
             if (instance && type == 1 && data == 1)
-            {
                 events.ScheduleEvent(EVENT_PLAYER_CHECK, 5000);
-            }
 
             if (instance && type == 1 && data == 2)
             {
@@ -257,7 +255,7 @@ public:
                             Map::PlayerList const &players = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 if (Player* player = itr->GetSource()->ToPlayer())
-                                    if (!player->HasAura(SPELL_EMBERSEER_START))
+                                    if (!player->HasAura(SPELL_EMBERSEER_OBJECT_VISUAL))
                                         _hasAura = false;
 
                             if (_hasAura)
@@ -275,19 +273,16 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_FIRENOVA:
-                        DoCast(SPELL_FIRENOVA);
+                        DoCast(me, SPELL_FIRENOVA);
                         events.ScheduleEvent(EVENT_FIRENOVA, 6000);
                         break;
                     case EVENT_FLAMEBUFFET:
-                        DoCast(SPELL_FLAMEBUFFET);
+                        DoCast(me, SPELL_FLAMEBUFFET);
                         events.ScheduleEvent(EVENT_FLAMEBUFFET, 14000);
                         break;
                     case EVENT_PYROBLAST:
