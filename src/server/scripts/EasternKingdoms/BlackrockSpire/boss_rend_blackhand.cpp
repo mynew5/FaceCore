@@ -176,15 +176,16 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WHIRLWIND,     13000);
-            events.ScheduleEvent(EVENT_CLEAVE,        15000);
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 17000);
+            events.ScheduleEvent(EVENT_WHIRLWIND,     urand (13000, 15000));
+            events.ScheduleEvent(EVENT_CLEAVE,        urand (15000, 17000));
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand (17000, 19000));
         }
 
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            // Do data set on victor
+            if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
+                victor->AI()->SetData(1, 2);
         }
 
         void SetData(uint32 type, uint32 data)
@@ -256,33 +257,24 @@ public:
                         case EVENT_TURN_TO_REND:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
                             {
-                                victor->SetInFront(me);
-                                victor->SendMovementFlagUpdate();
+                                victor->SetFacingToObject(me);
                                 victor->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
                             }
                             break;
                         case EVENT_TURN_TO_PLAYER:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
                                 if (Unit* player = victor->SelectNearestPlayer(60.0f))
-                                {
-                                    victor->SetInFront(player);
-                                    victor->SendMovementFlagUpdate();
-                                }
+                                    victor->SetFacingToObject(player);
                             break;
                         case EVENT_TURN_TO_FACING_1:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
-                            {
-                                victor->SetOrientation(1.518436f);
-                                victor->SendMovementFlagUpdate();
-                            }
+                                victor->SetFacingTo(1.518436f);
                             break;
                         case EVENT_TURN_TO_FACING_2:
-                            me->SetOrientation(1.658063f);
-                            me->SendMovementFlagUpdate();
+                            me->SetFacingTo(1.658063f);
                             break;
                         case EVENT_TURN_TO_FACING_3:
-                            me->SetOrientation(1.500983f);
-                            me->SendMovementFlagUpdate();
+                            me->SetFacingTo(1.500983f);
                             break;
                         case EVENT_WAVES_EMOTE_1:
                             if (Creature* victor = me->GetCreature(*me, victorGUID))
@@ -357,8 +349,6 @@ public:
                                 victor->GetMotionMaster()->MovePath(NEFARIUS_PATH_1, true);
                             break;
                         case EVENT_PATH_REND:
-                            // path to gyth and spawn gyth.
-                            // after despawn gyth fight will start
                             me->GetMotionMaster()->MovePath(REND_PATH_1, false);
                             break;
                         case EVENT_TELEPORT_1:
@@ -428,11 +418,11 @@ public:
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 10000);
+                        events.ScheduleEvent(EVENT_CLEAVE, urand(10000, 14000));
                         break;
                     case EVENT_MORTAL_STRIKE:
                         DoCastVictim(SPELL_MORTAL_STRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 16000);
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(14000, 16000));
                         break;
                 }
             }
