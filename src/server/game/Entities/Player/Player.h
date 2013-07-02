@@ -1125,6 +1125,11 @@ class Player : public Unit, public GridObject<Player>
         // VISTAWOW ANTICHEAT
         AntiCheat* GetAntiCheat() { return m_anticheat; };
 
+        // VISTAWOW DROP BOOST
+        void UpdateDropBoostRating();
+        uint32 GetDropBoostRating() { return m_DropBoostRating; };
+        void DoDropBoostIfEligible(Loot& loot, LootStore const& store, uint32 lootid, uint16 mode);
+
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
@@ -2635,6 +2640,9 @@ class Player : public Unit, public GridObject<Player>
 
         // VISTAWOW ANTICHEAT
         AntiCheat* m_anticheat;
+
+        // VISTAWOW DROP BOOST
+        uint32 m_DropBoostRating;
 
         MapReference m_mapRef;
 

@@ -11784,6 +11784,10 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         (*itr)->SetInCombatState(PvP, enemy);
         (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
     }
+
+    // VISTAWOW DROP BOOST
+    if (GetInstanceId() && (GetTypeId() == TYPEID_PLAYER))
+        ToPlayer()->UpdateDropBoostRating();
 }
 
 void Unit::ClearInCombat()
@@ -15280,7 +15284,13 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
             loot->clear();
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+            {
                 loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
+
+                // VISTAWOW DROP BOOST
+                if (player->GetInstanceId() && player->GetGroup())
+                    player->DoDropBoostIfEligible(*loot, LootTemplates_Creature, lootid, creature->GetLootMode());
+            }
 
             loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
         }
