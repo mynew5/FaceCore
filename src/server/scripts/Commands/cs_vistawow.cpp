@@ -52,7 +52,7 @@ public:
                 handler->SendSysMessage("Os jogadores de seu grupo estão haptos a receber bônus nas seguintes modalidades:");
 
                 for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                    if (Player* member = itr->getSource())
+                    if (Player* member = itr->GetSource())
                     {
                         member->UpdateDropBoostRating();
                         uint32 rating = member->GetDropBoostRating();

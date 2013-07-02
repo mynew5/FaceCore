@@ -26332,7 +26332,7 @@ void Player::DoDropBoostIfEligible(Loot& loot, LootStore const& store, uint32 lo
                 index = map->IsHeroic() ? 1 : 0;
 
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                if (Player* player = itr->getSource())
+                if (Player* player = itr->GetSource())
                     if (IsAtGroupRewardDistance(player))
                         if (dp_requirement_levels[index] >= player->GetDropBoostRating())
                             count++;
