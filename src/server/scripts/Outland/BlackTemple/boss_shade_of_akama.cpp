@@ -629,8 +629,6 @@ public:
 
         void Reset()
         {
-            me->SetReactState(REACT_PASSIVE);
-
             DestructivePoisonTimer = 15000;
             LightningBoltTimer = 10000;
             CheckTimer = 2000;
@@ -670,7 +668,6 @@ public:
             {
                 instance->SetData(DATA_SHADEOFAKAMAEVENT, IN_PROGRESS);
                 // Prevent players from trying to restart event
-                me->SetReactState(REACT_DEFENSIVE);
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetAkamaGUID(me->GetGUID());
                 CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetSelectableChannelers();
@@ -764,7 +761,6 @@ public:
             {
                 if (instance)
                     instance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
-                me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[1].x, AkamaWP[1].y, AkamaWP[1].z);
                 ++WayPointId;
             }
