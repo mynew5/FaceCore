@@ -730,7 +730,7 @@ public:
             me->CastSpell(me, SPELL_TRAIL_TRIGGER, true);
             me->SetTarget(me->GetGUID());
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.01f); // core bug
-            pInstance = c->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript *pInstance;
