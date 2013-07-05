@@ -87,17 +87,17 @@ enum Spells
 
 enum Felmyst_Creatures
 {
-    MOB_FELMYST        =   25038,
-    //MOB_BRUTALLUS      =
-    //MOB_KALECGOS       =
-    //MOB_DEAD           =   25268,
-    MOB_MADRIGOSA      =   25160,
-    MOB_FELMYST_VISUAL =   25041,
-    //MOB_FLIGHT_LEFT    =   25357,
-    //MOB_FLIGHT_RIGHT   =   25358,
-    //MOB_DEATH_CLOUD    =   25703,
-    //MOB_VAPOR          =   25265,
-    //MOB_VAPOR_TRAIL    =   25267
+    NPC_FELMYST        =   25038,
+    //NPC_BRUTALLUS      =
+    //NPC_KALECGOS       =
+    //NPC_DEAD           =   25268,
+    NPC_MADRIGOSA      =   25160,
+    NPC_FELMYST_VISUAL =   25041,
+    //NPC_FLIGHT_LEFT    =   25357,
+    //NPC_FLIGHT_RIGHT   =   25358,
+    //NPC_DEATH_CLOUD    =   25703,
+    //NPC_VAPOR          =   25265,
+    //NPC_VAPOR_TRAIL    =   25267
 };
 
 enum PhaseFelmyst
@@ -206,7 +206,7 @@ public:
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
-            DespawnSummons(MOB_VAPOR_TRAIL);
+            DespawnSummons(NPC_VAPOR_TRAIL);
             KillCharmedPlayer();
             me->setActive(false);
 
@@ -321,7 +321,7 @@ public:
             //{
             //    float x, y, z;
             //    caster->GetPosition(x, y, z);
-            //    Unit* summon = me->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+            //    Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             //    if(summon)
             //    {
             //        summon->SetMaxHealth(caster->GetMaxHealth());
@@ -335,7 +335,7 @@ public:
 
         void JustSummoned(Creature *summon)
         {
-            if(summon->GetEntry() == MOB_DEAD)
+            if(summon->GetEntry() == NPC_DEAD)
             {
                 summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
                 DoZoneInCombat(summon);
@@ -413,7 +413,7 @@ public:
                 if(!target) target = Unit::GetUnit((*me), pInstance->GetData64(DATA_PLAYER_GUID));
                 if(target)
                 {
-                    Creature* Vapor = me->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+                    Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
                     if(Vapor)
                     {
                         Vapor->AI()->AttackStart(target);
@@ -432,7 +432,7 @@ public:
             }
             case 3:
             {
-                DespawnSummons(MOB_VAPOR_TRAIL);
+                DespawnSummons(NPC_VAPOR_TRAIL);
                 TC_LOG_ERROR(LOG_FILTER_TSCR, "Summon Vapor case3");
                 //me->CastSpell(me, SPELL_VAPOR_SELECT); need core support
                 Unit* target;
@@ -441,7 +441,7 @@ public:
                 if(target)
                 {
                     //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
-                    Creature* Vapor = me->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+                    Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
                     if(Vapor)
                     {
                         Vapor->AI()->AttackStart(target);
@@ -459,7 +459,7 @@ public:
                 break;
             }
             case 4:
-                DespawnSummons(MOB_VAPOR_TRAIL);
+                DespawnSummons(NPC_VAPOR_TRAIL);
                 Timer[EVENT_FLIGHT_SEQUENCE] = 1;
                 break;
             case 5:
@@ -644,7 +644,7 @@ public:
                         float x, y, z;
                         me->GetPosition(x, y, z);
                         me->UpdateGroundPositionZ(x, y, z);
-                        if(Creature *Fog = me->SummonCreature(MOB_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                        if(Creature *Fog = me->SummonCreature(NPC_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                         {
                             Fog->setFaction(14);
                             Fog->RemoveAurasDueToSpell(SPELL_TRAIL_TRIGGER);
@@ -666,11 +666,11 @@ public:
 
             for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
             {
-                if(entry == MOB_VAPOR_TRAIL && Phase == PHASE_FLIGHT)
+                if (entry == NPC_VAPOR_TRAIL && Phase == PHASE_FLIGHT)
                 {
                     float x, y, z;
                     (*i)->GetPosition(x, y, z);
-                    me->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 }
                 (*i)->SetVisible(false);
                 (*i)->setDeathState(JUST_DIED);
@@ -681,20 +681,19 @@ public:
     };
 };
 
-
-class mob_felmyst_vapor : public CreatureScript
+class npc_felmyst_vapor : public CreatureScript
 {
 public:
-    mob_felmyst_vapor() : CreatureScript("mob_felmyst_vapor") {}
+    npc_felmyst_vapor() : CreatureScript("npc_felmyst_vapor") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_felmyst_vaporAI (pCreature);
+        return new npc_felmyst_vaporAI(pCreature);
     }
 
-    struct mob_felmyst_vaporAI : public ScriptedAI
+    struct npc_felmyst_vaporAI : public ScriptedAI
     {
-        mob_felmyst_vaporAI(Creature *c) : ScriptedAI(c)
+        npc_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetSpeed(MOVE_RUN, 0.8f);
@@ -713,19 +712,19 @@ public:
     };
 };
 
-class mob_felmyst_trail : public CreatureScript
+class npc_felmyst_trail : public CreatureScript
 {
 public:
-    mob_felmyst_trail() : CreatureScript("mob_felmyst_trail") {}
+    npc_felmyst_trail() : CreatureScript("npc_felmyst_trail") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_felmyst_trailAI (pCreature);
+        return new npc_felmyst_trailAI(pCreature);
     }
 
-    struct mob_felmyst_trailAI : public ScriptedAI
+    struct npc_felmyst_trailAI : public ScriptedAI
     {
-        mob_felmyst_trailAI(Creature *c) : ScriptedAI(c)
+        npc_felmyst_trailAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->CastSpell(me, SPELL_TRAIL_TRIGGER, true);
@@ -790,8 +789,8 @@ public:
 void AddSC_boss_felmyst()
 {
     new boss_felmyst();
-    new mob_felmyst_vapor();
-    new mob_felmyst_trail();
+    new npc_felmyst_vapor();
+    new npc_felmyst_trail();
     //UPDATE creature_template SET faction_A = 14, faction_H = 14 WHERE entry = 25267;
     //UPDATE creature_template SET modelid2 = 0 WHERE entry IN (25267,25265);
 }

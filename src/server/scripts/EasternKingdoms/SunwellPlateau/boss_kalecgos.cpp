@@ -74,9 +74,9 @@ enum SpellIds
 
 enum Kalecgos_Creatures
 {
-    //MOB_KALECGOS    =  24850,
-    //MOB_KALEC       =  24891,
-    //MOB_SATHROVARR  =  24892
+    //NPC_KALECGOS    =  24850,
+    //NPC_KALEC       =  24891,
+    //NPC_SATHROVARR  =  24892
 };
 
 #define GO_FAILED   "You are unable to use this currently."
@@ -348,7 +348,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            Creature *Kalec = me->SummonCreature(MOB_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+            Creature *Kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
             if(Kalec)
             {
                 Kalec->CastSpell(Kalec,AURA_SPECTRAL_INVISIBILITY,true);
