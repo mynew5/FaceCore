@@ -211,6 +211,7 @@ class npc_announcer_toc10 : public CreatureScript
                 if (!anubArak || !anubArak->IsAlive())
                     anubArak = creature->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
+                instance->SetBossState(BOSS_LICH_KING, DONE);
                 instance->SetBossState(BOSS_ANUBARAK, NOT_STARTED);
 
                 if (creature->IsVisible())
