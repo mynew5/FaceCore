@@ -123,14 +123,14 @@ class mod_ArenaWatcher_WorldScript : public WorldScript
 
     void OnConfigLoad(bool reload)
     {
-        ArenaWatcherEnable = ConfigMgr::GetBoolDefault("ArenaWatcher.Enable", false);
-        ArenaWatcherOnlyGM = ConfigMgr::GetBoolDefault("ArenaWatcher.OnlyGM", false);
-        ArenaWatcherShowNoGames = ConfigMgr::GetBoolDefault("ArenaWatcher.ShowNoGames", false);
-        ArenaWatcherOnlyRated = ConfigMgr::GetBoolDefault("ArenaWatcher.OnlyRated", false);
-        ArenaWatcherToPlayers = ConfigMgr::GetBoolDefault("ArenaWatcher.ToPlayers", false);
-        ArenaWatcherSilence = ConfigMgr::GetBoolDefault("ArenaWatcher.Silence", false);
-        ArenaWatcherFly = ConfigMgr::GetBoolDefault("ArenaWatcher.Fly", false);
-        ArenaWatcherSpeed = ConfigMgr::GetFloatDefault("ArenaWatcher.Speed", 3.0f);
+        ArenaWatcherEnable = sConfigMgr->GetBoolDefault("ArenaWatcher.Enable", false);
+        ArenaWatcherOnlyGM = sConfigMgr->GetBoolDefault("ArenaWatcher.OnlyGM", false);
+        ArenaWatcherShowNoGames = sConfigMgr->GetBoolDefault("ArenaWatcher.ShowNoGames", false);
+        ArenaWatcherOnlyRated = sConfigMgr->GetBoolDefault("ArenaWatcher.OnlyRated", false);
+        ArenaWatcherToPlayers = sConfigMgr->GetBoolDefault("ArenaWatcher.ToPlayers", false);
+        ArenaWatcherSilence = sConfigMgr->GetBoolDefault("ArenaWatcher.Silence", false);
+        ArenaWatcherFly = sConfigMgr->GetBoolDefault("ArenaWatcher.Fly", false);
+        ArenaWatcherSpeed = sConfigMgr->GetFloatDefault("ArenaWatcher.Speed", 3.0f);
 
         if (!reload)
             ArenaWatcherPlayers.clear();
