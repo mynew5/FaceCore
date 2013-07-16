@@ -67,7 +67,7 @@ class ulduar_teleporter : public GameObjectScript
 public:
     ulduar_teleporter() : GameObjectScript("ulduar_teleporter") { }
 
-    bool OnGossipSelect(Player *pPlayer, GameObject * /*pGO*/, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player *pPlayer, GameObject * /*pGO*/, uint32 sender, uint32 action) OVERRIDE
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (sender != GOSSIP_SENDER_MAIN)

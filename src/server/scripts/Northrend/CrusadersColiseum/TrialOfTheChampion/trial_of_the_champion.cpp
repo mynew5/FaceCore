@@ -289,7 +289,7 @@ class npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void SetData(uint32 uiType, uint32 /*uiData*/)
+        void SetData(uint32 uiType, uint32 /*uiData*/) OVERRIDE
         {
             switch (uiType)
             {
@@ -348,7 +348,7 @@ class npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 uiType, uint32 uiPointId) OVERRIDE
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -638,7 +638,7 @@ class npc_herald_toc5 : public CreatureScript
             }
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 const action) OVERRIDE
         {
             switch (action)
             {
@@ -773,7 +773,7 @@ class npc_herald_toc5 : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_herald_toc5AI (creature);
     };

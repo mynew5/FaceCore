@@ -163,7 +163,7 @@ class boss_felmyst : public CreatureScript
 public:
     boss_felmyst() : CreatureScript("boss_felmyst") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const OVERRIDE
     {
         return new boss_felmystAI (pCreature);
     }
@@ -195,7 +195,7 @@ public:
 
         float BreathX, BreathY;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             Phase = PHASE_NULL;
             Event = EVENT_NULL;
@@ -216,7 +216,7 @@ public:
             me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             me->setActive(true);
             DoZoneInCombat();
@@ -233,29 +233,29 @@ public:
                 pInstance->SetData(DATA_FELMYST_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who) OVERRIDE
         {
             if(Phase != PHASE_FLIGHT)
                 ScriptedAI::AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
         {
             if(Phase != PHASE_FLIGHT)
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) OVERRIDE
         {
             Talk(YELL_KILL);
         }
 
-        void JustRespawned()
+        void JustRespawned() OVERRIDE
         {
             Talk(YELL_BIRTH);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* Killer) OVERRIDE
         {
             Talk(YELL_DEATH);
 
@@ -309,7 +309,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
             // workaround for linked aura
             /*if(spell->Id == SPELL_VAPOR_FORCE)
@@ -333,7 +333,7 @@ public:
             //}
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             if(summon->GetEntry() == NPC_DEAD)
             {
@@ -343,7 +343,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if(type != POINT_MOTION_TYPE)
                 return;
@@ -354,7 +354,7 @@ public:
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
         }
 
-        void DamageTaken(Unit*, uint32 &damage)
+        void DamageTaken(Unit*, uint32 &damage) OVERRIDE
         {
             if(Phase != PHASE_GROUND && damage >= me->GetHealth())
                 damage = 0;
@@ -552,7 +552,7 @@ public:
             FlightCount++;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if(!me->IsVisible())
             {
@@ -686,7 +686,7 @@ class npc_felmyst_vapor : public CreatureScript
 public:
     npc_felmyst_vapor() : CreatureScript("npc_felmyst_vapor") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const OVERRIDE
     {
         return new npc_felmyst_vaporAI(pCreature);
     }
@@ -698,13 +698,13 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetSpeed(MOVE_RUN, 0.8f);
         }
-        void Reset() {}
-        void EnterCombat(Unit* who)
+        void Reset() OVERRIDE {}
+        void EnterCombat(Unit* who) OVERRIDE
         {
             DoZoneInCombat();
             //me->CastSpell(me, SPELL_VAPOR_FORCE, true); core bug
         }
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if(!me->GetVictim())
                 AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
@@ -717,7 +717,7 @@ class npc_felmyst_trail : public CreatureScript
 public:
     npc_felmyst_trail() : CreatureScript("npc_felmyst_trail") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const OVERRIDE
     {
         return new npc_felmyst_trailAI(pCreature);
     }

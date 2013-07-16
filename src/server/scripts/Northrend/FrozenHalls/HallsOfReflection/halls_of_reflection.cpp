@@ -231,7 +231,7 @@ public:
         uint64 _lichkingGuid;
         EventMap events;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             events.Reset();
 
@@ -256,7 +256,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             events.Update(diff);
             switch (events.ExecuteEvent())
@@ -694,7 +694,7 @@ class npc_ghostly_priest : public CreatureScript
 public:
     npc_ghostly_priest() : CreatureScript("npc_ghostly_priest") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ghostly_priestAI(creature);
     }
@@ -712,7 +712,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000); // TODO: adjust timers
             events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12000);
@@ -720,7 +720,7 @@ public:
             events.ScheduleEvent(EVENT_DARK_MENDING, 20000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -790,7 +790,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_FIREBALL, 3000); // TODO: adjust timers            
             events.ScheduleEvent(EVENT_FROSTBOLT, 9000);
@@ -798,7 +798,7 @@ public:
             events.ScheduleEvent(EVENT_HALLUCINATION, 40000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -853,7 +853,7 @@ public:
         {
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             DoCast(SPELL_HALLUCINATION_2);
         }
@@ -884,7 +884,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_SHADOW_STEP, 8000); // TODO: adjust timers
             events.ScheduleEvent(EVENT_DEADLY_POISON, 5000);
@@ -892,7 +892,7 @@ public:
             events.ScheduleEvent(EVENT_KIDNEY_SHOT, 12000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -953,14 +953,14 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000); // TODO: adjust timers
             events.ScheduleEvent(EVENT_SHIELD_BASH, 10000);
             events.ScheduleEvent(EVENT_TORTURED_ENRAGE, 15000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -1016,7 +1016,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_SHOOT, 2000); // TODO: adjust timers
             events.ScheduleEvent(EVENT_CURSED_ARROW, 10000);
@@ -1024,7 +1024,7 @@ public:
             events.ScheduleEvent(EVENT_ICE_SHOT, 15000);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -1084,7 +1084,7 @@ public:
         uint32 _spikeTimer;
         uint32 _cloneTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if (!instance)
                 return;
@@ -1097,7 +1097,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*Killer*/) OVERRIDE
         {
             if (!instance)
                 return;
@@ -1106,7 +1106,7 @@ public:
             instance->SetData(DATA_FROSTSWORN_EVENT, DONE);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) OVERRIDE
         {
             if (!instance)
                 return;
@@ -1126,7 +1126,7 @@ public:
             AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*Victim*/)
+        void EnterCombat(Unit* /*Victim*/) OVERRIDE
         {
             if (!instance)
                 return;
@@ -1186,7 +1186,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_frostsworn_generalAI(creature);
     }
@@ -1207,17 +1207,17 @@ public:
         InstanceScript* instance;
         uint32 _StrikeTimer;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             _StrikeTimer = urand(1000,3000);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* Killer) OVERRIDE
         {
             DoCast(Killer, SPELL_SPIRIT_BURST);
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -1235,7 +1235,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_spiritual_reflectionAI(creature);
     }
@@ -1299,7 +1299,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
 public:
     npc_jaina_and_sylvana_hor_part2() : CreatureScript("npc_jaina_and_sylvana_hor_part2") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction) OVERRIDE
     {
         InstanceScript* instance = (InstanceScript*)creature->GetInstanceScript();
 

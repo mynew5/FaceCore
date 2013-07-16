@@ -99,7 +99,7 @@ class boss_kalecgos : public CreatureScript
 public:
     boss_kalecgos() : CreatureScript("boss_kalecgos") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const OVERRIDE
     {
         return new boss_kalecgosAI (pCreature);
     }
@@ -132,7 +132,7 @@ public:
 
         uint64 SathGUID;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             if(pInstance)
             {
@@ -169,14 +169,13 @@ public:
             isBanished = false;
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
-
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
             Talk(SAY_EVIL_AGGRO);
@@ -186,12 +185,12 @@ public:
                 pInstance->SetData(DATA_KALECGOS_EVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_EVIL_SLAY);
         }
 
-        void MovementInform(uint32 type,uint32 id)
+        void MovementInform(uint32 type,uint32 id) OVERRIDE
         {
             if(type != POINT_MOTION_TYPE)
                 return;
@@ -290,7 +289,7 @@ class boss_sathrovarr : public CreatureScript
 public:
     boss_sathrovarr() : CreatureScript("boss_sathrovarr") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const OVERRIDE
     {
         return new boss_sathrovarrAI (pCreature);
     }
@@ -318,7 +317,7 @@ public:
         bool isEnraged;
         bool isBanished;
 
-        void Reset()
+        void Reset() OVERRIDE
         {
             me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
@@ -346,7 +345,7 @@ public:
             DoCast(me,AURA_SPECTRAL_INVISIBILITY,true);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Creature *Kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
             if(Kalec)
@@ -359,13 +358,13 @@ public:
             Talk(SAY_SATH_AGGRO);
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
             if(damage >= me->GetHealth() && done_by != me)
                 damage = 0;
         }
 
-        void KilledUnit(Unit *target)
+        void KilledUnit(Unit* target) OVERRIDE
         {
             if(target->GetGUID() == KalecGUID)
             {
@@ -381,7 +380,7 @@ public:
             Talk(SAY_SATH_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_SATH_DEATH);
             me->SetPosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
@@ -417,7 +416,7 @@ public:
             return true;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
