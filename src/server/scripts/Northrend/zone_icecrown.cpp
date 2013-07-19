@@ -48,8 +48,6 @@ enum Arete
     GOSSIP_TEXTID_ARETE5        = 13529,
     GOSSIP_TEXTID_ARETE6        = 13530,
     GOSSIP_TEXTID_ARETE7        = 13531,
-    FACTION_FRIENDLY            = 35,
-    FACTION_HOSTILE             = 14,
 
     QUEST_THE_STORY_THUS_FAR    = 12807
 };
