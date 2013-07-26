@@ -3060,7 +3060,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         switch (spellInfo->Id)
         {
             case 24259: // Felhunter's Spell Lock
-                spellInfo->speed = 80;
+                spellInfo->Speed = 80;
             case 53096: // Quetz'lun's Judgment
                 spellInfo->MaxAffectedTargets = 1;
                 break;
@@ -3098,7 +3098,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 break;
             case 50317: // Summon Disco Ball
-                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 break;
             case 31344: // Howl of Azgalor
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
@@ -3190,11 +3190,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->MaxAffectedTargets = 3;
                 break;
             case 71464: // Divine Surge
-                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS;
-                spellInfo->DurationIndex = 28;          // 5 seconds
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28);           // 5 seconds
             case 66588: // Flaming Spear
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
+                spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
                 break;
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)
@@ -3241,7 +3241,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ProcCharges = 1;
                 break;
             case 53257: // Cobra Strikes
-                spellInfo->procCharges = 2;
+                spellInfo->ProcCharges = 2;
                 spellInfo->StackAmount = 0;
                 break;
             case 44544: // Fingers of Frost
@@ -3255,9 +3255,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ProcCharges = 6;
                 break;
             case 1543:  // Flare
-                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS;
-                spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;
-                spellInfo->speed = 100;
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+                spellInfo->Speed = 100;
                 break;
             case 47201: // Everlasting Affliction
             case 47202:
@@ -3315,7 +3315,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Targets |= TARGET_FLAG_UNIT_ALLY;
                 break;
             case 66665: // Burning Breath
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
                 break;
             case 16834: // Natural shapeshifter
             case 16835:
@@ -3351,7 +3351,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 54807: // DK Sigil of the Wild Buck
-                spellInfo->EffectBasePoints[EFFECT_0] = 39;
+                spellInfo->Effects[EFFECT_0].BasePoints = 39;
                 break;
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
@@ -3407,10 +3407,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000040, 0x00000000, 0x00000000);
                 break;
             case 60774: // Idol of Worship
-                spellInfo->EffectSpellClassMask[0] = flag96(0x00800000, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00800000, 0x00000000, 0x00000000);
                 break;
             case 64950: // Idol of the Crying Wind
-                spellInfo->EffectSpellClassMask[0] = flag96(0x00200000, 0x00000000, 0x00000000);
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00200000, 0x00000000, 0x00000000);
                 break;
             case 64949: // Idol of the Flourishing Life
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000000, 0x02000000, 0x00000000);
@@ -3427,10 +3427,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 32403: // Blessed Book of Nagrand
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x40000000, 0x00000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 63163: // Apply Enchanted Bridle (Argent Tournament)
-                spellInfo->EffectDieSides[0] = 0; // was 1, that should probably mean seat 0, but instead it's treated as spell 1
-                spellInfo->EffectBasePoints[0] = 52391; // Ride Vehicle (forces seat 0)
                 break;
             case 45602: // Ride Carpet
                 spellInfo->Effects[EFFECT_0].BasePoints = 0; // force seat 0, vehicle doesn't have the required seat flags for "no seat specified (-1)"
@@ -3460,10 +3456,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
             case 61874: // Noblegarden Chocolate
-                spellInfo->Effect[1] = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->EffectApplyAuraName[1] = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-                spellInfo->EffectAmplitude[1] = 10000;
-                spellInfo->EffectTriggerSpell[1] = 24870;
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_1].Amplitude = 10000;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 24870;
                 break;
             case 70650: // Death Knight T10 Tank 2P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
@@ -3538,7 +3534,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64019: // Rapid Burst Right 10 man (Mimiron)
             case 64531: // Rapid Burst Left 25 man (Mimiron)
             case 64532: // Rapid Burst Right 25 man (Mimiron)
-                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_50000_YARDS; // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_UNK25;
                 break;
@@ -3546,7 +3542,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             case 64444: // Mimiron - Magnetic Core
-                spellInfo->rangeIndex = 6; // 100yd
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // 100yd
                 break;
             case 64014: // Expedition Base Camp Teleport
             case 64024: // Conservatory Teleport
@@ -3628,7 +3624,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
                 break;
             case 69508: // Slime Spray
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
             case 70530: // Volatile Ooze Beam Protection (Professor Putricide)
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA; // for an unknown reason this was SPELL_EFFECT_APPLY_AREA_AURA_RAID
@@ -3696,7 +3692,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Speed = 0.0f;    // This spell's summon happens instantly
                 break;
             case 49206: // Summon Gargoyle
-                spellInfo->DurationIndex = 587;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(587);
                 break;
             case 51590: // Toss Ice Boulder
                 spellInfo->MaxAffectedTargets = 1;
@@ -3708,7 +3704,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 75545: // Explosion (prevent error message in console)
 			case 75536:
             case 75553: // Emergency Recall [Camera trigger]
-                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY); 
                 break;
             case 71614: // Ice Lock
                 spellInfo->Mechanic = MECHANIC_STUN;
@@ -3872,19 +3868,19 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ManaPerSecond = 0;
                 break;
             case 18754: // Improved succubus - problems with apply if target is pet
-                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER; // it's affects duration of seduction, let's minimize affection 
-                spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.22; // reduce cast time of seduction by 22%
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;  // it's affects duration of seduction, let's minimize affection 
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.22; // reduce cast time of seduction by 22%
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 break;
             case 18755:
-                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
-                spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.44; // reduce cast time of seduction by 44%
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.44; // reduce cast time of seduction by 44%
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 break;
             case 18756:
-                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
-                spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66; // reduce cast time of seduction by 66%
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.66; // reduce cast time of seduction by 66%
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
             default:
@@ -3900,13 +3896,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case SPELLFAMILY_PRIEST:
                 // Twin Disciplines should affect at Prayer of Mending
                 if (spellInfo->SpellIconID == 2292)
-                    spellInfo->EffectSpellClassMask[0] = flag96(0, 622642, 2581594112);
+                    spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0, 622642, 2581594112);
                 // Spiritual Healing should affect at Prayer of Mending
                 else if (spellInfo->SpellIconID == 46)
-                    spellInfo->EffectSpellClassMask[0][1] |= 0x20;
+                    spellInfo->Effects[EFFECT_0].SpellClassMask[1] |= 0x20;
                 // Divine Providence should affect at Prayer of Mending
                 else if (spellInfo->SpellIconID == 2845 && spellInfo->Id != 64844)
-                    spellInfo->EffectSpellClassMask[0][1] |= 0x20;
+                    spellInfo->Effects[EFFECT_0].SpellClassMask[1] |= 0x20;
                 break;
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness
