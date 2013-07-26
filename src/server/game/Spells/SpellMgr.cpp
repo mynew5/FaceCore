@@ -3365,11 +3365,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 break;
             case 23881: // Bloodthirst
-                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 break;
             case 42436: // Brewfest: Drink!
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
-                spellInfo->EffectImplicitTargetB[0] = 0;
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 break;
             case 52109: // Flametongue Totem rank 1 (Aura)
             case 52110: // Flametongue Totem rank 2 (Aura)
@@ -3703,7 +3703,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 74412: // Emergency Recall [Final]
                 for (int8 i = 0; i < 3; ++i)
-                    spellInfo->EffectImplicitTargetB[i] = TARGET_UNIT_TARGET_ANY;
+                    spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY); 
                 break;
             case 75545: // Explosion (prevent error message in console)
 			case 75536:
@@ -3896,7 +3896,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case SPELLFAMILY_HUNTER:
                 // Silencing Shot / Scatter Shot
                 if (spellInfo->SpellFamilyFlags[0] & 0x40000)
-                    spellInfo->speed = 0; // instant
+                    spellInfo->Speed = 0; // instant
             case SPELLFAMILY_PRIEST:
                 // Twin Disciplines should affect at Prayer of Mending
                 if (spellInfo->SpellIconID == 2292)
