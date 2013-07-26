@@ -4862,10 +4862,10 @@ void ObjectMgr::LoadSpellScriptNames()
         Field* fields = result->Fetch();
 
         int32 spellId          = fields[0].GetInt32();
-        const char *scriptName = fields[1].GetCString();
+        char const* scriptName = fields[1].GetCString();
 
         bool allRanks = false;
-        if (spellId <= 0)
+        if (spellId < 0)
         {
             allRanks = true;
             spellId = -spellId;
@@ -4874,25 +4874,35 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname:`%s` spell (spell_id:%d) does not exist in `Spell.dbc`.", scriptName, fields[0].GetInt32());
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName, spellId);
             continue;
         }
 
         if (allRanks)
         {
-            if (sSpellMgr->GetFirstSpellInChain(spellId) != uint32(spellId))
+            if (!spellInfo->IsRanked())
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName, fields[0].GetInt32());
+
+            if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname:`%s` spell (spell_id:%d) is not first rank of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName, fields[0].GetInt32());
                 continue;
             }
+
             while (spellInfo)
             {
                 _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
-                spellInfo = sSpellMgr->GetSpellInfo(spellInfo->Id)->GetNextRankSpell();
+                spellInfo = spellInfo->GetNextRankSpell();
             }
         }
         else
+        {
+            if (spellInfo->IsRanked())
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Scriptname: `%s` spell (Id: %d) is ranked spell. Properly not all ranks are assigned to this script.", scriptName, spellId);
+
             _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
+        }
+
         ++count;
     }
     while (result->NextRow());
@@ -8359,15 +8369,6 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
             ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, item_id, ExtendedCost);
         else
             TC_LOG_ERROR(LOG_FILTER_SQL, "Table `npc_vendor` has duplicate items %u (with extended cost %u) for vendor (Entry: %u), ignoring", item_id, ExtendedCost, vendor_entry);
-        return false;
-    }
-
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
-    {
-        if (player)
-            ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
-        else
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vItems->GetItemCount(), MAX_VENDOR_ITEMS, vendor_entry);
         return false;
     }
 

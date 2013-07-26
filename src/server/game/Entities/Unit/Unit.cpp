@@ -5758,12 +5758,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
-                // Glyph of Shadowflame
-                case 63310:
-                {
-                    triggered_spell_id = 63311;
-                    break;
-                }
                 // Nightfall
                 case 18094:
                 case 18095:
@@ -7737,12 +7731,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             case SPELLFAMILY_GENERIC:
                 switch (auraSpellInfo->Id)
                 {
-                    case 23780:             // Aegis of Preservation (Aegis of Preservation trinket)
-                        trigger_spell_id = 23781;
-                        break;
-                    case 33896:             // Desperate Defense (Stonescythe Whelp, Stonescythe Alpha, Stonescythe Ambusher)
-                        trigger_spell_id = 33898;
-                        break;
                     case 43820:             // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
                         // Pct value stored in dummy
                         basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
@@ -7825,14 +7813,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     }
                 }
                 break;
-            case SPELLFAMILY_WARRIOR:
-                if (auraSpellInfo->Id == 50421)             // Scent of Blood
-                {
-                    CastSpell(this, 50422, true);
-                    RemoveAuraFromStack(auraSpellInfo->Id);
-                    return false;
-                }
-                break;
             case SPELLFAMILY_WARLOCK:
             {
                 // Drain Soul
@@ -7878,11 +7858,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }
             case SPELLFAMILY_PRIEST:
             {
-                // Greater Heal Refund
-                if (auraSpellInfo->Id == 37594)
-                    trigger_spell_id = 37595;
                 // Blessed Recovery
-                else if (auraSpellInfo->SpellIconID == 1875)
+                if (auraSpellInfo->SpellIconID == 1875)
                 {
                     switch (auraSpellInfo->Id)
                     {
@@ -7974,13 +7951,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             {
                 switch (auraSpellInfo->Id)
                 {
-                    // Healing Discount
-                    case 37705:
-                    {
-                        trigger_spell_id = 37706;
-                        target = this;
-                        break;
-                    }
                     // Soul Preserver
                     case 60510:
                     {
@@ -8093,29 +8063,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             {
                 switch (auraSpellInfo->Id)
                 {
-                    // Lightning Shield (The Ten Storms set)
-                    case 23551:
-                    {
-                        trigger_spell_id = 23552;
-                        target = victim;
-                        break;
-                    }
-                    // Damage from Lightning Shield (The Ten Storms set)
-                    case 23552:
-                    {
-                        trigger_spell_id = 27635;
-                        break;
-                    }
-                    // Mana Surge (The Earthfury set)
-                    case 23572:
-                    {
-                        if (!procSpell)
-                            return false;
-                        basepoints0 = int32(CalculatePct(procSpell->ManaCost, 35));
-                        trigger_spell_id = 23571;
-                        target = this;
-                        break;
-                    }
                     case 30881: // Nature's Guardian Rank 1
                     case 30883: // Nature's Guardian Rank 2
                     case 30884: // Nature's Guardian Rank 3
@@ -9300,16 +9247,17 @@ Player* Unit::GetCharmerOrOwnerPlayerOrPlayerItself() const
     if (IS_PLAYER_GUID(guid))
         return ObjectAccessor::GetPlayer(*this, guid);
 
-    return GetTypeId() == TYPEID_PLAYER ? (Player*)this : NULL;
+    return const_cast<Unit*>(this)->ToPlayer();
 }
 
 Player* Unit::GetAffectingPlayer() const
 {
     if (!GetCharmerOrOwnerGUID())
-        return GetTypeId() == TYPEID_PLAYER ? (Player*)this : NULL;
+        return const_cast<Unit*>(this)->ToPlayer();
 
     if (Unit* owner = GetCharmerOrOwner())
         return owner->GetCharmerOrOwnerPlayerOrPlayerItself();
+
     return NULL;
 }
 
@@ -14433,13 +14381,14 @@ uint64 Unit::GetCharmerOrOwnerOrOwnGUID() const
 
 Player* Unit::GetSpellModOwner() const
 {
-    if (GetTypeId() == TYPEID_PLAYER)
-        return (Player*)this;
+    if (Player* player = const_cast<Unit*>(this)->ToPlayer())
+        return player;
+
     if (ToCreature()->IsPet() || ToCreature()->IsTotem())
     {
-        Unit* owner = GetOwner();
-        if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-            return (Player*)owner;
+        if (Unit* owner = GetOwner())
+            if (Player* player = owner->ToPlayer())
+                return player;
     }
     return NULL;
 }
@@ -14951,7 +14900,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
     if (GetTypeId() != TYPEID_PLAYER)
         return NULL;
 
-    Pet* pet = new Pet((Player*)this, HUNTER_PET);
+    Pet* pet = new Pet(ToPlayer(), HUNTER_PET);
 
     if (!pet->CreateBaseAtCreature(creatureTarget))
     {
@@ -14975,7 +14924,7 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
     if (!creatureInfo)
         return NULL;
 
-    Pet* pet = new Pet((Player*)this, HUNTER_PET);
+    Pet* pet = new Pet(ToPlayer(), HUNTER_PET);
 
     if (!pet->CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, getLevel(), spell_id))
     {
@@ -15457,8 +15406,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     {
         if (Battleground* bg = player->GetBattleground())
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                bg->HandleKillPlayer((Player*)victim, player);
+            if (Player* playerVictim = victim->ToPlayer())
+                bg->HandleKillPlayer(playerVictim, player);
             else
                 bg->HandleKillUnit(victim->ToCreature(), player);
         }
@@ -16435,14 +16384,15 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     if (GetTypeId() == TYPEID_PLAYER)
         this->ToPlayer()->GetAntiCheat()->SetSleep(4000);
 
-    Player* player = NULL;
-    if (GetTypeId() == TYPEID_PLAYER)
-        player = (Player*)this;
-    else if (Unit* charmer = GetCharmer())
+    Player* player = ToPlayer();
+    if (!player)
     {
-        player = charmer->ToPlayer();
-        if (player && player->m_mover != this)
-            player = NULL;
+        if (Unit* charmer = GetCharmer())
+        {
+            player = charmer->ToPlayer();
+            if (player && player->m_mover != this)
+                player = NULL;
+        }
     }
 
     if (!player)

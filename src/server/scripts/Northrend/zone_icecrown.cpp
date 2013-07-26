@@ -1040,7 +1040,7 @@ class npc_margrave_dhakar : public CreatureScript
 
         struct npc_margrave_dhakarAI : public ScriptedAI
         {
-            npc_margrave_dhakarAI(Creature* creature) : ScriptedAI(creature) , _summons(me), _lichKing(NULL) { }
+            npc_margrave_dhakarAI(Creature* creature) : ScriptedAI(creature) , _summons(me), _lichKingGuid(0) { }
 
             void Reset() OVERRIDE
             {
@@ -1078,9 +1078,12 @@ class npc_margrave_dhakar : public CreatureScript
 
                             if (Creature* morbidus = me->FindNearestCreature(NPC_MORBIDUS, 50.0f, true))
                             {
-                                _lichKing = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX()+10, morbidus->GetPositionY(), morbidus->GetPositionZ());
-                                _lichKing->SetFacingTo(morbidus->GetOrientation());
-                                _lichKing->CastSpell(_lichKing, SPELL_SIMPLE_TELEPORT, true);
+                                if (Creature* lichKing = me->SummonCreature(NPC_LICH_KING, morbidus->GetPositionX() + 10.0f, morbidus->GetPositionY(), morbidus->GetPositionZ()))
+                                {
+                                    _lichKingGuid = lichKing->GetGUID();
+                                    lichKing->SetFacingTo(morbidus->GetOrientation());
+                                    lichKing->CastSpell(lichKing, SPELL_SIMPLE_TELEPORT, true);
+                                }
                             }
 
                             _events.ScheduleEvent(EVENT_LK_SAY_1, 5000);
@@ -1088,31 +1091,36 @@ class npc_margrave_dhakar : public CreatureScript
                         }
                         case EVENT_LK_SAY_1:
                         {
-                            _lichKing->AI()->Talk(SAY_LK_1);
+                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                                lichKing->AI()->Talk(SAY_LK_1);
                             _events.ScheduleEvent(EVENT_LK_SAY_2, 5000);
                             break;
                         }
                         case EVENT_LK_SAY_2:
                         {
-                            _lichKing->AI()->Talk(SAY_LK_2);
+                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                                lichKing->AI()->Talk(SAY_LK_2);
                             _events.ScheduleEvent(EVENT_LK_SAY_3, 5000);
                             break;
                         }
                         case EVENT_LK_SAY_3:
                         {
-                            _lichKing->AI()->Talk(SAY_LK_3);
+                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                                lichKing->AI()->Talk(SAY_LK_3);
                             _events.ScheduleEvent(EVENT_LK_SAY_4, 5000);
                             break;
                         }
                         case EVENT_LK_SAY_4:
                         {
-                            _lichKing->AI()->Talk(SAY_LK_4);
+                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                                lichKing->AI()->Talk(SAY_LK_4);
                             _events.ScheduleEvent(EVENT_OUTRO, 12000);
                             break;
                         }
                         case EVENT_LK_SAY_5:
                         {
-                            _lichKing->AI()->Talk(SAY_LK_5);
+                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                                lichKing->AI()->Talk(SAY_LK_5);
                             _events.ScheduleEvent(EVENT_OUTRO, 8000);
                             break;
                         }
@@ -1121,7 +1129,8 @@ class npc_margrave_dhakar : public CreatureScript
                             if (Creature* olakin = me->FindNearestCreature(NPC_OLAKIN, 50.0f, true))
                                 olakin->AI()->Talk(SAY_OLAKIN_PAY);
 
-                            _lichKing->DespawnOrUnsummon(0);
+                            if (Creature* lichKing = Unit::GetCreature(*me, _lichKingGuid))
+                                lichKing->DespawnOrUnsummon(0);
 
                             _events.ScheduleEvent(EVENT_START, 5000);
                             break;
@@ -1144,8 +1153,8 @@ class npc_margrave_dhakar : public CreatureScript
 
         private:
             EventMap _events;
-            Creature* _lichKing;
             SummonList _summons;
+            uint64 _lichKingGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
