@@ -526,6 +526,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_MOLE_MACHINE:
                         if (GetBossState(DATA_RAZORSCALE) == IN_PROGRESS)
                             gameObject->SetGoState(GO_STATE_ACTIVE);
+                        break;
                     case GO_HODIR_DOOR:
                         HodirDoorGUID = gameObject->GetGUID();
                         break;
