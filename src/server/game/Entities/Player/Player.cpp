@@ -8855,6 +8855,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 {
                     SendLootRelease(guid);
                     return;
+                }
 
             if (lootid)
             {
