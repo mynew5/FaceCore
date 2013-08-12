@@ -161,7 +161,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SindragosasWardGUID = 0;
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldPacket& data) OVERRIDE
             {
                 data << uint32(WORLDSTATE_SHOW_TIMER)         << uint32(BloodQuickeningState == IN_PROGRESS);
                 data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(BloodQuickeningMinutes);
@@ -170,7 +170,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(MaxHeroicAttempts);
             }
 
-            void OnPlayerEnter(Player* player)
+            void OnPlayerEnter(Player* player) OVERRIDE
             {
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
@@ -179,7 +179,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     Events.ScheduleEvent(EVENT_CHECK_HERO_ACHIEVEMENT, 10000);
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 if (!TeamInInstance)
                 {
@@ -329,7 +329,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* creature)
+            void OnCreatureRemove(Creature* creature) OVERRIDE
             {
                 if (creature->GetEntry() == NPC_SINDRAGOSA)
                     SindragosaGUID = 0;
@@ -368,7 +368,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return entry;
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) OVERRIDE
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -426,7 +426,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -591,7 +591,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
+            void OnGameObjectRemove(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -718,7 +718,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -947,7 +947,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/) OVERRIDE
             {
                 switch (criteria_id)
                 {
@@ -987,7 +987,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return false;
             }
 
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const OVERRIDE
             {
                 if (player && player->GetSession()->HasPermission(RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES))
                     return true;
@@ -1157,7 +1157,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return false;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -1169,7 +1169,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* str)
+            void Load(const char* str) OVERRIDE
             {
                 if (!str)
                 {
@@ -1211,7 +1211,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            void Update(uint32 diff)
+            void Update(uint32 diff) OVERRIDE
             {
                 if (BloodQuickeningState != IN_PROGRESS && GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS)
                     return;
@@ -1279,7 +1279,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*source*/, uint32 eventId)
+            void ProcessEvent(WorldObject* /*source*/, uint32 eventId) OVERRIDE
             {
                 switch (eventId)
                 {
