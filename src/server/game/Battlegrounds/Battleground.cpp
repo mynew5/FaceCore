@@ -619,7 +619,7 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
     {
         uint32 team = itr->second.Team;
         if (!team)
-            team = player->GetBGTeam();
+            team = player->GetTeam();
         if (team != teamId)
             player = NULL;
     }
@@ -709,8 +709,7 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id))
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
             if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam"))
-                if (player->GetTeam() == player->GetBGTeam())
-                    player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
+                player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
 }
 
 void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
@@ -999,7 +998,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         {
             player->ClearAfkReports();
 
-            if (!team) team = player->GetBGTeam();
+            if (!team) team = player->GetTeam();
 
             // if arena, remove the specific arena auras
             if (isArena())
@@ -1071,12 +1070,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         // reset destination bg team
         player->SetBGTeam(0);
 
-        player->setFactionForRace(player->getRace());
-
         if (Transport)
             player->TeleportToBGEntryPoint();
-
-        sScriptMgr->OnPlayerRemoveFromBattleground(player, this);
 
         TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "Removed player %s from Battleground.", player->GetName().c_str());
     }
@@ -1159,14 +1154,14 @@ void Battleground::AddPlayer(Player* player)
         player->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
         if (team == ALLIANCE)                                // gold
         {
-            if (player->GetBGTeam() == HORDE)
+            if (player->GetTeam() == HORDE)
                 player->CastSpell(player, SPELL_HORDE_GOLD_FLAG, true);
             else
                 player->CastSpell(player, SPELL_ALLIANCE_GOLD_FLAG, true);
         }
         else                                                // green
         {
-            if (player->GetBGTeam() == HORDE)
+            if (player->GetTeam() == HORDE)
                 player->CastSpell(player, SPELL_HORDE_GREEN_FLAG, true);
             else
                 player->CastSpell(player, SPELL_ALLIANCE_GREEN_FLAG, true);
@@ -1233,14 +1228,6 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
                 }
         }
     }
-
-    if (!isArena())
-    {
-        if (team == ALLIANCE)
-            player->setFaction(1);
-        else
-            player->setFaction(2);
-    }
 }
 
 // This method should be called when player logs into running battleground
@@ -1256,10 +1243,6 @@ void Battleground::EventPlayerLoggedIn(Player* player)
             break;
         }
     }
-
-    if (!IsPlayerInBattleground(guid))
-        return;
-
     m_Players[guid].OfflineRemoveTime = 0;
     PlayerAddedToBGCheckIfBGIsRunning(player);
     // if battleground is starting, then add preparation aura
@@ -1828,7 +1811,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
             if (!creditedPlayer || creditedPlayer == killer)
                 continue;
 
-            if (creditedPlayer->GetBGTeam() == killer->GetBGTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
+            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
                 UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
@@ -1946,7 +1929,7 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
 
 WorldSafeLocsEntry const* Battleground::GetClosestGraveYard(Player* player)
 {
-    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetBGTeam());
+    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
 }
 
 void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
