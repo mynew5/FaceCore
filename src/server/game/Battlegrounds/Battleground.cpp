@@ -1073,6 +1073,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         if (Transport)
             player->TeleportToBGEntryPoint();
 
+        sScriptMgr->OnPlayerRemoveFromBattleground(player, this);
+
         TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "Removed player %s from Battleground.", player->GetName().c_str());
     }
 
@@ -1243,6 +1245,10 @@ void Battleground::EventPlayerLoggedIn(Player* player)
             break;
         }
     }
+
+    if (!IsPlayerInBattleground(guid))
+        return;
+
     m_Players[guid].OfflineRemoveTime = 0;
     PlayerAddedToBGCheckIfBGIsRunning(player);
     // if battleground is starting, then add preparation aura
