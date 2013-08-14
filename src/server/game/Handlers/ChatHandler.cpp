@@ -232,8 +232,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             else
                 return;
 
-            if (DisableMgr::IsMessageDisabled(msg))
-                return;
+            DisableMgr::FilterMessage(msg);
 
             if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) && !ChatHandler(this).isValidChatMessage(msg.c_str()))
             {

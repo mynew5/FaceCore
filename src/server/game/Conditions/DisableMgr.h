@@ -69,7 +69,7 @@ namespace DisableMgr
     void LoadDisables();
     bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
     void CheckQuestDisables();
-    bool IsMessageDisabled(std::string message);
+    void FilterMessage(std::string message);
 }
 
 #endif //TRINITY_DISABLEMGR_H
