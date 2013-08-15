@@ -43,7 +43,6 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_SLAM                              = 50783,
-    SPELL_WARRIOR_SLAM_PROC                         = 46916,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK     = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
@@ -616,17 +615,8 @@ class spell_warr_slam : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 bp0 = GetEffectValue();
                 if (GetHitUnit())
-                {
-                    GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_SLAM, &bp0, NULL, NULL, true, 0);
-                    if (Aura * aura = GetCaster()->GetAura(SPELL_WARRIOR_SLAM_PROC))
-                        if (aura->GetCharges())
-                        {
-                            GetCaster()->ToPlayer()->RestoreSpellMods(GetSpell(), SPELL_WARRIOR_SLAM_PROC);
-                            aura->DropCharge();
-                        }
-                }
+                    GetCaster()->CastCustomSpell(SPELL_WARRIOR_SLAM, SPELLVALUE_BASE_POINT0, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
             }
 
             void Register() OVERRIDE
