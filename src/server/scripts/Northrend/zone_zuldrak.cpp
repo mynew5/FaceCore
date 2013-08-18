@@ -347,7 +347,7 @@ public:
 
             if (uiPhase)
             {
-                Player* player = me->GetPlayer(*me, _playerGUID);
+                Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
 
                 if (uiTimer <= diff)
                 {
@@ -1628,7 +1628,7 @@ public:
                             _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(25000, 41000));
                             break;
                         case EVENT_EASY_123:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_EASY_123, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_EASY_AURA);
@@ -1636,7 +1636,7 @@ public:
                             }
                             break;
                         case EVENT_MEDIUM_4:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_MEDIUM_4, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_MEDIUM_AURA);
@@ -1644,7 +1644,7 @@ public:
                             }
                             break;
                         case EVENT_MEDIUM_5:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_MEDIUM_5, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_MEDIUM_AURA);
@@ -1652,7 +1652,7 @@ public:
                             }
                             break;
                         case EVENT_HARD_6:
-                            if (Player* player = Unit::GetPlayer(*me, _playerGUID))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             {
                                 Talk(SAY_HARD_6, _playerGUID);
                                 DoCast(player, SPELL_RANDOM_INGREDIENT_HARD_AURA);
