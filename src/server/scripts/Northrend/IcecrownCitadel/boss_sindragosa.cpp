@@ -197,6 +197,22 @@ class FrostBombExplosion : public BasicEvent
         uint64 _sindragosaGUID;
 };
 
+class FrostBeaconSelector
+{
+    public:
+        FrostBeaconSelector(Unit* source) : _source(source) { }
+
+        bool operator()(Unit* target) const
+        {
+            return target->GetTypeId() == TYPEID_PLAYER &&
+                target != _source->GetVictim() &&
+                !target->HasAura(SPELL_ICE_TOMB_UNTARGETABLE);
+        }
+
+    private:
+        Unit* _source;
+};
+
 class boss_sindragosa : public CreatureScript
 {
     public:
@@ -512,7 +528,7 @@ class boss_sindragosa : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE_FAR, SindragosaAirPosFar);
                             break;
                         case EVENT_ICE_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_DAMAGE))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, FrostBeaconSelector(me)))
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
                                 me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(1, 1, 1, 1), NULL);
@@ -1266,40 +1282,6 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
         }
 };
 
-class spell_sindragosa_instability : public SpellScriptLoader
-{
-    public:
-        spell_sindragosa_instability() : SpellScriptLoader("spell_sindragosa_instability") { }
-
-        class spell_sindragosa_instability_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sindragosa_instability_AuraScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BACKLASH))
-                    return false;
-                return true;
-            }
-
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    GetTarget()->CastCustomSpell(SPELL_BACKLASH, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_instability_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sindragosa_instability_AuraScript();
-        }
-};
-
 class spell_sindragosa_frost_breath : public SpellScriptLoader
 {
     public:
@@ -1345,6 +1327,39 @@ class spell_sindragosa_frost_breath : public SpellScriptLoader
         }
 };
 
+class spell_sindragosa_instability : public SpellScriptLoader
+{
+    public:
+        spell_sindragosa_instability() : SpellScriptLoader("spell_sindragosa_instability") { }
+
+        class spell_sindragosa_instability_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sindragosa_instability_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BACKLASH))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                    GetTarget()->CastCustomSpell(SPELL_BACKLASH, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
+            }
+
+            void Register() OVERRIDE
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_instability_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_sindragosa_instability_AuraScript();
+        }
+};
 class spell_sindragosa_frost_beacon : public SpellScriptLoader
 {
     public:
