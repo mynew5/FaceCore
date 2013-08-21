@@ -3447,10 +3447,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 69127: // Chill of the Throne
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NONE;
                 break;
-            case 59414: // Pulsing Shockwave Aura (Loken)
-                // this flag breaks movement, remove it
-                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
-                break;
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
