@@ -397,7 +397,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
     return false;
 }
 
-void FilterMessage(std::string message)
+void FilterMessage(std::string &message)
 {
     std::string _message = message;
     std::transform(_message.begin(), _message.end(), _message.begin(), ::toupper);
