@@ -1072,6 +1072,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         player->SetBGTeam(0);
 
         player->setFactionForRace(player->getRace());
+        player->InitDisplayIds();
 
         if (Transport)
             player->TeleportToBGEntryPoint();
@@ -1236,10 +1237,26 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
 
     if (!isArena())
     {
-        if (team == ALLIANCE)
+        if (team == ALLIANCE) {
             player->setFaction(1);
-        else
+
+            if (player->GetTeam() != player->GetBGTeam()) {
+                static const uint32 displayids[] = { 20580, 20320, 20318, 19723, 19724, 20317, 20323, 21105 };
+                uint8 rand = urand(0, 7);
+                player->SetDisplayId(displayids[rand]);
+                player->SetNativeDisplayId(displayids[rand]);
+            }
+        }
+        else {
             player->setFaction(2);
+
+            if (player->GetTeam() != player->GetBGTeam()) {
+                static const uint32 displayids[] = { 20319, 20584, 20578, 20322, 20316, 21267, 20321, 20582, 20583 };
+                uint8 rand = urand(0, 8);
+                player->SetDisplayId(displayids[rand]);
+                player->SetNativeDisplayId(displayids[rand]);
+            }
+        }
     }
 }
 
