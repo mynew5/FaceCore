@@ -397,14 +397,19 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
     return false;
 }
 
-bool IsMessageDisabled(std::string message)
+void FilterMessage(std::string message)
 {
     std::string _message = message;
     std::transform(_message.begin(), _message.end(), _message.begin(), ::toupper);
     for (DisableMessageMap::iterator itr = m_DisableMessageMap.begin(); itr != m_DisableMessageMap.end(); ++itr)
-        if (_message.find(*itr) != std::string::npos)
-            return true;
-    return false;
+    {
+        size_t pos = 0;
+        while ((pos = _message.find(*itr, pos)) != std::string::npos)
+        {
+            _message.replace(pos, (*itr).length(), std::string((*itr).length(), '*'));
+            pos += (*itr).length();
+        }
+    }
 }
 
 } // Namespace
