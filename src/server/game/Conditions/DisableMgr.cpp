@@ -406,7 +406,7 @@ void FilterMessage(std::string message)
         size_t pos = 0;
         while ((pos = _message.find(*itr, pos)) != std::string::npos)
         {
-            _message.replace(pos, (*itr).length(), std::string((*itr).length(), '*'));
+            message.replace(pos, (*itr).length(), std::string((*itr).length(), '*'));
             pos += (*itr).length();
         }
     }
