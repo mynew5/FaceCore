@@ -49,9 +49,10 @@ class instance_ahnkahet : public InstanceMapScript
                 JedogaTarget                = 0;
                 SwitchTrigger               = 0;
 
-                InitiandGUIDs.clear();
+                SpheresState[0]             = 0;
+                SpheresState[1]             = 0;
 
-                memset(SpheresState, 0, 2 * sizeof(uint64));
+                InitiandGUIDs.clear();
             }
 
             void OnCreatureCreate(Creature* creature) OVERRIDE
@@ -178,15 +179,15 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void SetData64(uint32 type, uint64 guid) OVERRIDE
+            void SetData64(uint32 type, uint64 data) OVERRIDE
             {
                 switch (type)
                 {
                     case DATA_ADD_JEDOGA_OPFER:
-                        JedogaSacrifices = guid;
+                        JedogaSacrifices = data;
                         break;
                     case DATA_PL_JEDOGA_TARGET:
-                        JedogaTarget = guid;
+                        JedogaTarget = data;
                         break;
                     default:
                         break;
