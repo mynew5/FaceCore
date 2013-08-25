@@ -12422,8 +12422,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
                 if (!spellProto)
                     TC_LOG_ERROR(LOG_FILTER_PLAYER, "Weapon switch cooldown spell %u couldn't be found in Spell.dbc", cooldownSpell);
-                else
-
+                else if (getClass() != CLASS_WARRIOR) // FIXME: Warriors CAN use some spells immediately after swapping weapons, but probably not any spell
                 {
                     m_weaponChangeTimer = spellProto->StartRecoveryTime;
 
