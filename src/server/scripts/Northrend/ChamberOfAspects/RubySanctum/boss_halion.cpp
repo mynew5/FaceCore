@@ -864,8 +864,6 @@ class npc_halion_controller : public CreatureScript
                         _twilightDamageTaken = 0;
                         break;
                     }
-                    default:
-                        break;
                 }
 
                 _materialDamageTaken = 0;
