@@ -352,7 +352,12 @@ void WardenWin::HandleData(ByteBuffer &buff)
         /// @todo test it.
         if (result == 0x00)
         {
-            TC_LOG_WARN(LOG_FILTER_WARDEN, "%s failed timing check. Action: %s", _session->GetPlayerInfo().c_str(), Penalty().c_str());
+            WardenCheck check;
+            memset(&check, 0, sizeof(check));
+            check.Action  = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
+            check.Comment = "Generic speedhack";
+
+            TC_LOG_WARN(LOG_FILTER_WARDEN, "%s failed timing check. Action: %s", _session->GetPlayerInfo().c_str(), Penalty(&check).c_str());
             return;
         }
 
