@@ -495,17 +495,6 @@ class TriggerWickedSpirit : public BasicEvent
         uint32 _counter;
 };
 
-class HeightFilterValkyrTargetSelection
-{
-    public:
-        HeightFilterValkyrTargetSelection() { }
-
-        bool operator()(WorldObject* target) const
-        {
-            return target->GetPositionZ() < 830.0f;
-        }
-};
-
 class boss_the_lich_king : public CreatureScript
 {
     public:
@@ -576,8 +565,8 @@ class boss_the_lich_king : public CreatureScript
 
             bool CanAIAttack(Unit const* target) const OVERRIDE
             {
-                // The Lich King must not select targets in frostmourne room if he killed everyone outside and no falling targets
-                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && target->GetPositionZ() > 830.0f;
+                // The Lich King must not select targets in frostmourne room if he killed everyone outside
+                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM);
             }
 
             void EnterEvadeMode() OVERRIDE
@@ -676,7 +665,6 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
                 {
                     events.SetPhase(PHASE_TRANSITION);
-                    SetImmuneToTaunt(true);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_1, CenterPosition);
@@ -686,7 +674,6 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO) && !HealthAbovePct(40))
                 {
                     events.SetPhase(PHASE_TRANSITION);
-                    SetImmuneToTaunt(true);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_2, CenterPosition);
@@ -696,7 +683,6 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE) && !HealthAbovePct(10))
                 {
                     me->SetReactState(REACT_PASSIVE);
-                    me->InterruptNonMeleeSpells(true);
                     me->AttackStop();
                     events.Reset();
                     events.SetPhase(PHASE_OUTRO);
@@ -834,7 +820,6 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
-                        SetImmuneToTaunt(false);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE, 62500, 0, PHASE_TRANSITION);
@@ -850,7 +835,6 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
-                        SetImmuneToTaunt(false);
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
                         summons.DespawnEntry(NPC_VALKYR_SHADOWGUARD);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
@@ -1130,21 +1114,6 @@ class boss_the_lich_king : public CreatureScript
             }
 
         private:
-
-            void SetImmuneToTaunt(bool apply)
-            {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT, apply);
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, apply);
-
-                // Following might not be necessay, but just in case...
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TOTAL_THREAT, apply);
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CRITICAL_THREAT, apply);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT_ALL, apply);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_MODIFY_THREAT_PERCENT, apply);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_REDIRECT_THREAT, apply);
-            }
-
             void SendMusicToPlayers(uint32 musicId) const
             {
                 WorldPacket data(SMSG_PLAY_MUSIC, 4);
@@ -1504,9 +1473,6 @@ class npc_valkyr_shadowguard : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_WINGS_OF_THE_DAMNED, false);
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
-                _movementWasStopped = true;
             }
 
             void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
@@ -1526,7 +1492,6 @@ class npc_valkyr_shadowguard : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage))
                 {
                     _events.Reset();
-                    damage = 0;
                     DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                     me->GetMotionMaster()->MoveTargetedHome();
                     me->ClearUnitState(UNIT_STATE_EVADE);
@@ -1553,14 +1518,8 @@ class npc_valkyr_shadowguard : public CreatureScript
                 switch (id)
                 {
                     case POINT_DROP_PLAYER:
-                        // On stun point motion is finalized, if position is really reached, distance is null
-                        if (!me->GetDistance(_dropPoint))
-                        {
-                            DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
-                            me->DespawnOrUnsummon(1000);
-                        }
-                        else
-                            _movementWasStopped = true;
+                        DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
+                        me->DespawnOrUnsummon(1000);
                         break;
                     case POINT_CHARGE:
                         if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
@@ -1616,13 +1575,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                             }
                             break;
                         case EVENT_MOVE_TO_DROP_POS:
-                            if (!me->HasAuraType(SPELL_AURA_MOD_STUN) && _movementWasStopped)
-                            {
-                                _movementWasStopped = false;
-                                me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
-                            }
-
-                            _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 500);
+                            me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
                             break;
                         case EVENT_LIFE_SIPHON:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
@@ -1642,7 +1595,6 @@ class npc_valkyr_shadowguard : public CreatureScript
             Position _dropPoint;
             uint64 _grabbedPlayer;
             InstanceScript* _instance;
-            bool _movementWasStopped;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -1681,41 +1633,17 @@ class npc_strangulate_vehicle : public CreatureScript
                 if (action != ACTION_TELEPORT_BACK)
                     return;
 
-                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
+                if (TempSummon* summ = me->ToTempSummon())
                 {
-                    lichKing->AI()->SummonedCreatureDespawn(me);
-
-                    if (TempSummon* summ = me->ToTempSummon())
+                    if (Unit* summoner = summ->GetSummoner())
                     {
-                        if (Unit* summoner = summ->GetSummoner())
-                        {
-                            summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL_DAMAGE_AURA);
-
-                            // Teleport to main tank location, otherwise we might land under the map or inside defile
-                            if (Unit* victim = lichKing->GetVictim())
-                                summoner->NearTeleportTo(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 1.0f, victim->GetOrientation());
-                            else // In heroic, all players are inside frostmourne, teleport to our own location
-                            {
-                                float x, y, z;
-                                x = me->GetPositionX();
-                                y = me->GetPositionY();
-                                z = me->GetPositionZ() + 1.0f;
-
-                                // If one coordinate is out of bounds, use default center position
-                                if (z < 840.0f || y < -2174.0f || y > -2075.0f || x < 458.0f || x > 552.0f)
-                                {
-                                    x = 503.6282f;
-                                    y = -2124.655f;
-                                    z = 841.0f;
-                                }
-
-                                summoner->NearTeleportTo(x, y, z, me->GetOrientation());
-                            }
-                        }
+                        DoCast(summoner, SPELL_HARVEST_SOUL_TELEPORT_BACK);
+                        summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL_DAMAGE_AURA);
                     }
                 }
 
-                me->DespawnOrUnsummon(2000);
+                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
+                    lichKing->AI()->SummonedCreatureDespawn(me);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -1755,7 +1683,7 @@ class npc_strangulate_vehicle : public CreatureScript
                                 if (me->GetExactDist(lichKing) > 10.0f)
                                 {
                                     Position pos;
-                                    lichKing->GetNearPosition(pos, float(rand_norm()) * 5.0f + 7.5f, lichKing->GetAngle(me));
+                                    lichKing->GetNearPosition(pos, float(rand_norm()) * 5.0f  + 7.5f, lichKing->GetAngle(me));
                                     me->GetMotionMaster()->MovePoint(0, pos);
                                 }
                             }
@@ -1960,12 +1888,6 @@ class npc_spirit_warden : public CreatureScript
                     terenas->AI()->DoAction(ACTION_TELEPORT_BACK);
             }
 
-            void KilledUnit(Unit* victim)
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    victim->RemoveAurasDueToSpell(IsHeroic() ? SPELL_HARVEST_SOULS_TELEPORT : SPELL_HARVEST_SOUL_TELEPORT);
-            }
-
             void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
@@ -2013,14 +1935,10 @@ class npc_spirit_bomb : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
             {
-                float destX, destY, destZ, Z;
-                me->GetPosition(destX, destY, Z);
-                me->NearTeleportTo(destX, destY, Z+30.0f, me->GetOrientation());
-                me->Relocate(destX, destY, Z+30.0f);
-                me->SendMovementFlagUpdate();
+                float destX, destY, destZ;
+                me->GetPosition(destX, destY);
                 destZ = 1055.0f;    // approximation, gets more precise later
                 me->UpdateGroundPositionZ(destX, destY, destZ);
-                me->SetSpeed(MOVE_FLIGHT, 0.5f, true);
                 me->GetMotionMaster()->MovePoint(POINT_GROUND, destX, destY, destZ);
             }
 
@@ -2214,31 +2132,40 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_necrotic_plague_SpellScript);
 
+            bool Load() OVERRIDE
+            {
+                _hadAura = false;
+                return true;
+            }
+
+            void SelectTarget(std::list<Unit*>& targets)
+            {
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                if (targets.size() < 2)
+                    return;
+
+                targets.resize(1);
+            }
+
+            void CheckAura()
+            {
+                if (GetHitUnit()->HasAura(GetSpellInfo()->Id))
+                    _hadAura = true;
+            }
+
             void AddMissingStack()
             {
-                // Add stack if we were not removed by dispel
-                if (GetHitAura() && GetSpellValue()->EffectBasePoints[EFFECT_1] != AURA_REMOVE_BY_ENEMY_SPELL)
+                if (GetHitAura() && !_hadAura && GetSpellValue()->EffectBasePoints[EFFECT_1] != AURA_REMOVE_BY_ENEMY_SPELL)
                     GetHitAura()->ModStackAmount(1);
-
-                // Add stack if target has LK spell on it
-                if (GetHitAura() && GetHitUnit())
-                {
-                    if (GetHitUnit()->HasAura(70337) || GetHitUnit()->HasAura(73912) || GetHitUnit()->HasAura(73913) || GetHitUnit()->HasAura(73914))
-                    {
-                        GetHitUnit()->RemoveAurasDueToSpell(70337);
-                        GetHitUnit()->RemoveAurasDueToSpell(73912);
-                        GetHitUnit()->RemoveAurasDueToSpell(73913);
-                        GetHitUnit()->RemoveAurasDueToSpell(73914);
-
-                        GetHitAura()->ModStackAmount(1);
-                    }
-                }
             }
 
             void Register() OVERRIDE
             {
+                BeforeHit += SpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::CheckAura);
                 OnHit += SpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::AddMissingStack);
             }
+
+            bool _hadAura;
         };
 
         class spell_the_lich_king_necrotic_plague_AuraScript : public AuraScript
@@ -2640,7 +2567,6 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                targets.remove_if(HeightFilterValkyrTargetSelection());
                 targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
                 if (targets.empty())
                     return;
@@ -2661,8 +2587,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (GetCaster() && GetCaster()->GetMotionMaster() && GetHitUnit())
-                    GetCaster()->GetMotionMaster()->MoveCharge(GetHitUnit()->GetPositionX(), GetHitUnit()->GetPositionY(), GetHitUnit()->GetPositionZ());
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_CHARGE, true);
             }
 
             void Register() OVERRIDE
