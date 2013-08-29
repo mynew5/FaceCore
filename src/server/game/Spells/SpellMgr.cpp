@@ -3891,10 +3891,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->SpellFamilyName)
         {
-            case SPELLFAMILY_HUNTER:
-                // Silencing Shot / Scatter Shot
-                if (spellInfo->SpellFamilyFlags[0] & 0x40000)
-                    spellInfo->Speed = 0; // instant
             case SPELLFAMILY_PRIEST:
                 // Twin Disciplines should affect at Prayer of Mending
                 if (spellInfo->SpellIconID == 2292)
