@@ -928,15 +928,15 @@ class WorldSession
                         return true;
 
                     // Opcode not allowed, let the punishment begin
-                    sLog->outInfo(LOG_FILTER_NETWORKIO, "AntiDOS: Account %u, IP: %s, sent unacceptable packet (opc: %u, size: %u)",
-                        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), p.size());
+                    TC_LOG_INFO(LOG_FILTER_NETWORKIO, "AntiDOS: Account %u, IP: %s, sent unacceptable packet (opc: %u, size: %u)",
+                        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), (uint32)p.size());
 
                     switch (_policy)
                     {
                         case POLICY_LOG:
                             return true;
                         case POLICY_KICK:
-                            sLog->outInfo(LOG_FILTER_NETWORKIO, "AntiDOS: Player kicked!");
+                            TC_LOG_INFO(LOG_FILTER_NETWORKIO, "AntiDOS: Player kicked!");
                             return false;
                         case POLICY_BAN:
                         {
@@ -945,6 +945,7 @@ class WorldSession
                             std::string nameOrIp = "";
                             switch (bm)
                             {
+                                case BAN_CHARACTER: // not supported, ban account
                                 case BAN_ACCOUNT: (void)sAccountMgr->GetName(Session->GetAccountId(), nameOrIp); break;
                                 case BAN_IP: nameOrIp = Session->GetRemoteAddress(); break;
                             }
