@@ -432,6 +432,7 @@ class boss_prince_keleseth_icc : public CreatureScript
             void JustRespawned() OVERRIDE
             {
                 DoCast(me, SPELL_FEIGN_DEATH);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetHealth(_spawnHealth);
             }
 
@@ -649,6 +650,7 @@ class boss_prince_taldaram_icc : public CreatureScript
             void JustRespawned() OVERRIDE
             {
                 DoCast(me, SPELL_FEIGN_DEATH);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetHealth(_spawnHealth);
             }
 
@@ -873,6 +875,7 @@ class boss_prince_valanar_icc : public CreatureScript
             void JustRespawned() OVERRIDE
             {
                 DoCast(me, SPELL_FEIGN_DEATH);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetHealth(_spawnHealth);
             }
 
