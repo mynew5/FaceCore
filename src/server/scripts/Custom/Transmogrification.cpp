@@ -601,13 +601,13 @@ bool Transmogrification::IsAllowedQuality(uint32 quality) const
 void Transmogrification::LoadConfig(bool reload)
 {
 #ifdef PRESETS
-    EnableSetInfo = ConfigMgr::GetBoolDefault("Transmogrification.EnableSetInfo", true);
-    SetNpcText = uint32(ConfigMgr::GetIntDefault("Transmogrification.SetNpcText", 50001));
+    EnableSetInfo = sConfigMgr->GetBoolDefault("Transmogrification.EnableSetInfo", true);
+    SetNpcText = uint32(sConfigMgr->GetIntDefault("Transmogrification.SetNpcText", 50001));
 
-    EnableSets = ConfigMgr::GetBoolDefault("Transmogrification.EnableSets", true);
-    MaxSets = (uint8)ConfigMgr::GetIntDefault("Transmogrification.MaxSets", 10);
-    SetCostModifier = ConfigMgr::GetFloatDefault("Transmogrification.SetCostModifier", 3.0f);
-    SetCopperCost = ConfigMgr::GetIntDefault("Transmogrification.SetCopperCost", 0);
+    EnableSets = sConfigMgr->GetBoolDefault("Transmogrification.EnableSets", true);
+    MaxSets = (uint8)sConfigMgr->GetIntDefault("Transmogrification.MaxSets", 10);
+    SetCostModifier = sConfigMgr->GetFloatDefault("Transmogrification.SetCostModifier", 3.0f);
+    SetCopperCost = sConfigMgr->GetIntDefault("Transmogrification.SetCopperCost", 0);
 
     if (MaxSets > MAX_OPTIONS)
         MaxSets = MAX_OPTIONS;
@@ -628,11 +628,11 @@ void Transmogrification::LoadConfig(bool reload)
     }
 #endif
 
-    EnableTransmogInfo = ConfigMgr::GetBoolDefault("Transmogrification.EnableTransmogInfo", true);
-    TransmogNpcText = uint32(ConfigMgr::GetIntDefault("Transmogrification.TransmogNpcText", 50000));
+    EnableTransmogInfo = sConfigMgr->GetBoolDefault("Transmogrification.EnableTransmogInfo", true);
+    TransmogNpcText = uint32(sConfigMgr->GetIntDefault("Transmogrification.TransmogNpcText", 50000));
 
-    std::istringstream issAllowed(ConfigMgr::GetStringDefault("Transmogrification.Allowed", ""));
-    std::istringstream issNotAllowed(ConfigMgr::GetStringDefault("Transmogrification.NotAllowed", ""));
+    std::istringstream issAllowed(sConfigMgr->GetStringDefault("Transmogrification.Allowed", ""));
+    std::istringstream issNotAllowed(sConfigMgr->GetStringDefault("Transmogrification.NotAllowed", ""));
     while(issAllowed.good())
     {
         uint32 entry;
@@ -650,24 +650,24 @@ void Transmogrification::LoadConfig(bool reload)
         NotAllowed.insert(entry);
     }
 
-    ScaledCostModifier = ConfigMgr::GetFloatDefault("Transmogrification.ScaledCostModifier", 1.0f);
-    CopperCost = ConfigMgr::GetIntDefault("Transmogrification.CopperCost", 0);
+    ScaledCostModifier = sConfigMgr->GetFloatDefault("Transmogrification.ScaledCostModifier", 1.0f);
+    CopperCost = sConfigMgr->GetIntDefault("Transmogrification.CopperCost", 0);
 
-    RequireToken = ConfigMgr::GetBoolDefault("Transmogrification.RequireToken", false);
-    TokenEntry = uint32(ConfigMgr::GetIntDefault("Transmogrification.TokenEntry", 49426));
-    TokenAmount = uint32(ConfigMgr::GetIntDefault("Transmogrification.TokenAmount", 1));
+    RequireToken = sConfigMgr->GetBoolDefault("Transmogrification.RequireToken", false);
+    TokenEntry = uint32(sConfigMgr->GetIntDefault("Transmogrification.TokenEntry", 49426));
+    TokenAmount = uint32(sConfigMgr->GetIntDefault("Transmogrification.TokenAmount", 1));
 
-    AllowPoor = ConfigMgr::GetBoolDefault("Transmogrification.AllowPoor", false);
-    AllowCommon = ConfigMgr::GetBoolDefault("Transmogrification.AllowCommon", false);
-    AllowUncommon = ConfigMgr::GetBoolDefault("Transmogrification.AllowUncommon", true);
-    AllowRare = ConfigMgr::GetBoolDefault("Transmogrification.AllowRare", true);
-    AllowEpic = ConfigMgr::GetBoolDefault("Transmogrification.AllowEpic", true);
-    AllowLegendary = ConfigMgr::GetBoolDefault("Transmogrification.AllowLegendary", false);
-    AllowArtifact = ConfigMgr::GetBoolDefault("Transmogrification.AllowArtifact", false);
-    AllowHeirloom = ConfigMgr::GetBoolDefault("Transmogrification.AllowHeirloom", true);
+    AllowPoor = sConfigMgr->GetBoolDefault("Transmogrification.AllowPoor", false);
+    AllowCommon = sConfigMgr->GetBoolDefault("Transmogrification.AllowCommon", false);
+    AllowUncommon = sConfigMgr->GetBoolDefault("Transmogrification.AllowUncommon", true);
+    AllowRare = sConfigMgr->GetBoolDefault("Transmogrification.AllowRare", true);
+    AllowEpic = sConfigMgr->GetBoolDefault("Transmogrification.AllowEpic", true);
+    AllowLegendary = sConfigMgr->GetBoolDefault("Transmogrification.AllowLegendary", false);
+    AllowArtifact = sConfigMgr->GetBoolDefault("Transmogrification.AllowArtifact", false);
+    AllowHeirloom = sConfigMgr->GetBoolDefault("Transmogrification.AllowHeirloom", true);
 
-    AllowMixedArmorTypes = ConfigMgr::GetBoolDefault("Transmogrification.AllowMixedArmorTypes", false);
-    AllowMixedWeaponTypes = ConfigMgr::GetBoolDefault("Transmogrification.AllowMixedWeaponTypes", false);
+    AllowMixedArmorTypes = sConfigMgr->GetBoolDefault("Transmogrification.AllowMixedArmorTypes", false);
+    AllowMixedWeaponTypes = sConfigMgr->GetBoolDefault("Transmogrification.AllowMixedWeaponTypes", false);
 
     if (!sObjectMgr->GetItemTemplate(TokenEntry))
     {
