@@ -1,70 +1,95 @@
 #ifndef DEF_TRANSMOGRIFICATION_H
 #define DEF_TRANSMOGRIFICATION_H
 
-#include "Config.h"
+#define PRESETS // comment this line to disable preset feature totally
+
+#include "ScriptPCH.h"
 #include "Language.h"
+#include "Config.h"
+
+#define MAX_OPTIONS 25 // do not alter
+
+enum TransmogTrinityStrings // Language.h might have same entries, appears when executing SQL, change if needed
+{
+    LANG_ERR_TRANSMOG_OK = 11100, // change this
+    LANG_ERR_TRANSMOG_INVALID_SLOT,
+    LANG_ERR_TRANSMOG_INVALID_SRC_ENTRY,
+    LANG_ERR_TRANSMOG_MISSING_SRC_ITEM,
+    LANG_ERR_TRANSMOG_MISSING_DEST_ITEM,
+    LANG_ERR_TRANSMOG_INVALID_ITEMS,
+    LANG_ERR_TRANSMOG_NOT_ENOUGH_MONEY,
+    LANG_ERR_TRANSMOG_NOT_ENOUGH_TOKENS,
+
+    LANG_ERR_UNTRANSMOG_OK,
+    LANG_ERR_UNTRANSMOG_NO_TRANSMOGS,
+
+#ifdef PRESETS
+    LANG_PRESET_ERR_INVALID_NAME,
+#endif
+};
 
 class Transmogrification
 {
 public:
-    Transmogrification() { };
-    ~Transmogrification() { };
+    typedef UNORDERED_MAP<uint64, uint64> transmogData;
+    typedef UNORDERED_MAP<uint64, transmogData> transmogMap;
+    transmogMap entryMap; // entryMap[pGUID][iGUID] = entry
+    transmogData dataMap; // dataMap[iGUID] = pGUID
 
-    uint32 GetRequireGold() { return RequireGold; }
-    float GetGoldModifier() { return GoldModifier; }
-    uint32 GetGoldCost() { return GoldCost; }
+#ifdef PRESETS
+    typedef std::map<uint8, uint32> slotMap;
+    typedef std::map<uint8, slotMap> presetData;
+    typedef UNORDERED_MAP<uint64, presetData> presetDataMap;
+    presetDataMap presetById; // presetById[pGUID][presetID][slot] = entry
+    typedef std::map<uint8, std::string> presetIdMap;
+    typedef UNORDERED_MAP<uint64, presetIdMap> presetNameMap;
+    presetNameMap presetByName; // presetByName[pGUID][presetID] = presetName
 
-    bool GetRequireToken() { return RequireToken; }
-    uint32 GetTokenEntry() { return TokenEntry; }
-    uint32 GetTokenAmount() { return TokenAmount; }
+    void PresetTransmog(Player* player, Item* itemTransmogrified, uint32 fakeEntry, uint8 slot);
 
-    bool AllowedQuality(uint32 quality) // Only thing used elsewhere (Player.cpp)
-    {
-        switch(quality)
-        {
-        case ITEM_QUALITY_POOR: return AllowPoor;
-        case ITEM_QUALITY_NORMAL: return AllowCommon;
-        case ITEM_QUALITY_UNCOMMON: return AllowUncommon;
-        case ITEM_QUALITY_RARE: return AllowRare;
-        case ITEM_QUALITY_EPIC: return AllowEpic;
-        case ITEM_QUALITY_LEGENDARY: return AllowLegendary;
-        case ITEM_QUALITY_ARTIFACT: return AllowArtifact;
-        case ITEM_QUALITY_HEIRLOOM: return AllowHeirloom;
-        default: return false;
-        }
-    }
+    bool EnableSets;
+    uint8 MaxSets;
+    float SetCostModifier;
+    int32 SetCopperCost;
 
-    void LoadConfig()
-    {
-        RequireGold = (uint32)sConfigMgr->GetIntDefault("Transmogrification.RequireGold", 1);
-        GoldModifier = sConfigMgr->GetFloatDefault("Transmogrification.GoldModifier", 1.0f);
-        GoldCost = (uint32)sConfigMgr->GetIntDefault("Transmogrification.GoldCost", 100000);
+    bool GetEnableSets() const;
+    uint8 GetMaxSets() const;
+    float GetSetCostModifier() const;
+    int32 GetSetCopperCost() const;
 
-        RequireToken = sConfigMgr->GetBoolDefault("Transmogrification.RequireToken", false);
-        TokenEntry = (uint32)sConfigMgr->GetIntDefault("Transmogrification.TokenEntry", 49426);
-        TokenAmount = (uint32)sConfigMgr->GetIntDefault("Transmogrification.TokenAmount", 1);
+    void LoadPlayerSets(uint64 pGUID);
+    void UnloadPlayerSets(uint64 pGUID);
+#endif
 
-        AllowPoor = sConfigMgr->GetBoolDefault("Transmogrification.AllowPoor", false);
-        AllowCommon = sConfigMgr->GetBoolDefault("Transmogrification.AllowCommon", false);
-        AllowUncommon = sConfigMgr->GetBoolDefault("Transmogrification.AllowUncommon", true);
-        AllowRare = sConfigMgr->GetBoolDefault("Transmogrification.AllowRare", true);
-        AllowEpic = sConfigMgr->GetBoolDefault("Transmogrification.AllowEpic", true);
-        AllowLegendary = sConfigMgr->GetBoolDefault("Transmogrification.AllowLegendary", false);
-        AllowArtifact = sConfigMgr->GetBoolDefault("Transmogrification.AllowArtifact", false);
-        AllowHeirloom = sConfigMgr->GetBoolDefault("Transmogrification.AllowHeirloom", true);
+    std::string GetItemIcon(uint32 entry, uint32 width, uint32 height, int x, int y);
+    std::string GetSlotIcon(uint8 slot, uint32 width, uint32 height, int x, int y);
+    const char * GetSlotName(uint8 slot, WorldSession* session) const;
+    std::string GetItemLink(Item* item, WorldSession* session);
+    std::string GetItemLink(uint32 entry, WorldSession* session);
+    uint32 GetFakeEntry(uint64 itemGUID) const;
+    void DeleteFakeFromDB(uint64 itemGUID, SQLTransaction* trans = NULL);
+    void DeleteFakeEntry(Player* player, uint8 slot, Item* itemTransmogrified, SQLTransaction* trans = NULL);
+    void SetFakeEntry(Player* player, uint32 newEntry, uint8 slot, Item* itemTransmogrified);
 
-        if(!sObjectMgr->GetItemTemplate(TokenEntry))
-        {
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "Transmogrification.TokenEntry (%u) does not exist. Using default.", TokenEntry);
-            TokenEntry = 49426;
-        }
-    }
+    TransmogTrinityStrings Transmogrify(Player* player, uint64 itemGUID, uint8 slot, /*uint32 newEntry, */bool no_cost = false);
+    bool CanTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source);
+    bool SuitableForTransmogrification(Player* player, ItemTemplate const* proto);
+    // bool CanBeTransmogrified(Item const* item);
+    // bool CanTransmogrify(Item const* item);
+    uint32 GetSpecialPrice(ItemTemplate const* proto) const;
+    bool IsRangedWeapon(uint32 Class, uint32 SubClass) const;
 
-private:
+    // config values
+    bool EnableTransmogInfo;
+    uint32 TransmogNpcText;
+    bool EnableSetInfo;
+    uint32 SetNpcText;
 
-    uint32 RequireGold;
-    float GoldModifier;
-    uint32 GoldCost;
+    std::set<uint32> Allowed;
+    std::set<uint32> NotAllowed;
+
+    float ScaledCostModifier;
+    int32 CopperCost;
 
     bool RequireToken;
     uint32 TokenEntry;
@@ -78,6 +103,30 @@ private:
     bool AllowLegendary;
     bool AllowArtifact;
     bool AllowHeirloom;
+    bool AllowMixedArmorTypes;
+    bool AllowMixedWeaponTypes;
+
+    // Config
+    bool GetEnableTransmogInfo() const;
+    uint32 GetTransmogNpcText() const;
+    bool GetEnableSetInfo() const;
+    uint32 GetSetNpcText() const;
+
+    bool IsAllowed(uint32 entry) const;
+    bool IsNotAllowed(uint32 entry) const;
+
+    float GetScaledCostModifier() const;
+    int32 GetCopperCost() const;
+
+    bool GetRequireToken() const;
+    uint32 GetTokenEntry() const;
+    uint32 GetTokenAmount() const;
+
+    bool IsAllowedQuality(uint32 quality) const;
+    bool GetAllowMixedArmorTypes() const;
+    bool GetAllowMixedWeaponTypes() const;
+
+    void LoadConfig(bool reload);
 };
 #define sTransmogrification ACE_Singleton<Transmogrification, ACE_Null_Mutex>::instance()
 
