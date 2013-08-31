@@ -25,8 +25,6 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
-//Transmogrification
-void AddSC_NPC_Transmogrify();
 //TeleNPC2
 void AddSC_npc_teleport();
 void AddSC_Mod_ArenaWatcher();
@@ -1414,8 +1412,6 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-    //Transmogrification
-    AddSC_NPC_Transmogrify();
     //TeleNPC2
     AddSC_npc_teleport();
     AddSC_Mod_ArenaWatcher();
