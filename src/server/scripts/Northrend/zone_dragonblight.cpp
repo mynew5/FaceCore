@@ -469,7 +469,7 @@ public:
                 return;
 
             if(PlayerGUID)
-                if(Player* pPlayer = Unit::GetPlayer(*me,PlayerGUID))
+                if(Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID))
                 {
                     switch (i)
                     {
@@ -495,7 +495,7 @@ public:
             BodyGuardMoveTimer = 2000;
             EndSequenceTimer = 500;
             Range = 3.0f;
-            PlayerGUID = NULL;
+            PlayerGUID = 0;
         }
 
         void StartEvent()
@@ -518,7 +518,7 @@ public:
 
             if (PlayerGUID)
             {
-                Player* AuraPlayer = Unit::GetPlayer(*me,PlayerGUID);
+                Player* AuraPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
                 if (!AuraPlayer)
                 {
@@ -880,7 +880,7 @@ public:
 
             if (Creature *cC = pCreature->FindNearestCreature(NPC_HIGH_ABBOT_LANDGREN_ENTRY, 30))
             {
-                if (CAST_AI(npc_high_abbot_landgren::npc_high_abbot_landgrenAI, cC->AI())->PlayerGUID == NULL)
+                if (!CAST_AI(npc_high_abbot_landgren::npc_high_abbot_landgrenAI, cC->AI())->PlayerGUID)
                     CAST_AI(npc_high_abbot_landgren::npc_high_abbot_landgrenAI, cC->AI())->PlayerGUID = pPlayer->GetGUID();
                 else
                 {
