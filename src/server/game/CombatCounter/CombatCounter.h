@@ -16,8 +16,9 @@
 #ifndef COMBATCOUNTER_H
 #define COMBATCOUNTER_H
 
-#include "Unit.h"
 #include <map>
+
+class Unit;
 
 class CombatCounter
 {

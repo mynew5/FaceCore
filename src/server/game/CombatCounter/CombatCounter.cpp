@@ -15,7 +15,6 @@
 
 #include "CombatCounter.h"
 #include "Common.h"
-#include "World.h"
 #include "Database/DatabaseEnv.h"
 #include "Player.h"
 #include "Map.h"
@@ -38,9 +37,6 @@ void CombatCounter::CombatBegin(Unit* unit, bool in_zone_counter /*= false*/)
 
     entry = unit->GetEntry();
     uint64 guid = unit->GetGUID();
-
-    char buf[1024];
-    sprintf(buf, "CombatCounter::CombatBegin: Called for creature entry %d", entry); sWorld->SendGlobalText(buf, NULL);
 
     Map::PlayerList const &PlayerList = unit->GetMap()->GetPlayers();
 
@@ -70,8 +66,6 @@ void CombatCounter::CombatBegin(Unit* unit, bool in_zone_counter /*= false*/)
     if (is_healing_counter)
         mode += 6;
 
-    sprintf(buf, "CombatCounter::CombatBegin: Logging mode set to %d", mode); sWorld->SendGlobalText(buf, NULL);
-
     ValueTable.clear();
 }
 
@@ -91,18 +85,12 @@ void CombatCounter::CombatComplete()
 
     in_combat = false;
 
-    char buf[1024];
-    sprintf(buf, "CombatCounter::CombatComplete: Called for creature entry %d", entry); sWorld->SendGlobalText(buf, NULL);
-
     float delta_time = float(GetMSTimeDiffToNow(begin_time)) / 1000.0f;
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     for (std::map<uint32, uint32>::const_iterator itr = ValueTable.begin(); itr != ValueTable.end(); ++itr)
-    {
-        sprintf(buf, "INSERT INTO `dps_counters` (`entry`, `mode`, `guid`, `dps`) VALUES (%d, %d, %d, %f) ON DUPLICATE KEY UPDATE `dps` = GREATEST(`dps`, VALUES(`dps`))", entry, mode, itr->first, float(itr->second) / delta_time); sWorld->SendGlobalText(buf, NULL);
         trans->PAppend("INSERT INTO `dps_counters` (`entry`, `mode`, `guid`, `dps`) VALUES (%d, %d, %d, %f) ON DUPLICATE KEY UPDATE `dps` = GREATEST(`dps`, VALUES(`dps`))", entry, mode, itr->first, float(itr->second) / delta_time);
-    }
 
     CharacterDatabase.CommitTransaction(trans);
 
