@@ -16,15 +16,14 @@
 #ifndef COMBATCOUNTER_H
 #define COMBATCOUNTER_H
 
+#include "Unit.h"
 #include <map>
-
-class Unit;
 
 class CombatCounter
 {
     public:
-        CombatCounter(): in_combat(false), is_healing_counter(false) { }
-        ~CombatCounter() { ValueTable.clear(); }
+        CombatCounter();
+        ~CombatCounter();
         void CombatBegin(Unit* unit, bool in_zone_counter = false);
         void InputValue(Unit* attacker, uint32 value);
         void CombatComplete();
