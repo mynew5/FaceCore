@@ -12,8 +12,6 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Custom/arena_teamTop.cpp
   Custom/mod_ArenaWatcher.cpp
-  Custom/DamageCounter.h
-  Custom/DamageCounter.cpp
   Custom/Transmogrification.h
   Custom/Transmogrification.cpp
   Custom/Transmogrifier.cpp

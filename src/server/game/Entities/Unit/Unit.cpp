@@ -61,6 +61,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "CombatCounter.h"
 
 #include <math.h>
 
@@ -720,6 +721,12 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (IsControlledByPlayer())
             victim->ToCreature()->LowerPlayerDamageReq(health < damage ?  health : damage);
     }
+
+    // VISTAWOW DPS COUNTERS
+    if (this != victim)
+        if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (CombatCounter* damageCounter = player->GetDamageCounter())
+                damageCounter->InputValue(player, std::min<uint32>(damage, health));
 
     if (health <= damage)
     {
@@ -9627,6 +9634,11 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
 
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsTotem())
         unit = GetOwner();
+
+    // VISTAWOW DPS COUNTERS
+    if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
+        if (CombatCounter* healingCounter = player->GetHealingCounter())
+            healingCounter->InputValue(player, std::max<uint32>(gain, 0));
 
     if (Player* player = unit->ToPlayer())
     {

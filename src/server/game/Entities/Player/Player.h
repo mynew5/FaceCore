@@ -28,6 +28,9 @@
 #include "QuestDef.h"
 #include "SpellMgr.h"
 #include "Unit.h"
+#include "CombatCounter.h"
+#include "UnitAI.h"
+#include "ObjectMgr.h"
 
 #include <string>
 #include <vector>
@@ -1128,8 +1131,29 @@ class Player : public Unit, public GridObject<Player>
 
         // VISTAWOW DROP BOOST
         void UpdateDropBoostRating();
-        uint32 GetDropBoostRating() { return m_DropBoostRating; };
+        uint32 GetDropBoostRating() { return m_DropBoostRating; }
         void DoDropBoostIfEligible(Loot& loot, LootStore const& store, uint32 lootid, uint16 mode);
+
+        // VISTAWOW DPS COUNTERS
+        void SetDamageCounterGUID(uint64 guid) { m_DamageCounterGUID = guid; }
+        void SetHealingCounterGUID(uint64 guid) { m_HealingCounterGUID = guid; }
+
+
+        CombatCounter* GetDamageCounter()
+        {
+            if (m_DamageCounterGUID)
+                if (Creature* creature = ObjectAccessor::GetCreature(*this, m_DamageCounterGUID))
+                    return creature->GetAI()->GetDamageCounter();
+            return NULL;
+        }
+
+        CombatCounter* GetHealingCounter()
+        {
+            if (m_HealingCounterGUID)
+                if (Creature* creature = ObjectAccessor::GetCreature(*this, m_HealingCounterGUID))
+                    return creature->GetAI()->GetHealingCounter();
+            return NULL;
+        }
 
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
         bool TeleportToBGEntryPoint();
@@ -2647,6 +2671,10 @@ class Player : public Unit, public GridObject<Player>
 
         // VISTAWOW DROP BOOST
         uint32 m_DropBoostRating;
+
+        // VISTAWOW DPS COUNTERS
+        uint64 m_DamageCounterGUID;
+        uint64 m_HealingCounterGUID;
 
         MapReference m_mapRef;
 

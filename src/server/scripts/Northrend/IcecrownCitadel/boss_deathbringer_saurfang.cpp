@@ -22,7 +22,6 @@
 #include "SpellAuras.h"
 #include "icecrown_citadel.h"
 #include "Player.h"
-#include "../../Custom/DamageCounter.h"
 
 enum ScriptTexts
 {
@@ -287,7 +286,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 // oh just screw intro, enter combat - no exploits please
                 me->setActive(true);
                 DoZoneInCombat();
-                _DamageCounter.CombatBegin(me);
+                GetDamageCounter()->CombatBegin(me);
 
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
@@ -315,7 +314,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                _DamageCounter.CombatComplete();
+                GetDamageCounter()->CombatComplete();
             }
 
             void AttackStart(Unit* victim) OVERRIDE
@@ -348,7 +347,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) OVERRIDE
             {
-                _DamageCounter.InputDamage(attacker, damage);
+                GetDamageCounter()->InputValue(attacker, damage);
 
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
@@ -362,7 +361,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 if (!_dead && me->GetHealth() < FightWonValue)
                 {
-                    _DamageCounter.CombatComplete();
+                    GetDamageCounter()->CombatComplete();
                     _dead = true;
                     _JustDied();
                     _EnterEvadeMode();
@@ -580,7 +579,6 @@ class boss_deathbringer_saurfang : public CreatureScript
             static uint32 const FightWonValue;
 
         private:
-            DamageCounter _DamageCounter;
             uint32 _fallenChampionCastCount;
             bool _introDone;
             bool _frenzied;   // faster than iterating all auras to find Frenzy

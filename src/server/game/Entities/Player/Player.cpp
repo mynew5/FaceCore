@@ -661,6 +661,10 @@ Player::Player(WorldSession* session): Unit(true)
     // VISTAWOW DROP BOOST
     m_DropBoostRating = 0;
 
+    // VISTAWOW DPS COUNTERS
+    m_DamageCounterGUID = 0;
+    m_HealingCounterGUID = 0;
+
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 

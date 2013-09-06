@@ -13,26 +13,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DAMAGECOUNTER_H
-#define DAMAGECOUNTER_H
+#ifndef COMBATCOUNTER_H
+#define COMBATCOUNTER_H
 
-#include "Database/DatabaseEnv.h"
-#include "Player.h"
+#include <map>
 
-class DamageCounter
+class Unit;
+
+class CombatCounter
 {
     public:
-        DamageCounter();
-        ~DamageCounter();
-        void CombatBegin(Unit* unit);
-        void InputDamage(Unit* attacker, uint32 damage);
+        CombatCounter(): in_combat(false), is_healing_counter(false) { }
+        ~CombatCounter() { ValueTable.clear(); }
+        void CombatBegin(Unit* unit, bool in_zone_counter = false);
+        void InputValue(Unit* attacker, uint32 value);
         void CombatComplete();
+        void SetForHealing(bool for_healing = true) { is_healing_counter = for_healing; }
     private:
         bool in_combat;
+        bool is_healing_counter;
         uint32 entry;
         uint32 mode;
         uint32 begin_time;
-        std::map<uint32, uint32> DamageTable;
+        std::map<uint32, uint32> ValueTable;
 };
 
 #endif

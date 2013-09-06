@@ -50,6 +50,7 @@ file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_NinjaInquisitor NinjaInquisitor/*.cpp NinjaInquisitor/*.h)
+file(GLOB_RECURSE sources_CombatCounter CombatCounter/*.cpp CombatCounter/*.h)
 
 # Create game-libary
 
@@ -102,6 +103,7 @@ set(game_STAT_SRCS
   ${sources_Weather}
   ${sources_World}
   ${sources_NinjaInquisitor}
+  ${sources_CombatCounter}
 )
 
 include_directories(
@@ -201,6 +203,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_CURRENT_SOURCE_DIR}/NinjaInquisitor
+  ${CMAKE_CURRENT_SOURCE_DIR}/CombatCounter
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}

@@ -13,24 +13,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DamageCounter.h"
+#include "CombatCounter.h"
+#include "Common.h"
+#include "Database/DatabaseEnv.h"
+#include "Player.h"
+#include "Map.h"
 
-DamageCounter::DamageCounter()
-{
-    in_combat = false;
-}
-
-DamageCounter::~DamageCounter()
-{
-    DamageTable.clear();
-}
-
-void DamageCounter::CombatBegin(Unit* unit)
+void CombatCounter::CombatBegin(Unit* unit, bool in_zone_counter /*= false*/)
 {
     in_combat = true;
     begin_time = getMSTime();
 
     entry = unit->GetEntry();
+    uint64 guid  = unit->GetGUID();
+
+    Map::PlayerList const &PlayerList = unit->GetMap()->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                if (is_healing_counter)
+                    player->SetHealingCounterGUID(in_zone_counter ? guid : 0);
+                else
+                    player->SetDamageCounterGUID(in_zone_counter ? guid : 0);
 
     if (Map* map = unit->GetMap())
     {
@@ -47,21 +52,24 @@ void DamageCounter::CombatBegin(Unit* unit)
     else
         mode = 0;
 
-    DamageTable.clear();
+    if (is_healing_counter)
+        mode += 6;
+
+    ValueTable.clear();
 }
 
-void DamageCounter::InputDamage(Unit* attacker, uint32 damage)
+void CombatCounter::InputValue(Unit* attacker, uint32 value)
 {
     if (!attacker || !in_combat)
         return;
 
     if (Player* player = attacker->GetCharmerOrOwnerPlayerOrPlayerItself())
-        DamageTable[player->GetGUIDLow()] += damage;
+        ValueTable[player->GetGUIDLow()] += value;
 }
 
-void DamageCounter::CombatComplete()
+void CombatCounter::CombatComplete()
 {
-    if (DamageTable.empty() || !in_combat)
+    if (ValueTable.empty() || !in_combat)
         return;
 
     in_combat = false;
@@ -70,10 +78,10 @@ void DamageCounter::CombatComplete()
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    for (std::map<uint32, uint32>::const_iterator itr = DamageTable.begin(); itr != DamageTable.end(); ++itr)
+    for (std::map<uint32, uint32>::const_iterator itr = ValueTable.begin(); itr != ValueTable.end(); ++itr)
         trans->PAppend("INSERT INTO `dps_counters` (`entry`, `mode`, `guid`, `dps`) VALUES (%d, %d, %d, %f) ON DUPLICATE KEY UPDATE `dps` = GREATEST(`dps`, VALUES(`dps`))", entry, mode, itr->first, float(itr->second) / delta_time);
 
     CharacterDatabase.CommitTransaction(trans);
 
-    DamageTable.clear();    
+    ValueTable.clear();    
 }

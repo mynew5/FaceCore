@@ -22,6 +22,8 @@
 #include "Define.h"
 #include "Unit.h"
 #include "Containers.h"
+#include "CombatCounter.h"
+
 #include <list>
 
 class Player;
@@ -120,7 +122,7 @@ class UnitAI
     protected:
         Unit* const me;
     public:
-        explicit UnitAI(Unit* unit) : me(unit) {}
+        explicit UnitAI(Unit* unit) : me(unit) { healingCounter.SetForHealing(); }
         virtual ~UnitAI() {}
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
@@ -263,6 +265,12 @@ class UnitAI
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) {}
         virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
+
+        // VISTAWOW DPS COUNTERS
+        CombatCounter* GetDamageCounter() { return &damageCounter; }
+        CombatCounter* GetHealingCounter() { return &healingCounter; }
+    private:
+        CombatCounter damageCounter, healingCounter;
 };
 
 class PlayerAI : public UnitAI

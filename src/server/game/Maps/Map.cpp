@@ -685,6 +685,10 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
 
     if (remove)
         DeleteFromWorld(player);
+
+    // VISTAWOW DPS COUNTERS
+    player->SetDamageCounterGUID(0);
+    player->SetHealingCounterGUID(0);
 }
 
 template<class T>
