@@ -2982,9 +2982,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
-            case 38729: // Rod of Purification
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_BY_CASTER;
-                break;
             default:
                 break;
         }
@@ -3885,6 +3882,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Crashes client on pressing ESC
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
                 break;
+            // ISLE OF CONQUEST SPELLS
+            //
+            case 66551: // Teleport
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+                break;
+            // ENDOF ISLE OF CONQUEST SPELLS
+            //
             default:
                 break;
         }
