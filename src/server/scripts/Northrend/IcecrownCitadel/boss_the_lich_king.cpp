@@ -495,6 +495,17 @@ class TriggerWickedSpirit : public BasicEvent
         uint32 _counter;
 };
 
+class HeightFilterValkyrTargetSelection
+{
+    public:
+        HeightFilterValkyrTargetSelection() { }
+
+        bool operator()(WorldObject* target) const
+        {
+            return target->GetPositionZ() < 830.0f;
+        }
+};
+
 class boss_the_lich_king : public CreatureScript
 {
     public:
@@ -2603,6 +2614,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
+                targets.remove_if(HeightFilterValkyrTargetSelection());
                 targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
                 if (targets.empty())
                     return;
