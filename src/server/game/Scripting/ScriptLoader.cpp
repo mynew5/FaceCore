@@ -29,6 +29,7 @@ void AddSC_example_commandscript();
 void AddSC_npc_teleport();
 void AddSC_Mod_ArenaWatcher();
 void AddSC_npc_arena_setup();
+void AddSC_icc_rings();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1424,5 +1425,6 @@ void AddCustomScripts()
     AddSC_Mod_ArenaWatcher();
     AddSC_npc_arena_setup();
     AddSC_CPWS_Transmogrification();
+    AddSC_icc_rings();
 #endif
 }
