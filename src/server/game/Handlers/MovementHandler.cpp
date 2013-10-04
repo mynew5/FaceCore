@@ -32,6 +32,8 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 
+#define MOVEMENT_PACKET_TIME_DELAY 0
+
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 {
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
@@ -360,7 +362,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
+    uint32 mstime = getMSTime();
     /*----------------------*/
+    if(m_clientTimeDelay == 0)
+        m_clientTimeDelay = mstime - movementInfo.time;
 
     if (plrMover)
         sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
@@ -374,7 +379,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     /* process position-change */
     WorldPacket data(opcode, recvData.size());
-    movementInfo.time = getMSTime();
+    movementInfo.time = movementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+
     movementInfo.guid = mover->GetGUID();
     WriteMovementInfo(&data, &movementInfo);
     mover->SendMessageToSet(&data, _player);

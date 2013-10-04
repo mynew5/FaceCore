@@ -175,7 +175,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
-    if (!accountBound && player->GetTeam() != receiverTeam && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_MAIL))
+    if (!accountBound && player->GetTeam() != receiverTeam && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_MAIL))
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
         return;
@@ -252,7 +252,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (items_count > 0 || money > 0)
     {
-        bool log = HasPermission(RBAC_PERM_LOG_GM_TRADE);
+        bool log = HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE);
         if (items_count > 0)
         {
             for (uint8 i = 0; i < items_count; ++i)
@@ -465,7 +465,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
             uint32 sender_accId = 0;
 
-            if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
+            if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
             {
                 std::string sender_name;
                 if (receiver)
