@@ -34,6 +34,7 @@
 #include "Opcodes.h"
 #include "DisableMgr.h"
 #include "Group.h"
+#include "../../scripts/Custom/npc_arena1v1.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
@@ -437,6 +438,10 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         if (!_player->IsInvitedForBattlegroundQueueType(bgQueueTypeId))
             return;                                 // cheating?
 
+        // 1v1 Arena. Player can't join arena when forbidden talents are used.
+        if(bgQueueTypeId == BATTLEGROUND_QUEUE_1v1 && !Arena1v1CheckTalents(_player))
+            return;
+
         if (!_player->InBattleground())
             _player->SetBattlegroundEntryPoint();
 
@@ -537,7 +542,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
         if (bgTypeId == _player->GetBattlegroundTypeId())
         {
             bg = _player->GetBattleground();
-            //i cannot check any variable from player class because player class doesn't know if player is in 2v2 / 3v3 or 5v5 arena
+            //i cannot check any variable from player class because player class doesn't know if player is in 1v1 / 2v2 / 3v3 or 5v5 arena
             //so i must use bg pointer to get that information
             if (bg && bg->GetArenaType() == arenaType)
             {
@@ -588,7 +593,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
 
     uint64 guid;                                            // arena Battlemaster guid
-    uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
+    uint8 arenaslot;                                        // 1v1, 2v2, 3v3 or 5v5
     uint8 asGroup;                                          // asGroup
     uint8 isRated;                                          // isRated
     Group* grp = NULL;
@@ -620,6 +625,9 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
             break;
         case 2:
             arenatype = ARENA_TYPE_5v5;
+            break;
+        case 3:
+            arenatype = ARENA_TYPE_1v1;
             break;
         default:
             TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Unknown arena slot %u at HandleBattlemasterJoinArena()", arenaslot);

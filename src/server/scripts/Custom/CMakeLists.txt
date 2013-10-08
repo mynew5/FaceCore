@@ -10,7 +10,8 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Custom/arena_teamTop.cpp
+  Custom/npc_arena1v1.cpp
+  Custom/npc_arena1v1.h
   Custom/mod_ArenaWatcher.cpp
   Custom/Transmogrification.h
   Custom/Transmogrification.cpp

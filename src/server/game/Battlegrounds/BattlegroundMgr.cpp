@@ -137,7 +137,7 @@ void BattlegroundMgr::Update(uint32 diff)
         {
             // forced update for rated arenas (scan all, but skipped non rated)
             TC_LOG_TRACE(LOG_FILTER_ARENAS, "BattlegroundMgr: UPDATING ARENA QUEUES");
-            for (int qtype = BATTLEGROUND_QUEUE_2v2; qtype <= BATTLEGROUND_QUEUE_5v5; ++qtype)
+            for (int qtype = BATTLEGROUND_QUEUE_1v1; qtype <= BATTLEGROUND_QUEUE_5v5; ++qtype)
                 for (int bracket = BG_BRACKET_ID_FIRST; bracket < MAX_BATTLEGROUND_BRACKETS; ++bracket)
                     m_BattlegroundQueues[qtype].BattlegroundQueueUpdate(diff,
                         BATTLEGROUND_AA, BattlegroundBracketId(bracket),
@@ -602,6 +602,9 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         uint32 maxPlayersPerTeam = 0;
         switch (arenaType)
         {
+            case ARENA_TYPE_1v1:
+                maxPlayersPerTeam = 1;
+                break;
             case ARENA_TYPE_2v2:
                 maxPlayersPerTeam = 2;
                 break;
@@ -953,6 +956,8 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
         case BATTLEGROUND_RV:
             switch (arenaType)
             {
+                case ARENA_TYPE_1v1:
+                    return BATTLEGROUND_QUEUE_1v1;
                 case ARENA_TYPE_2v2:
                     return BATTLEGROUND_QUEUE_2v2;
                 case ARENA_TYPE_3v3:
@@ -985,6 +990,7 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_IC;
         case BATTLEGROUND_QUEUE_RB:
             return BATTLEGROUND_RB;
+        case BATTLEGROUND_QUEUE_1v1:
         case BATTLEGROUND_QUEUE_2v2:
         case BATTLEGROUND_QUEUE_3v3:
         case BATTLEGROUND_QUEUE_5v5:
@@ -998,6 +1004,8 @@ uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
 {
     switch (bgQueueTypeId)
     {
+        case BATTLEGROUND_QUEUE_1v1:
+            return ARENA_TYPE_1v1;
         case BATTLEGROUND_QUEUE_2v2:
             return ARENA_TYPE_2v2;
         case BATTLEGROUND_QUEUE_3v3:

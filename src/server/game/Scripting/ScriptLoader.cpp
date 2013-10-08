@@ -25,10 +25,9 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
-//TeleNPC2
+// Customs
 void AddSC_npc_teleport();
 void AddSC_Mod_ArenaWatcher();
-void AddSC_npc_arena_setup();
 void AddSC_icc_rings();
 
 // spells
@@ -1412,6 +1411,7 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
+void AddSC_npc_1v1arena();
 
 void AddSC_CPWS_Transmogrification();
 #endif
@@ -1420,11 +1420,10 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-    //TeleNPC2
     AddSC_npc_teleport();
     AddSC_Mod_ArenaWatcher();
-    AddSC_npc_arena_setup();
     AddSC_CPWS_Transmogrification();
     AddSC_icc_rings();
+    AddSC_npc_1v1arena();
 #endif
 }
