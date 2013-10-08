@@ -28,9 +28,8 @@ enum WatcherStrings
 {
     STRING_ARENA_2v2            = 11200,
     STRING_ARENA_3v3            = 11201,
-    STRING_ARENA_5v5            = 11202,
-    STRING_ARENA_1v1            = 11203,
-    STRING_FOLLOW               = 11204
+    STRING_ARENA_1v1            = 11202,
+    STRING_FOLLOW               = 11203
 };
 
 bool ArenaWatcherEnable = false;

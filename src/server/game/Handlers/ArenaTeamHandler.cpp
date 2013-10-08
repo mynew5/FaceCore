@@ -363,14 +363,14 @@ void WorldSession::SendNotInArenaTeamPacket(uint8 type)
     uint32 unk = 0;
     data << uint32(unk);                                    // unk(0)
     if (!unk)
-        data << uint8(type);                                // team type (1=1v1, 2=2v2, 3=3v3, 5=5v5), can be used for custom types...
+        data << uint8(type);                                // team type (2=2v2, 3=3v3, 5=5v5), can be used for custom types...
     SendPacket(&data);
 }
 
 /*
 +ERR_ARENA_NO_TEAM_II "You are not in a %dv%d arena team"
 
-+ERR_ARENA_TEAM_CREATE_S "%s created.  To disband, use /teamdisband [1v1, 2v2, 3v3, 5v5]."
++ERR_ARENA_TEAM_CREATE_S "%s created.  To disband, use /teamdisband [2v2, 3v3, 5v5]."
 +ERR_ARENA_TEAM_INVITE_SS "You have invited %s to join %s"
 +ERR_ARENA_TEAM_QUIT_S "You are no longer a member of %s"
 ERR_ARENA_TEAM_FOUNDER_S "Congratulations, you are a founding member of %s!  To leave, use /teamquit [2v2, 3v3, 5v5]."

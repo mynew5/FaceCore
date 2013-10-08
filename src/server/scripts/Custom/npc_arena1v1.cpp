@@ -176,9 +176,9 @@ public:
         else
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sign up for 1v1 Arena (Unrated)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-        if(player->GetArenaTeamId(ArenaTeam::GetSlotByType(ARENA_TEAM_1v1)) == NULL)
+        if (player->GetArenaTeamId(ArenaTeam::GetSlotByType(ARENA_TEAM_1v1)) == NULL)
             player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Create new 1v1 Arena Team", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "Create 1v1 Arena Team?", sWorld->getIntConfig(CONFIG_ARENA_1V1_COSTS), false);
-        else if(player->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_1v1) == false)
+        else if (!player->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_1v1))
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sign up for 1v1 Arena (Rated)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Disband 1v1 Arena Team", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5, "Are you sure?", 0, false);

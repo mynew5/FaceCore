@@ -855,9 +855,13 @@ void Battleground::EndBattleground(uint32 winner)
         if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
+        /* Achievement disabled due to custom 1v1 arena replacing 5v5
+
         // Last standing - Rated 5v5 arena & be solely alive player
         if (team == winner && isArena() && isRated() && GetArenaType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->IsAlive())
             player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
+
+        */
 
         if (!player->IsAlive())
         {
