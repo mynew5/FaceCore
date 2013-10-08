@@ -172,19 +172,16 @@ public:
         }
 
         if(player->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_1v1))
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Leave 1v1 Arena Queue", GOSSIP_SENDER_MAIN, 4, "Are you sure?", 0, false);
+                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Leave 1v1 Arena Queue", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4, "Are you sure?", 0, false);
         else
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sign up for 1v1 Arena (Unrated)", GOSSIP_SENDER_MAIN, 3);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sign up for 1v1 Arena (Unrated)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
         if(player->GetArenaTeamId(ArenaTeam::GetSlotByType(ARENA_TEAM_1v1)) == NULL)
-            player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Create new 1v1 Arena Team", GOSSIP_SENDER_MAIN, 1, "Create 1v1 Arena Team?", sWorld->getIntConfig(CONFIG_ARENA_1V1_COSTS), false);
-        else
+            player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Create new 1v1 Arena Team", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "Create 1v1 Arena Team?", sWorld->getIntConfig(CONFIG_ARENA_1V1_COSTS), false);
+        else if(player->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_1v1) == false)
         {
-            if(player->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_1v1) == false)
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sign up for 1v1 Arena (Rated)", GOSSIP_SENDER_MAIN, 2);
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Disband 1v1 Arena Team", GOSSIP_SENDER_MAIN, 5, "Are you sure?", 0, false);
-            }
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sign up for 1v1 Arena (Rated)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Disband 1v1 Arena Team", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5, "Are you sure?", 0, false);
         }
 
         player->SEND_GOSSIP_MENU(68, me->GetGUID());
@@ -202,7 +199,7 @@ public:
 
         switch (uiAction)
         {
-        case 1: // Create new 1v1 Arena Team
+        case GOSSIP_ACTION_INFO_DEF+1: // Create new 1v1 Arena Team
             {
                 if(sWorld->getIntConfig(CONFIG_ARENA_1V1_MIN_LEVEL) <= player->getLevel())
                 {
@@ -218,7 +215,7 @@ public:
             }
             break;
 
-        case 2: // Join 1v1Arena Queue (Rated)
+        case GOSSIP_ACTION_INFO_DEF+2: // Join 1v1Arena Queue (Rated)
             {
                 if(Arena1v1CheckTalents(player) && JoinQueueArena(player, me, true) == false)
                     ChatHandler(player->GetSession()).SendSysMessage("Something went wrong while joining the queue.");
@@ -228,7 +225,7 @@ public:
             }
             break;
 
-        case 3: // Join 1v1 Arena Queue (Unrated)
+        case GOSSIP_ACTION_INFO_DEF+3: // Join 1v1 Arena Queue (Unrated)
             {
                 if(Arena1v1CheckTalents(player) && JoinQueueArena(player, me, false) == false)
                     ChatHandler(player->GetSession()).SendSysMessage("Something went wrong while joining the queue.");
@@ -238,7 +235,7 @@ public:
             }
             break;
 
-        case 4: // Leave Queue
+        case GOSSIP_ACTION_INFO_DEF+4: // Leave Queue
             {
                 WorldPacket Data;
                 Data << (uint8)0x1 << (uint8)0x0 << (uint32)BATTLEGROUND_AA << (uint16)0x0 << (uint8)0x0;
@@ -247,7 +244,7 @@ public:
                 return true;
             }
             break;
-        case 5: // Disband arena team
+        case GOSSIP_ACTION_INFO_DEF+5: // Disband arena team
             {
                 WorldPacket Data;
                 Data << (uint32)player->GetArenaTeamId(ArenaTeam::GetSlotByType(ARENA_TEAM_1v1));
