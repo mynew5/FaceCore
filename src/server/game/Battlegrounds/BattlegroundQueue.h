@@ -85,6 +85,9 @@ class BattlegroundQueue
         void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id);
         uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id) const;
 
+        bool BattlegroundQueue::IPExistsInQueue(std::string const& remote_addr, PvPDifficultyEntry const* bracketEntry, bool isRated, bool isPremade);
+        bool BattlegroundQueue::IPExistsInQueue(Player* leader, Group* group, PvPDifficultyEntry const* bracketEntry, bool isRated, bool isPremade);
+
         typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
         QueuedPlayersMap m_QueuedPlayers;
 

@@ -13,8 +13,23 @@
 #include "Battleground.h"
 #include "ArenaTeam.h"
 #include "Language.h"
-#include "npc_arena1v1.h"
 
+// TalentTab.dbc -> TalentTabID
+const uint32 FORBIDDEN_TALENTS_IN_1V1_ARENA[] = 
+{
+    // Healer
+    201, // Priest Discipline
+    202, // Priest Holy
+    382, // Paladin Holy
+    262, // Shaman Restoration
+    282, // Druid Restoration
+
+    // Tanks
+    //383, // Paladin Protection
+    //163, // Warrior Protection
+
+    0 // End
+};
 
 class npc_1v1arena : public CreatureScript
 {
@@ -25,8 +40,8 @@ public:
 
     bool JoinQueueArena(Player* player, Creature* me, bool isRated)
     {
-    if(!player || !me)
-        return false;
+        if (!player || !me)
+            return false;
 
         if(sWorld->getIntConfig(CONFIG_ARENA_1V1_MIN_LEVEL) > player->getLevel())
             return false;
@@ -92,6 +107,13 @@ public:
         }
 
         BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+
+        if (bgQueue.IPExistsInQueue(player, NULL, bracketEntry, isRated, false))
+        {
+            ChatHandler(player->GetSession()).SendSysMessage("You cannot join 1v1 Arena now because there is already someone queued with the same IP address.");
+            return false;
+        }
+
         bg->SetRated(isRated);
 
         GroupQueueInfo* ginfo = bgQueue.AddGroup(player, NULL, bgTypeId, bracketEntry, ARENA_TYPE_1v1, isRated, false, arenaRating, matchmakerRating, ateamId);
@@ -162,16 +184,16 @@ public:
 
     bool OnGossipHello(Player* player, Creature* me)
     {
-        if(!player || !me)
+        if (!player || !me)
             return true;
 
-        if(sWorld->getBoolConfig(CONFIG_ARENA_1V1_ENABLE) == false)
+        if (sWorld->getBoolConfig(CONFIG_ARENA_1V1_ENABLE) == false)
         {
             ChatHandler(player->GetSession()).SendSysMessage("1v1 Arena is currently disabled.");
             return true;
         }
 
-        if(player->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_1v1))
+        if (player->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_1v1))
                 player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Leave 1v1 Arena Queue", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4, "Are you sure?", 0, false);
         else
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sign up for 1v1 Arena (Unrated)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
@@ -217,7 +239,7 @@ public:
 
         case GOSSIP_ACTION_INFO_DEF+2: // Join 1v1Arena Queue (Rated)
             {
-                if(Arena1v1CheckTalents(player) && JoinQueueArena(player, me, true) == false)
+                if(!JoinQueueArena(player, me, true))
                     ChatHandler(player->GetSession()).SendSysMessage("Something went wrong while joining the queue.");
                 
                 player->CLOSE_GOSSIP_MENU();
@@ -227,7 +249,7 @@ public:
 
         case GOSSIP_ACTION_INFO_DEF+3: // Join 1v1 Arena Queue (Unrated)
             {
-                if(Arena1v1CheckTalents(player) && JoinQueueArena(player, me, false) == false)
+                if (!JoinQueueArena(player, me, false))
                     ChatHandler(player->GetSession()).SendSysMessage("Something went wrong while joining the queue.");
                 
                 player->CLOSE_GOSSIP_MENU();
