@@ -32,8 +32,6 @@
 template<class T>
 void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
 {
-    return; // Temporarily disable FleeingMovementGenerator until #7704 is fixed
-
     if (!owner)
         return;
 
