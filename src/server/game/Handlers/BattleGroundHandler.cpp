@@ -35,6 +35,8 @@
 #include "DisableMgr.h"
 #include "Group.h"
 
+bool Arena1v1CheckTalents(Player* player);
+
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
     uint64 guid;
@@ -436,6 +438,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     {
         if (!_player->IsInvitedForBattlegroundQueueType(bgQueueTypeId))
             return;                                 // cheating?
+
+        if (bgQueueTypeId == BATTLEGROUND_QUEUE_1v1 && Arena1v1CheckTalents(_player) == false)
+            return;
 
         if (!_player->InBattleground())
             _player->SetBattlegroundEntryPoint();

@@ -1053,6 +1053,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ARENA_1V1_COSTS]							 = sConfigMgr->GetIntDefault("Arena.1v1.Costs", 400000);
     m_bool_configs[CONFIG_ARENA_1V1_VENDOR_RATING]					 = sConfigMgr->GetBoolDefault("Arena.1v1.VendorRating", false);
     m_float_configs[CONFIG_ARENA_1V1_ARENAPOINTS_MULTI]				 = sConfigMgr->GetFloatDefault("Arena.1v1.ArenaPointsMulti", 0.64f);
+    m_bool_configs[CONFIG_ARENA_1V1_BLOCK_FORBIDDEN_TALENTS]		 = sConfigMgr->GetBoolDefault("Arena.1v1.BlockForbiddenTalents", true);
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 

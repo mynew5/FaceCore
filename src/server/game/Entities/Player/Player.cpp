@@ -3004,7 +3004,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
 
     sScriptMgr->OnGivePlayerXP(this, xp, victim);
 
-    if(level < 66 && GetMapId() == 571)
+    if (level < 66 && GetMapId() == 571)
         return;
 
     // Favored experience increase START
@@ -21635,7 +21635,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
     uint32 max_personal_rating = 0;
     for (uint8 i = minarenaslot; i < MAX_ARENA_SLOT; ++i)
     {
-        if(ArenaTeam::GetTypeBySlot(i) == ARENA_TEAM_1v1 && !sWorld->getBoolConfig(CONFIG_ARENA_1V1_VENDOR_RATING))
+        if (ArenaTeam::GetTypeBySlot(i) == ARENA_TEAM_1v1 && !sWorld->getBoolConfig(CONFIG_ARENA_1V1_VENDOR_RATING))
             continue;
 
         if (ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamId(i)))

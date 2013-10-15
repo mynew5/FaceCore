@@ -31,6 +31,45 @@ const uint32 FORBIDDEN_TALENTS_IN_1V1_ARENA[] =
     0 // End
 };
 
+bool Arena1v1CheckTalents(Player* player)
+{
+    if (!player)
+        return false;
+
+    if (!sWorld->getBoolConfig(CONFIG_ARENA_1V1_BLOCK_FORBIDDEN_TALENTS))
+        return true;
+
+    uint32 count = 0;
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+    {
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+
+        if (!talentInfo)
+            continue;
+
+        for (int8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
+        {
+            if (talentInfo->RankID[rank] == 0)
+                continue;
+
+            if (player->HasTalent(talentInfo->RankID[rank], player->GetActiveSpec()))
+            {
+                for (int8 i = 0; FORBIDDEN_TALENTS_IN_1V1_ARENA[i] != 0; ++i)
+                    if (FORBIDDEN_TALENTS_IN_1V1_ARENA[i] == talentInfo->TalentTab)
+                        count += rank + 1;
+            }
+        }
+    }
+
+    if (count > 35)
+    {
+        ChatHandler(player->GetSession()).SendSysMessage("You can't join 1v1 Arena because you have put too many points in a forbidden talent trees. Please change your talents.");
+        return false;
+    }
+    else
+        return true;
+}
+
 class npc_1v1arena : public CreatureScript
 {
 public:
@@ -43,7 +82,7 @@ public:
         if (!player || !me)
             return false;
 
-        if(sWorld->getIntConfig(CONFIG_ARENA_1V1_MIN_LEVEL) > player->getLevel())
+        if (sWorld->getIntConfig(CONFIG_ARENA_1V1_MIN_LEVEL) > player->getLevel())
             return false;
 
         uint64 guid = player->GetGUID();
@@ -133,7 +172,7 @@ public:
 
     bool CreateArenaTeam(Player* player, Creature* me)
     {
-        if(!player || !me)
+        if (!player || !me)
             return false;
 
         uint8 slot = ArenaTeam::GetSlotByType(ARENA_TEAM_1v1);
@@ -155,7 +194,7 @@ public:
         teamName << player->GetName();
         do
         {
-            if(sArenaTeamMgr->GetArenaTeamByName(teamName.str()) != NULL) // teamname exist, so choose another name
+            if (sArenaTeamMgr->GetArenaTeamByName(teamName.str()) != NULL) // teamname exist, so choose another name
             {
                 teamName.str(std::string());
                 teamName << player->GetName() << i;
@@ -214,7 +253,7 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* me, uint32 /*uiSender*/, uint32 uiAction)
     {
-        if(!player || !me)
+        if (!player || !me)
             return true;
 
         player->PlayerTalkClass->ClearMenus();
@@ -223,9 +262,9 @@ public:
         {
         case GOSSIP_ACTION_INFO_DEF+1: // Create new 1v1 Arena Team
             {
-                if(sWorld->getIntConfig(CONFIG_ARENA_1V1_MIN_LEVEL) <= player->getLevel())
+                if (sWorld->getIntConfig(CONFIG_ARENA_1V1_MIN_LEVEL) <= player->getLevel())
                 {
-                    if(player->GetMoney() >= sWorld->getIntConfig(CONFIG_ARENA_1V1_COSTS) && CreateArenaTeam(player, me))
+                    if (player->GetMoney() >= sWorld->getIntConfig(CONFIG_ARENA_1V1_COSTS) && CreateArenaTeam(player, me))
                         player->ModifyMoney(sWorld->getIntConfig(CONFIG_ARENA_1V1_COSTS) * -1);
                 }
                 else
@@ -239,8 +278,8 @@ public:
 
         case GOSSIP_ACTION_INFO_DEF+2: // Join 1v1Arena Queue (Rated)
             {
-                if(!JoinQueueArena(player, me, true))
-                    ChatHandler(player->GetSession()).SendSysMessage("Something went wrong while joining the queue.");
+                if (Arena1v1CheckTalents(player) && !JoinQueueArena(player, me, true))
+                    ChatHandler(player->GetSession()).SendSysMessage("Something went wrong when joining the queue.");
                 
                 player->CLOSE_GOSSIP_MENU();
                 return true;
@@ -249,8 +288,8 @@ public:
 
         case GOSSIP_ACTION_INFO_DEF+3: // Join 1v1 Arena Queue (Unrated)
             {
-                if (!JoinQueueArena(player, me, false))
-                    ChatHandler(player->GetSession()).SendSysMessage("Something went wrong while joining the queue.");
+                if (Arena1v1CheckTalents(player) && !JoinQueueArena(player, me, false))
+                    ChatHandler(player->GetSession()).SendSysMessage("Something went wrong when joining the queue.");
                 
                 player->CLOSE_GOSSIP_MENU();
                 return true;

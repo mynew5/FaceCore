@@ -134,9 +134,9 @@ void Transmogrification::LoadPlayerSets(uint64 pGUID)
                 uint32 slot;
                 uint32 entry;
                 SetData >> slot >> entry;
-                if(SetData.fail())
+                if (SetData.fail())
                     break;
-                if(slot >= EQUIPMENT_SLOT_END)
+                if (slot >= EQUIPMENT_SLOT_END)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Item entry (FakeEntry: %u, playerGUID: %u, slot: %u, presetId: %u) has invalid slot, ignoring.", entry, GUID_LOPART(pGUID), slot, uint32(PresetID));
                     continue;
@@ -585,7 +585,7 @@ bool Transmogrification::GetAllowMixedWeaponTypes() const
 };
 bool Transmogrification::IsAllowedQuality(uint32 quality) const
 {
-    switch(quality)
+    switch (quality)
     {
     case ITEM_QUALITY_POOR: return AllowPoor;
     case ITEM_QUALITY_NORMAL: return AllowCommon;
@@ -633,19 +633,19 @@ void Transmogrification::LoadConfig(bool reload)
 
     std::istringstream issAllowed(sConfigMgr->GetStringDefault("Transmogrification.Allowed", ""));
     std::istringstream issNotAllowed(sConfigMgr->GetStringDefault("Transmogrification.NotAllowed", ""));
-    while(issAllowed.good())
+    while (issAllowed.good())
     {
         uint32 entry;
         issAllowed >> entry;
-        if(issAllowed.fail())
+        if (issAllowed.fail())
             break;
         Allowed.insert(entry);
     }
-    while(issNotAllowed.good())
+    while (issNotAllowed.good())
     {
         uint32 entry;
         issNotAllowed >> entry;
-        if(issNotAllowed.fail())
+        if (issNotAllowed.fail())
             break;
         NotAllowed.insert(entry);
     }

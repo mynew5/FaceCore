@@ -2369,6 +2369,15 @@ Arena.1v1.VendorRating = 0
 Arena.1v1.ArenaPointsMulti = 0.64
 
 #
+#    Arena.1v1.BlockForbiddenTalents
+#        Description: If true, healers can't join 1v1 arena, if they invested more than 35 talentpoints in a healing-talenttree.
+#					  You can also block tanks and other talents, if you modify FORBIDDEN_TALENTS_IN_1V1_ARENA in the npc_arena1v1.h file (hardcoding). See TalentTab.dbc for available talents (you will need an DBC-Editor).
+#        Default:     1 - (true)
+#					  0 - (false)
+
+Arena.1v1.BlockForbiddenTalents = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
