@@ -197,7 +197,7 @@ public:
             if (sArenaTeamMgr->GetArenaTeamByName(teamName.str()) != NULL) // teamname exist, so choose another name
             {
                 teamName.str(std::string());
-                teamName << player->GetName() << i;
+                teamName << player->GetName() << i++;
             }
             else
                 break;
