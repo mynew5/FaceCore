@@ -47,13 +47,23 @@ ArenaTeam* ArenaTeamMgr::GetArenaTeamById(uint32 arenaTeamId) const
 
 ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(const std::string& arenaTeamName) const
 {
-    std::string search = arenaTeamName;
-    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
+    std::wstring wsearch;
+
+    if (!Utf8toWStr(arenaTeamName, wsearch))
+        return NULL;
+
+    wstrToUpper(wsearch);
+
     for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
     {
-        std::string teamName = itr->second->GetName();
-        std::transform(teamName.begin(), teamName.end(), teamName.begin(), ::toupper);
-        if (search == teamName)
+        std::wstring wteamName;
+
+        if (!Utf8toWStr(itr->second->GetName(), wteamName))
+            return NULL;
+
+        wstrToUpper(wteamName);
+
+        if (wsearch == wteamName)
             return itr->second;
     }
     return NULL;
