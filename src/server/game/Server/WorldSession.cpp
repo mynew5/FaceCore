@@ -456,16 +456,7 @@ void WorldSession::LogoutPlayer(bool save)
 
         //drop a flag if player is carrying it
         if (Battleground* bg = _player->GetBattleground())
-        {
-            if (_player->IsInCombat())
-            {
-                _player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
-                _player->KillPlayer();
-                _player->BuildPlayerRepop();
-                _player->RepopAtGraveyard();
-            }
             bg->EventPlayerLoggedOut(_player);
-        }
 
         ///- Teleport to home if the player is in an invalid instance
         if (!_player->m_InstanceValid && !_player->IsGameMaster())
