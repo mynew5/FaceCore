@@ -1941,7 +1941,7 @@ class spell_fetch_ingredient_aura : public SpellScriptLoader
         }
 };
 
-enum StormCloud 
+enum StormCloud
 {
     STORM_COULD         = 29939,
     HEALING_WINDS       = 55549,
@@ -1968,7 +1968,7 @@ public:
         {
             Reset();
         }
-        
+
         void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
             if (spell->Id != GYMERS_GRAB)
