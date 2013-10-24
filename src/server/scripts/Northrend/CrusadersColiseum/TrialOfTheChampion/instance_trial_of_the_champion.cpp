@@ -33,7 +33,7 @@ public:
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
-        instance_trial_of_the_champion_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_trial_of_the_champion_InstanceMapScript(Map* pMap) : InstanceScript(pMap) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 TeamInInstance;
