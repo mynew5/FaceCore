@@ -332,7 +332,7 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
 
     if (!pAE)
     {
-        sLog->outError(LOG_FILTER_TSCR, "DoCompleteAchievement called for not existing achievement %u", achievement);
+        sLog->outError("scripts", "DoCompleteAchievement called for not existing achievement %u", achievement);
         return;
     }
 
