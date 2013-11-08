@@ -313,7 +313,7 @@ void LoadNpcTele(void)
 
     if (result)
     {
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "TSCR: Loading %s, %s and %s...", Table[0], Table[1], Table[2]);
+        sLog->outInfo("server.worldserver", "TSCR: Loading %s, %s and %s...", Table[0], Table[1], Table[2]);
 
         uint32 catid = 0;
         uint32 nbDest = 0;
@@ -362,9 +362,9 @@ void LoadNpcTele(void)
             ++nbDest;
         } while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "TSCR: >> Loaded %u npc_teleport.", nbDest);
+        sLog->outInfo("server.worldserver", "TSCR: >> Loaded %u npc_teleport.", nbDest);
     }
-    else sLog->outInfo(LOG_FILTER_WORLDSERVER, "TSCR: WARNING >> Loaded 0 npc_teleport.");
+    else sLog->outInfo("server.worldserver", "TSCR: WARNING >> Loaded 0 npc_teleport.");
 }
 
 #undef TELE
