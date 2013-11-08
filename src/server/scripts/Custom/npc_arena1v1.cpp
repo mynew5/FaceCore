@@ -98,7 +98,7 @@ public:
         Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
         if (!bg)
         {
-            TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Battleground: template bg (all arenas) not found");
+            TC_LOG_ERROR("network", "Battleground: template bg (all arenas) not found");
             return false;
         }
 
