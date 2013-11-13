@@ -290,7 +290,7 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
             case  1863: spellID = 18791; break;               //succubus
             case 17252: spellID = 35701; break;               //fellguard
             default:
-                sLog->outError("spells", "EffectInstaKill: Unhandled creature entry (%u) case.", entry);
+                TC_LOG_ERROR("spells", "EffectInstaKill: Unhandled creature entry (%u) case.", entry);
                 return;
         }
 
