@@ -15,29 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef SLAVE_PENS_H
+#define SLAVE_PENS_H
 
-#include "Appender.h"
+uint32 const EncounterCount               = 3;
 
-class Logger
+#define SPScriptName "instance_the_slave_pens"
+
+enum DataTypes
 {
-    public:
-        Logger();
-
-        void Create(std::string const& name, LogLevel level);
-        void addAppender(uint8 type, Appender *);
-        void delAppender(uint8 type);
-
-        std::string const& getName() const;
-        LogLevel getLogLevel() const;
-        void setLogLevel(LogLevel level);
-        void write(LogMessage& message) const;
-
-    private:
-        std::string name;
-        LogLevel level;
-        AppenderMap appenders;
+    DATA_MENNU_THE_BETRAYER               = 1,
+    DATA_ROKMAR_THE_CRACKLER              = 2,
+    DATA_QUAGMIRRAN                       = 3
 };
 
-#endif
+#endif // SLAVE_PENS_H
