@@ -280,115 +280,6 @@ public:
     }
 };
 
-/*####
-## npc_vladof 
-## TODO: mammoth
-## // by Dessus
-####*/
-
-enum eVladof
-{
-    SPELL_BLOOD_PRESENCE        = 50689,
-    SPELL_BLOOD_PLAGUE          = 55973,
-    SPELL_BLOOD_BOIL            = 55974,
-    SPELL_FROST_FEWER           = 55095,
-    SPELL_SPELL_DEFLECTION      = 55976
-};
-
-class npc_vladof : public CreatureScript
-{
-public:
-    npc_vladof() : CreatureScript("npc_vladof") { }
-
-    struct npc_vladofAI : public ScriptedAI
-    {
-        npc_vladofAI(Creature* creature) : ScriptedAI(creature)
-        {            
-            DoCast(me, SPELL_BLOOD_PRESENCE);
-            me->SetReactState(REACT_AGGRESSIVE);
-        }
-
-        uint32 BloodPlague_timer;
-        uint32 BloodBoil_timer;
-        uint32 FrostFever_timer;
-        uint32 SpellDeflection_timer;
-
-        void Reset()
-        {
-            BloodPlague_timer = 25;
-            BloodBoil_timer = 20;
-            FrostFever_timer = 6;
-            SpellDeflection_timer = 50;
-           
-            DoCast(me, SPELL_BLOOD_PRESENCE);
-        }
-
-        void EnterEvadeMode()
-        {
-        }
-
-        void MovementInform(uint32 type, uint32 /*pointId*/)
-        {
-        }
-
-        void EnterCombat(Unit* who)
-        {
-            DoCast(who, SPELL_IMPALE);
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (BloodPlague_timer <= uiDiff)
-            {
-                DoCast(me->GetVictim(), SPELL_BLOOD_PLAGUE);
-                BloodPlague_timer = 9000;
-            }
-            else
-                BloodPlague_timer -= uiDiff;
-
-            if (BloodBoil_timer <= uiDiff)
-            {
-                DoCastAOE(SPELL_BLOOD_BOIL);
-                BloodBoil_timer = 9000;
-            }
-            else
-                BloodBoil_timer -= uiDiff;
-
-            if (FrostFever_timer <= uiDiff)
-            {
-                DoCast(me->GetVictim(), SPELL_FROST_FEWER);
-                FrostFever_timer = 9000;
-            }
-            else
-                FrostFever_timer -= uiDiff;
-
-            if (SpellDeflection_timer <= uiDiff)
-            {
-                DoCast(me, SPELL_SPELL_DEFLECTION);
-                SpellDeflection_timer = 9000;
-            }
-            else
-                SpellDeflection_timer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* killer)
-        {
-            if (killer->GetTypeId() == TYPEID_PLAYER)
-                killer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_CHAMPION, killer);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_vladofAI(creature);
-    }
-};
-
 /*######
 ## Quest 12916: Our Only Hope!
 ## go_scourge_enclosure
@@ -1002,7 +893,6 @@ void AddSC_zuldrak()
     new npc_captured_rageclaw();
     new npc_released_offspring_harkoa();
     new npc_crusade_recruit();
-    new npc_vladof();
     new go_scourge_enclosure();
     new npc_alchemist_finklestein();
     new go_finklesteins_cauldron();
