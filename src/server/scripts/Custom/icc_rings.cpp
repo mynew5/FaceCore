@@ -64,8 +64,8 @@ public:
 
         if (value >= friendly && value < honored)
         {
-            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
-                !player->HasItemCount(T_F,1) && player->GetQuestStatus(QUEST_CHOOSE_YOUR_PATH) == QUEST_STATUS_COMPLETE)
+            if (!player->HasItemCount(C_F, 1, true) && !player->HasItemCount(H_F, 1, true) && !player->HasItemCount(MS_F, 1, true) && !player->HasItemCount(MA_F, 1, true) &&
+                !player->HasItemCount(T_F, 1, true) && player->GetQuestStatus(QUEST_CHOOSE_YOUR_PATH) == QUEST_STATUS_COMPLETE)
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
@@ -79,9 +79,9 @@ public:
 
         if (value >= honored && value < revered)
         {
-            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
-                !player->HasItemCount(T_F,1) && !player->HasItemCount(C_H,1) && !player->HasItemCount(H_H,1) && !player->HasItemCount(MS_H,1) &&
-                !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1))
+            if (!player->HasItemCount(C_F, 1, true) && !player->HasItemCount(H_F, 1, true) && !player->HasItemCount(MS_F, 1, true) && !player->HasItemCount(MA_F, 1, true) &&
+                !player->HasItemCount(T_F, 1, true) && !player->HasItemCount(C_H, 1, true) && !player->HasItemCount(H_H, 1, true) && !player->HasItemCount(MS_H, 1, true) &&
+                !player->HasItemCount(MA_H, 1, true) && !player->HasItemCount(T_H, 1, true))
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+6);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+7);
@@ -95,10 +95,10 @@ public:
 
         if (value >= revered && value < exalted)
         {
-            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
-                !player->HasItemCount(T_F,1) && !player->HasItemCount(C_H,1) && !player->HasItemCount(H_H,1) && !player->HasItemCount(MS_H,1) &&
-                !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1) && !player->HasItemCount(C_R,1) && !player->HasItemCount(H_R,1) &&
-                !player->HasItemCount(MS_R,1) && !player->HasItemCount(MA_R,1) && !player->HasItemCount(T_R,1))
+            if (!player->HasItemCount(C_F, 1, true) && !player->HasItemCount(H_F, 1, true) && !player->HasItemCount(MS_F, 1, true) && !player->HasItemCount(MA_F, 1, true) &&
+                !player->HasItemCount(T_F, 1, true) && !player->HasItemCount(C_H, 1, true) && !player->HasItemCount(H_H, 1, true) && !player->HasItemCount(MS_H, 1, true) &&
+                !player->HasItemCount(MA_H, 1, true) && !player->HasItemCount(T_H, 1, true) && !player->HasItemCount(C_R, 1, true) && !player->HasItemCount(H_R, 1, true) &&
+                !player->HasItemCount(MS_R, 1, true) && !player->HasItemCount(MA_R, 1, true) && !player->HasItemCount(T_R, 1, true))
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+11);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+12);
@@ -112,11 +112,11 @@ public:
 
         if (value >= exalted)
         {
-            if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
-                !player->HasItemCount(T_F,1) && !player->HasItemCount(C_H,1) && !player->HasItemCount(H_H,1) && !player->HasItemCount(MS_H,1) &&
-                !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1) && !player->HasItemCount(C_R,1) && !player->HasItemCount(H_R,1) &&
-                !player->HasItemCount(MS_R,1) && !player->HasItemCount(MA_R,1) && !player->HasItemCount(T_R,1) && !player->HasItemCount(C_E,1) &&
-                !player->HasItemCount(H_E,1) && !player->HasItemCount(MS_E,1) && !player->HasItemCount(MA_E,1) && !player->HasItemCount(T_E,1))
+            if (!player->HasItemCount(C_F, 1, true) && !player->HasItemCount(H_F, 1, true) && !player->HasItemCount(MS_F, 1, true) && !player->HasItemCount(MA_F, 1, true) &&
+                !player->HasItemCount(T_F, 1, true) && !player->HasItemCount(C_H, 1, true) && !player->HasItemCount(H_H, 1, true) && !player->HasItemCount(MS_H, 1, true) &&
+                !player->HasItemCount(MA_H, 1, true) && !player->HasItemCount(T_H, 1, true) && !player->HasItemCount(C_R, 1, true) && !player->HasItemCount(H_R, 1, true) &&
+                !player->HasItemCount(MS_R, 1, true) && !player->HasItemCount(MA_R, 1, true) && !player->HasItemCount(T_R, 1, true) && !player->HasItemCount(C_E, 1, true) &&
+                !player->HasItemCount(H_E, 1, true) && !player->HasItemCount(MS_E, 1, true) && !player->HasItemCount(MA_E, 1, true) && !player->HasItemCount(T_E, 1, true))
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+16);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+17);
@@ -136,64 +136,64 @@ public:
         switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                player->AddItem(C_F,1);
+                player->AddItem(C_F, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                player->AddItem(H_F,1);
+                player->AddItem(H_F, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                player->AddItem(MS_F,1);
+                player->AddItem(MS_F, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                player->AddItem(MA_F,1);
+                player->AddItem(MA_F, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
-                player->AddItem(T_F,1);
+                player->AddItem(T_F, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+6:
-                player->AddItem(C_H,1);
+                player->AddItem(C_H, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+7:
-                player->AddItem(H_H,1);
+                player->AddItem(H_H, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+8:
-                player->AddItem(MS_H,1);
+                player->AddItem(MS_H, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+9:
-                player->AddItem(MA_H,1);
+                player->AddItem(MA_H, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+10:
-                player->AddItem(T_H,1);
+                player->AddItem(T_H, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+11:
-                player->AddItem(C_R,1);
+                player->AddItem(C_R, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+12:
-                player->AddItem(H_R,1);
+                player->AddItem(H_R, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+13:
-                player->AddItem(MS_R,1);
+                player->AddItem(MS_R, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+14:
-                player->AddItem(MA_R,1);
+                player->AddItem(MA_R, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+15:
-                player->AddItem(T_R,1);
+                player->AddItem(T_R, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+16:
-                player->AddItem(C_E,1);
+                player->AddItem(C_E, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+17:
-                player->AddItem(H_E,1);
+                player->AddItem(H_E, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+18:
-                player->AddItem(MS_E,1);
+                player->AddItem(MS_E, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+19:
-                player->AddItem(MA_E,1);
+                player->AddItem(MA_E, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF+20:
-                player->AddItem(T_E,1);
+                player->AddItem(T_E, 1);
                 break;
         }
         player->CLOSE_GOSSIP_MENU();
