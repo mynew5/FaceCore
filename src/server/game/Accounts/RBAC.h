@@ -681,6 +681,7 @@ enum RBACPermissions
 
     // custom permissions 1000+
     RBAC_PERM_MAX
+    RBAC_PERM_COMMAND_INSTANCE_UNBIND_SELF                   = 1100,
 };
 
 enum RBACCommandResult
