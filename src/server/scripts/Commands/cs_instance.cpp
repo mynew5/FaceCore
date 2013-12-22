@@ -37,19 +37,13 @@ public:
 
     ChatCommand* GetCommands() const OVERRIDE
     {
-        static ChatCommand instanceUnbindCommandTable[] =
-        {
-            { "self",       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND_SELF,   true,  &HandleInstanceUnbindSelfCommand,       "", NULL },
-            { "",           rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,   true,  &HandleInstanceUnbindCommand,           "", NULL },
-            { NULL,         0,                  false, NULL,                                   "", NULL }
-        };
-
         static ChatCommand instanceCommandTable[] =
         {
             { "listbinds", rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS, false, &HandleInstanceListBindsCommand,    "", NULL },
             { "unbind",    rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
             { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,      true, &HandleInstanceStatsCommand,        "", NULL },
             { "savedata",  rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
+            { "self",      rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND_SELF,   true,  &HandleInstanceUnbindSelfCommand,       "", NULL },
             { NULL,        0,                                    false, NULL,                               "", NULL }
         };
 
