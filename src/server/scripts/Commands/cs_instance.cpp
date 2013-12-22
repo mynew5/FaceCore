@@ -39,8 +39,8 @@ public:
     {
         static ChatCommand instanceUnbindCommandTable[] =
         {
-            { "self",       SEC_ADMINISTRATOR,  true,  &HandleInstanceUnbindSelfCommand,       "", NULL },
-            { "",           SEC_ADMINISTRATOR,  true,  &HandleInstanceUnbindCommand,           "", NULL },
+            { "self",       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND_SELF,   true,  &HandleInstanceUnbindSelfCommand,       "", NULL },
+            { "",           rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,   true,  &HandleInstanceUnbindCommand,           "", NULL },
             { NULL,         0,                  false, NULL,                                   "", NULL }
         };
 
