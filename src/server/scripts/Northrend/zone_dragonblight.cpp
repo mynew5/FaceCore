@@ -799,7 +799,7 @@ public:
                     switch (i)
                     {
                         case 0:
-                            me->MonsterSay(HighAbbotText[1], LANG_UNIVERSAL, 0);
+                            me->MonsterSay(HighAbbotText[1], LANG_UNIVERSAL, NULL);
                             break;
                         case 12:
                             EndSequence = true;
@@ -871,7 +871,7 @@ public:
                             }
                             if (EndSayCount == 7)
                             {
-                                me->MonsterSay(HighAbbotText[6], LANG_UNIVERSAL, 0);
+                                me->MonsterSay(HighAbbotText[6], LANG_UNIVERSAL, NULL);
                                 EndSequenceTimer = 2000;
                             }
                             if (EndSayCount == 8)
@@ -885,7 +885,7 @@ public:
                             }
 
                             if (EndSayCount < 6)
-                                me->MonsterSay(HighAbbotText[EndSayCount], LANG_UNIVERSAL, PlayerGUID);
+                                me->MonsterSay(HighAbbotText[EndSayCount], LANG_UNIVERSAL, AuraPlayer);
 
                             EndSayCount++;
                         } else
@@ -1215,7 +1215,7 @@ public:
                             CAST_AI(npc_high_abbot_landgren::npc_high_abbot_landgrenAI, cC->AI())->PlayerGUID = pPlayer->GetGUID();
                         else
                         {
-                            pCreature->MonsterSay(AgentSkullySay[0], LANG_UNIVERSAL, pPlayer->GetGUID());
+                            pCreature->MonsterSay(AgentSkullySay[0], LANG_UNIVERSAL, pPlayer);
                             pPlayer->FailQuest(QUEST_A_FALL_FROM_GRACE);
                         }
                     }
@@ -1223,7 +1223,7 @@ public:
             }
             else
             {
-                pCreature->MonsterSay(AgentSkullySay[0], LANG_UNIVERSAL, pPlayer->GetGUID());
+                pCreature->MonsterSay(AgentSkullySay[0], LANG_UNIVERSAL, pPlayer);
                 pPlayer->FailQuest(QUEST_A_FALL_FROM_GRACE);
             }
         }
