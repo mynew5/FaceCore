@@ -37,9 +37,6 @@ enum Enums
     SAY_SARTHARION_SLAY                         = 8,
     WHISPER_LAVA_CHURN                          = 9,
 
-    WHISPER_SHADRON_DICIPLE                     = 7,
-    WHISPER_VESPERON_DICIPLE                    = 7,
-
     //Sartharion Spells
     SPELL_BERSERK                               = 61632,    // Increases the caster's attack speed by 150% and all damage it deals by 500% for 5 min.
     SPELL_CLEAVE                                = 56909,    // Inflicts 35% weapon damage to an enemy and its nearest allies, affecting up to 10 targets.
@@ -415,7 +412,7 @@ public:
                     if (!PlayerList.isEmpty())
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             if (i->GetSource() && i->GetSource()->IsAlive())
-                                Talk(WHISPER_LAVA_CHURN, i->GetSource()->GetGUID());
+                                Talk(WHISPER_LAVA_CHURN, i->GetSource());
                 }
         }
 

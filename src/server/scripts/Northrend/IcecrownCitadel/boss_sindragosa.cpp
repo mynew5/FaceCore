@@ -485,7 +485,7 @@ class boss_sindragosa : public CreatureScript
                         case EVENT_ICE_TOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, FrostBeaconSelector(me)))
                             {
-                                Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
+                                Talk(EMOTE_WARN_FROZEN_ORB, target);
                                 me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, 1, NULL);
                                 me->SetFacingTo(float(2*M_PI));
                                 DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
