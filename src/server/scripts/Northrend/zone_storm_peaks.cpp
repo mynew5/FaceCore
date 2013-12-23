@@ -456,14 +456,14 @@ public:
 
                 switch(urand(0,5))
                 {
-                case 0: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_1,LANG_UNIVERSAL,caster->GetGUID()); break;
-                case 1: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_2,LANG_UNIVERSAL,caster->GetGUID()); break;
-                case 2: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_3,LANG_UNIVERSAL,caster->GetGUID()); break;
-                case 3: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_4,LANG_UNIVERSAL,caster->GetGUID()); break;
-                case 4: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_5,LANG_UNIVERSAL,caster->GetGUID()); break;
-                case 5: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_6,LANG_UNIVERSAL,caster->GetGUID()); break;
+                case 0: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_1, LANG_UNIVERSAL, caster); break;
+                case 1: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_2, LANG_UNIVERSAL, caster); break;
+                case 2: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_3, LANG_UNIVERSAL, caster); break;
+                case 3: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_4, LANG_UNIVERSAL, caster); break;
+                case 4: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_5, LANG_UNIVERSAL, caster); break;
+                case 5: me->MonsterSay(SAY_SNOWBLINDFOLLOWER_6, LANG_UNIVERSAL, caster); break;
                 }
-                caster->ToPlayer()->KilledMonsterCredit(ENTRY_SNOWBLIND_CREDIT,0);
+                caster->ToPlayer()->KilledMonsterCredit(ENTRY_SNOWBLIND_CREDIT, 0);
                 me->DespawnOrUnsummon(3000);
             }
         }
