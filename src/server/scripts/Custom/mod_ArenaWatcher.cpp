@@ -301,7 +301,7 @@ class npc_arena_watcher : public CreatureScript
                 player->PlayerTalkClass->SendGossipMenu(player->GetGossipTextId(creature), creature->GetGUID());
             else
             {
-                sCreatureTextMgr->SendChat(creature, SAY_NOT_FOUND_BRACKET, player->GetGUID());
+                sCreatureTextMgr->SendChat(creature, SAY_NOT_FOUND_BRACKET, player);
                 player->PlayerTalkClass->ClearMenus();
                 player->CLOSE_GOSSIP_MENU();
             }
@@ -318,7 +318,7 @@ class npc_arena_watcher : public CreatureScript
 
                 if (bg->GetStatus() == STATUS_NONE)
                 {
-                    sCreatureTextMgr->SendChat(creature, SAY_ARENA_NOT_IN_PROGRESS, player->GetGUID());
+                    sCreatureTextMgr->SendChat(creature, SAY_ARENA_NOT_IN_PROGRESS, player);
                     player->PlayerTalkClass->ClearMenus();
                     player->CLOSE_GOSSIP_MENU();
                     return false;
@@ -384,11 +384,11 @@ class npc_arena_watcher : public CreatureScript
                     if (Player* target = sObjectAccessor->FindPlayerByName(targetName))
                     {
                         if (!target->IsInWorld())
-                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_WORLD, player->GetGUID());
+                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_WORLD, player);
                         else if (!target->InArena())
-                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_ARENA, player->GetGUID());
+                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_NOT_IN_ARENA, player);
                         else if (target->IsGameMaster())
-                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_IS_GM, player->GetGUID());
+                            sCreatureTextMgr->SendChat(creature, SAY_TARGET_IS_GM, player);
                         else
                         {
                             if (Battleground* bg = target->GetBattleground())
