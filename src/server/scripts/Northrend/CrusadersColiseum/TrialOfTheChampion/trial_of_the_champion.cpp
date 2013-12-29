@@ -775,7 +775,7 @@ class npc_herald_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_herald_toc5AI (creature);
+        return GetInstanceAI<npc_herald_toc5AI>(creature);
     };
 };
 

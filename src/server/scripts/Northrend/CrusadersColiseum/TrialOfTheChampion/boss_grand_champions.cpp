@@ -473,7 +473,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new generic_vehicleAI_toc5AI(creature);
+       return GetInstanceAI<generic_vehicleAI_toc5AI>(creature);
     }
 };
 
@@ -638,7 +638,7 @@ class boss_warrior_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_warrior_toc5AI(creature);
+        return GetInstanceAI<boss_warrior_toc5AI>(creature);
     }
 };
 
@@ -796,7 +796,7 @@ class boss_mage_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_mage_toc5AI(creature);
+        return GetInstanceAI<boss_mage_toc5AI>(creature);
     };
 };
 
@@ -965,7 +965,7 @@ class boss_shaman_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_shaman_toc5AI(creature);
+        return GetInstanceAI<boss_shaman_toc5AI>(creature);
     }
 };
 
@@ -1181,7 +1181,7 @@ class boss_hunter_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_hunter_toc5AI(creature);
+        return GetInstanceAI<boss_hunter_toc5AI>(creature);
     }
 };
 
@@ -1354,7 +1354,7 @@ class boss_rouge_toc5 : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_rouge_toc5AI(creature);
+        return GetInstanceAI<boss_rouge_toc5AI>(creature);
     }
 };
 

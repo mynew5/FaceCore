@@ -492,6 +492,9 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
 
+            if (!me->GetOwner())
+                return;
+
             switch (me->GetOwner()->ToPlayer()->GetTeamId())
             {
                 case TEAM_ALLIANCE:

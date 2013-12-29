@@ -325,7 +325,7 @@ class boss_eadric : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_eadricAI(creature);
+        return GetInstanceAI<boss_eadricAI>(creature);
     };
 };
 
@@ -610,7 +610,7 @@ class boss_paletress : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_paletressAI(creature);
+        return GetInstanceAI<boss_paletressAI>(creature);
     };
 };
 
@@ -927,7 +927,7 @@ class npc_argent_soldier : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_argent_soldierAI(creature);
+        return GetInstanceAI<npc_argent_soldierAI>(creature);
     };
 };
 
