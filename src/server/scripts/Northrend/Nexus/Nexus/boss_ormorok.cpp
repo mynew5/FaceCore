@@ -70,6 +70,12 @@ public:
     {
         boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK_EVENT) { }
 
+        void Reset()
+        {
+            BossAI::Reset();
+            frenzy = false;
+        }
+
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             _EnterCombat();
@@ -191,7 +197,11 @@ public:
 
     struct npc_crystal_spike_triggerAI : public ScriptedAI
     {
-        npc_crystal_spike_triggerAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_crystal_spike_triggerAI(Creature* creature) : ScriptedAI(creature) 
+        { 
+            _count = 0;
+            _despawntimer = 0;
+        }
 
         void IsSummonedBy(Unit* owner) OVERRIDE
         {
