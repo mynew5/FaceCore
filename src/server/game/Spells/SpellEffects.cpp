@@ -5071,12 +5071,6 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    // VISTAWOW ANTICHEAT
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
-
-    float speedZ = (float)(m_spellInfo->Effects[effIndex].CalcValue() / 10);
-    float speedXY = (float)(m_spellInfo->Effects[effIndex].MiscValue/10);
     Position pos;
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_PULL_TOWARDS_DEST)
     {
@@ -5089,6 +5083,13 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
     {
         pos.Relocate(m_caster);
     }
+
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
+
+    float speedXY = float(m_spellInfo->Effects[effIndex].MiscValue) * 0.1f;
+    float speedZ = unitTarget->GetDistance(pos) / speedXY * 0.5f * Movement::gravity;
 
     unitTarget->GetMotionMaster()->MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), speedXY, speedZ);
 }
