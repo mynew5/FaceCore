@@ -3365,10 +3365,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 23881: // Bloodthirst
                 spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 break;
-            case 42436: // Brewfest: Drink!
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
-                break;
             case 52109: // Flametongue Totem rank 1 (Aura)
             case 52110: // Flametongue Totem rank 2 (Aura)
             case 52111: // Flametongue Totem rank 3 (Aura)
