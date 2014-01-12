@@ -15200,11 +15200,11 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
     if (!CanRewardQuest(quest, msg))
         return false;
 
+    ItemPosCountVec dest;
     if (quest->GetRewChoiceItemsCount() > 0)
     {
         if (quest->RewardChoiceItemId[reward])
         {
-            ItemPosCountVec dest;
             InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[reward], quest->RewardChoiceItemCount[reward]);
             if (res != EQUIP_ERR_OK)
             {
@@ -15220,7 +15220,6 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
         {
             if (quest->RewardItemId[i])
             {
-                ItemPosCountVec dest;
                 InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardItemId[i], quest->RewardItemIdCount[i]);
                 if (res != EQUIP_ERR_OK)
                 {
@@ -17542,6 +17541,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     }
 
     m_atLoginFlags = fields[33].GetUInt16();
+
+    if (HasAtLoginFlag(AT_LOGIN_RENAME))
+    {
+        TC_LOG_ERROR("entities.player", "Player (GUID: %u) tried to login while forced to rename, can't load.'", GetGUIDLow());
+        return false;
+    }
 
     // Honor system
     // Update Honor kills data
