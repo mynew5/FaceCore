@@ -520,7 +520,10 @@ public:
 
     struct npc_brann_bronzebeard_keystoneAI : public ScriptedAI
     {
-        npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_brann_bronzebeard_keystoneAI(Creature* creature) : ScriptedAI(creature)
+        {
+            objectCounter = 0;
+        }
 
         void Reset() OVERRIDE
         {
@@ -703,7 +706,10 @@ public:
 
     struct npc_king_jokkum_vehicleAI : public VehicleAI
     {
-        npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature) { }
+        npc_king_jokkum_vehicleAI(Creature* creature) : VehicleAI(creature)
+        {
+            pathEnd = false;
+        }
 
         void Reset() OVERRIDE
         {
