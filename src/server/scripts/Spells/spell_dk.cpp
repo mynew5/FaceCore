@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Containers.h"
 
 enum DeathKnightSpells
 {
@@ -47,11 +48,10 @@ enum DeathKnightSpells
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1        = 50391,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
-    SPELL_DK_RAISE_DEAD_NORMAL                  = 46585,
-    SPELL_DK_RAISE_DEAD_IMPROVED                = 52150,    // improved with Master of Ghouls talent
-    SPELL_DK_GLYPH_OF_RAISE_DEAD                = 60200,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
+    SPELL_DK_MASTER_OF_GHOULS                   = 52143,
+    SPELL_DK_RAISE_DEAD_USE_REAGENT             = 48289,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
@@ -64,6 +64,11 @@ enum DeathKnightSpells
 enum DeathKnightSpellIcons
 {
     DK_ICON_ID_IMPROVED_DEATH_STRIKE            = 2751
+};
+
+enum Misc
+{
+    NPC_DK_GHOUL                                = 26125
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -314,6 +319,28 @@ class spell_dk_blood_gorged : public SpellScriptLoader
         }
 };
 
+class CorpseExplosionCheck
+{
+public:
+    explicit CorpseExplosionCheck(uint64 casterGUID) : _casterGUID(casterGUID) { }
+
+    bool operator()(WorldObject* obj) const
+    {
+        if (Unit* target = obj->ToUnit())
+        {
+            if ((target->isDead() || (target->GetEntry() == NPC_DK_GHOUL && target->GetOwnerGUID() == _casterGUID))
+                && !(target->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL)
+                && target->GetDisplayId() == target->GetNativeDisplayId())
+                return false;
+        }
+
+        return true;
+    }
+
+private:
+    uint64 _casterGUID;
+};
+
 // 49158 - Corpse Explosion (51325, 51326, 51327, 51328)
 class spell_dk_corpse_explosion : public SpellScriptLoader
 {
@@ -324,68 +351,87 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_corpse_explosion_SpellScript);
 
-            bool Load()
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_DK_GHOUL_EXPLODE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_VISUAL))
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_TRIGGERED)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DK_GHOUL_EXPLODE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_VISUAL)
+                    || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].CalcValue()))
                     return false;
                 return true;
             }
 
-            SpellCastResult CheckIfCorpseNear()
+            bool Load() OVERRIDE
             {
+                _target = NULL;
+                return true;
+            }
 
-                Unit* caster = GetCaster();
-                Unit* unitTarget = GetExplTargetUnit();
+            void CheckTarget(WorldObject*& target)
+            {
+                if (CorpseExplosionCheck(GetCaster()->GetGUID())(target))
+                    target = NULL;
 
-                // check if the target exploded already
-                if (unitTarget && !unitTarget->HasAura(SPELL_DK_CORPSE_EXPLOSION_VISUAL))
+                _target = target;
+            }
+
+            void CheckTargets(std::list<WorldObject*>& targets)
+            {
+                WorldObject* target = _target;
+                if (!target)
                 {
-                    // if we have ghoul selected
-                    if (unitTarget->GetEntry() == 26125)
+                    targets.remove_if(CorpseExplosionCheck(GetCaster()->GetGUID()));
+                    if (targets.empty())
                     {
-                        int32 bp = int32(unitTarget->CountPctFromMaxHealth(25));
-                        unitTarget->CastCustomSpell(unitTarget, SPELL_DK_GHOUL_EXPLODE, &bp, NULL, NULL, false);
-                        caster->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
-                        return SPELL_CAST_OK;
+                        FinishCast(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+                        return;
                     }
-                    else if (unitTarget->isDead())
+                    target = Trinity::Containers::SelectRandomContainerElement(targets);
+                    targets.clear();
+                    targets.push_back(target);
+                }
+                else
+                    targets.clear();
+            }
+
+            void HandleDamage(SpellEffIndex effIndex, Unit* target)
+            {
+                if (effIndex == EFFECT_0)
+                    GetCaster()->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_1].CalcValue(), SPELLVALUE_BASE_POINT0, GetEffectValue(), target, true);
+                else if (effIndex == EFFECT_1)
+                    GetCaster()->CastCustomSpell(GetEffectValue(), SPELLVALUE_BASE_POINT0, GetSpell()->CalculateDamage(EFFECT_0, NULL), target, true);
+            }
+
+            void HandleCorpseExplosion(SpellEffIndex effIndex)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                {
+                    if (unitTarget->IsAlive())  // Living ghoul as a target
                     {
-                        int32 bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                        caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
+                        unitTarget->CastSpell(unitTarget, SPELL_DK_GHOUL_EXPLODE, false);
+                        // Corpse Explosion (Suicide) and Set corpse look handled in SpellScript of SPELL_DK_GHOUL_EXPLODE
+                    }
+                    else                        // Some corpse
+                    {
+                        HandleDamage(effIndex, unitTarget);
+                        // Corpse Explosion (Suicide)
                         unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
-                        caster->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
-                        return SPELL_CAST_OK;
+                        // Set corpse look
+                        GetCaster()->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
                     }
                 }
-
-                // search for nearby corpse in range
-                std::list<Unit*> targetList;
-                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, 20.0f, GetSpellInfo(), TARGET_CHECK_DEFAULT);
-                Trinity::UnitListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, targetList, check);
-                caster->GetMap()->VisitAll(caster->m_positionX, caster->m_positionY, 20.0f, searcher);
-
-                // check if the target exploded already (if it has aura 51270)
-                for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
-                    if (!((Unit*)*itr)->HasAura(SPELL_DK_CORPSE_EXPLOSION_VISUAL))
-                    {
-                        int32 bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                        unitTarget = ((Unit*)*itr);
-                        caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
-                        unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
-                        caster->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
-                        return SPELL_CAST_OK;
-                    }
-
-                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NO_NEARBY_CORPSES);
-                return SPELL_FAILED_CUSTOM_ERROR;
             }
 
             void Register() OVERRIDE
             {
-                OnCheckCast += SpellCheckCastFn(spell_dk_corpse_explosion_SpellScript::CheckIfCorpseNear);
+                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dk_corpse_explosion_SpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_TARGET_ANY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_corpse_explosion_SpellScript::CheckTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_corpse_explosion_SpellScript::HandleCorpseExplosion, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_corpse_explosion_SpellScript::HandleCorpseExplosion, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
+
+        private:
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const OVERRIDE
@@ -646,11 +692,18 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_ghoul_explode_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_CORPSE_EXPLOSION_TRIGGERED)
+                    || spellInfo->Effects[EFFECT_2].CalcValue() <= 0)
                     return false;
                 return true;
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                int32 value = int32(GetCaster()->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster())));
+                SetHitDamage(value);
             }
 
             void Suicide(SpellEffIndex /*effIndex*/)
@@ -659,11 +712,14 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
                 {
                     // Corpse Explosion (Suicide)
                     unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
+                    // Set corpse look
+                    GetCaster()->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
                 }
             }
 
             void Register() OVERRIDE
             {
+                OnEffectLaunchTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -970,6 +1026,162 @@ class spell_dk_presence : public SpellScriptLoader
         }
 };
 
+class RaiseDeadCheck
+{
+    public:
+        explicit RaiseDeadCheck(Player const* caster) : _caster(caster) { }
+
+        bool operator()(WorldObject* obj) const
+        {
+            if (Unit* target = obj->ToUnit())
+            {
+                if (!target->IsAlive()
+                    && _caster->isHonorOrXPTarget(target)
+                    && target->GetCreatureType() == CREATURE_TYPE_HUMANOID
+                    && target->GetDisplayId() == target->GetNativeDisplayId())
+                    return false;
+            }
+
+            return true;
+        }
+
+    private:
+        Player const* _caster;
+};
+
+// 46584 - Raise Dead
+class spell_dk_raise_dead : public SpellScriptLoader
+{
+    public:
+        spell_dk_raise_dead() : SpellScriptLoader("spell_dk_raise_dead") { }
+
+        class spell_dk_raise_dead_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_raise_dead_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].CalcValue())
+                    || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_2].CalcValue())
+                    || !sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_DEAD_USE_REAGENT)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DK_MASTER_OF_GHOULS))
+                    return false;
+                return true;
+            }
+
+            bool Load() OVERRIDE
+            {
+                _result = SPELL_CAST_OK;
+                _corpse = false;
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                /// process spell target selection before cast starts
+                /// targets of effect_1 are used to check cast
+                GetSpell()->SelectSpellTargets();
+                /// cleanup spell target map, and fill it again on normal way
+                GetSpell()->CleanupTargetList();
+                /// _result is set in spell target selection
+                return _result;
+            }
+
+            SpellCastResult CheckReagents()
+            {
+                /// @workaround: there is no access to castresult of other spells, check it manually
+                SpellInfo const* reagentSpell = sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_DEAD_USE_REAGENT);
+                Player* player = GetCaster()->ToPlayer();
+                if (!player->CanNoReagentCast(reagentSpell))
+                {
+                    for (uint32 i = 0; i < MAX_SPELL_REAGENTS; i++)
+                    {
+                        if (reagentSpell->Reagent[i] <= 0)
+                            continue;
+
+                        if (!player->HasItemCount(reagentSpell->Reagent[i], reagentSpell->ReagentCount[i]))
+                        {
+                            Spell::SendCastResult(player, reagentSpell, 0, SPELL_FAILED_REAGENTS);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+                    }
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void CheckTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(RaiseDeadCheck(GetCaster()->ToPlayer()));
+
+                if (targets.empty())
+                {
+                    if (GetSpell()->getState() == SPELL_STATE_PREPARING)
+                        _result = CheckReagents();
+
+                    return;
+                }
+
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(target);
+                _corpse = true;
+            }
+
+            void CheckTarget(WorldObject*& target)
+            {
+                // Don't add caster to target map, if we found a corpse to raise dead
+                if (_corpse)
+                    target = NULL;
+            }
+
+            void ConsumeReagents()
+            {
+                // No corpse found, take reagents
+                if (!_corpse)
+                    GetCaster()->CastSpell(GetCaster(), SPELL_DK_RAISE_DEAD_USE_REAGENT, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+            }
+
+            uint32 GetGhoulSpellId()
+            {
+                // Do we have talent Master of Ghouls?
+                if (GetCaster()->HasAura(SPELL_DK_MASTER_OF_GHOULS))
+                    // summon as pet
+                    return GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+
+                // or guardian
+                return GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+            }
+
+            void HandleRaiseDead(SpellEffIndex /*effIndex*/)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetGhoulSpellId());
+                SpellCastTargets targets;
+                targets.SetDst(*GetHitUnit());
+
+                GetCaster()->CastSpell(targets, spellInfo, NULL, TRIGGERED_FULL_MASK);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dk_raise_dead_SpellScript::CheckCast);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_raise_dead_SpellScript::CheckTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dk_raise_dead_SpellScript::CheckTarget, EFFECT_2, TARGET_UNIT_CASTER);
+                OnCast += SpellCastFn(spell_dk_raise_dead_SpellScript::ConsumeReagents);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleRaiseDead, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleRaiseDead, EFFECT_2, SPELL_EFFECT_DUMMY);
+            }
+
+        private:
+            SpellCastResult _result;
+            bool _corpse;
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_dk_raise_dead_SpellScript();
+        }
+};
+
 // 59754 Rune Tap - Party
 class spell_dk_rune_tap_party : public SpellScriptLoader
 {
@@ -1235,90 +1447,6 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         }
 };
 
-class spell_dk_raise_dead : public SpellScriptLoader
-{
-    public:
-        spell_dk_raise_dead() : SpellScriptLoader("spell_dk_raise_dead") { }
-
-        class spell_dk_raise_dead_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_raise_dead_SpellScript);
-
-            SpellCastResult CheckIfCorpseNear()
-            {
-                Unit* caster = GetCaster();
-                float max_range = 30;
-                WorldObject* unitTarget = NULL;
-                uint32 triggered_spell_id = 0;
-
-                // search for nearby corpse in range
-                std::list<Unit*> targetList;
-                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_DEFAULT);
-                Trinity::UnitListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, targetList, check);
-                caster->GetMap()->VisitAll(caster->m_positionX, caster->m_positionY, max_range, searcher);
-
-                // only humanoid and undead corpses are useable for Raise Dead
-                for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
-                {
-                    if ((*itr)->GetCreatureType() == CREATURE_TYPE_HUMANOID || ((Unit*)*itr)->GetCreatureType() == CREATURE_TYPE_UNDEAD)
-                    {
-                        unitTarget = (*itr);
-                        break;
-                    }
-                }
-
-                // check for Master of Ghouls talent
-                if (caster->HasAura(52143))
-                    // summon as pet
-                    triggered_spell_id = SPELL_DK_RAISE_DEAD_IMPROVED;
-                else
-                    // or guardian
-                    triggered_spell_id = SPELL_DK_RAISE_DEAD_NORMAL;
-
-                if (!unitTarget)
-                {
-                    // check for Glyph of Raise Dead
-                    if (caster->HasAura(SPELL_DK_GLYPH_OF_RAISE_DEAD))
-                    {
-                        caster->CastSpell(caster->GetPositionX(),caster->GetPositionY(),caster->GetPositionZ(),triggered_spell_id, true);
-                        return SPELL_CAST_OK;
-                    }
-                    // check for Corpse Dust
-                    else if (((Player*)caster)->HasItemCount(37201, 1))
-                    {
-                        caster->CastSpell(caster,48289);    // spell handling Corpse Dust removal
-                        caster->CastSpell(caster->GetPositionX(),caster->GetPositionY(),caster->GetPositionZ(),triggered_spell_id, true);
-                        return SPELL_CAST_OK;
-                    }
-                    else
-                    {
-                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_REQUIRES_CORPSE_DUST);
-                        return SPELL_FAILED_CUSTOM_ERROR;
-                    }
-                }
-                else if (unitTarget && unitTarget != caster)
-                {
-                    caster->CastSpell(unitTarget->GetPositionX(),unitTarget->GetPositionY(),unitTarget->GetPositionZ(),triggered_spell_id, true);
-                    return SPELL_CAST_OK;
-                }
-
-                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_REQUIRES_CORPSE_DUST);
-                return SPELL_FAILED_CUSTOM_ERROR;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_dk_raise_dead_SpellScript::CheckIfCorpseNear);
-            }
-
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_raise_dead_SpellScript();
-        }
-};
-
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1338,11 +1466,11 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_improved_frost_presence();
     new spell_dk_improved_unholy_presence();
     new spell_dk_presence();
+    new spell_dk_raise_dead();
     new spell_dk_rune_tap_party();
     new spell_dk_scent_of_blood();
     new spell_dk_scourge_strike();
     new spell_dk_spell_deflection();
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
-    new spell_dk_raise_dead();
 }
