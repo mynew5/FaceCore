@@ -683,6 +683,10 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
 
     // custom permissions 1000+
+    RBAC_PERM_COMMAND_QUESTCOMPLETER                         = 1002,
+    RBAC_PERM_COMMAND_QUESTCOMPLETER_COMPLETE                = 1003,
+    RBAC_PERM_COMMAND_QUESTCOMPLETER_ADD                     = 1004,
+    RBAC_PERM_COMMAND_QUESTCOMPLETER_DEL                     = 1005,
     RBAC_PERM_COMMAND_INSTANCE_UNBIND_SELF                   = 1100,
     RBAC_PERM_MAX
 };

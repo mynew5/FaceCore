@@ -16,6 +16,7 @@ set(scripts_STAT_SRCS
   Custom/Transmogrification.cpp
   Custom/Transmogrifier.cpp
   Custom/icc_rings.cpp
+  Custom/cs_questcompleter.cpp
 )
 
 message("  -> Prepared: Custom")
