@@ -9,6 +9,13 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 set(scripts_STAT_SRCS
+  Custom/custom.cpp
+  Custom/TrialOfTheChampion/TW_instance_trial_of_the_champion.cpp
+  Custom/TrialOfTheChampion/TW_trial_of_the_champion.h
+  Custom/TrialOfTheChampion/TW_boss_argent_challenge.cpp
+  Custom/TrialOfTheChampion/TW_boss_grand_champions.cpp
+  Custom/TrialOfTheChampion/TW_boss_black_knight.cpp
+  Custom/TrialOfTheChampion/TW_trial_of_the_champion.cpp
   ${scripts_STAT_SRCS}
   Custom/npc_arena1v1.cpp
   Custom/mod_ArenaWatcher.cpp
