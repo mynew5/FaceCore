@@ -1034,6 +1034,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             pCurrChar->SendUpdateWorldState(4354, uint32(time(NULL)) + (battlefieldWG->IsWarTime() ? battlefieldWG->GetTimer() : 0));
             pCurrChar->SendInitWorldStates(pCurrChar->GetZoneId(), pCurrChar->GetAreaId());
         }
+    // Handle Login-Achievements (should be handled after loading)
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
     delete holder;
