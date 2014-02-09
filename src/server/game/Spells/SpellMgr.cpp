@@ -3769,17 +3769,6 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->SpellFamilyName)
         {
-            case SPELLFAMILY_PRIEST:
-                // Twin Disciplines should affect at Prayer of Mending
-                if (spellInfo->SpellIconID == 2292)
-                    spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0, 622642, 2581594112);
-                // Spiritual Healing should affect at Prayer of Mending
-                else if (spellInfo->SpellIconID == 46)
-                    spellInfo->Effects[EFFECT_0].SpellClassMask[1] |= 0x20;
-                // Divine Providence should affect at Prayer of Mending
-                else if (spellInfo->SpellIconID == 2845 && spellInfo->Id != 64844)
-                    spellInfo->Effects[EFFECT_0].SpellClassMask[1] |= 0x20;
-                break;
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness
                 if (spellInfo->SpellIconID == 25 && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
