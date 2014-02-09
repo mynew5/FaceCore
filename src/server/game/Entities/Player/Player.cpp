@@ -16146,7 +16146,7 @@ void Player::SendQuestUpdate(uint32 questId)
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
     }
-
+    
     saBounds = sSpellMgr->GetSpellAreaForQuestEndMapBounds(questId);
     if (saBounds.first != saBounds.second)
     {
