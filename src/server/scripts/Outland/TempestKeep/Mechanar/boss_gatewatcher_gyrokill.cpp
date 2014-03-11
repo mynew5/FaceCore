@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,11 +53,11 @@ enum Events
 class boss_gatewatcher_gyrokill : public CreatureScript
 {
     public:
-        boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") {}
+        boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") { }
 
         struct boss_gatewatcher_gyrokillAI : public BossAI
         {
-            boss_gatewatcher_gyrokillAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_GYROKILL) {}
+            boss_gatewatcher_gyrokillAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_GYROKILL) { }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {

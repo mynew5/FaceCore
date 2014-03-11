@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,13 @@
 #include "ulduar.h"
 #include "Vehicle.h"
 #include "Player.h"
+
+/* ScriptData
+SDName: boss_kologarn
+SD%Complete: 90
+SDComment: @todo Achievements
+SDCategory: Ulduar
+EndScriptData */
 
 enum Spells
 {
@@ -93,7 +100,7 @@ class boss_kologarn : public CreatureScript
 
         struct boss_kologarnAI : public BossAI
         {
-            boss_kologarnAI(Creature* creature) : BossAI(creature, DATA_KOLOGARN), vehicle(creature->GetVehicleKit()),
+            boss_kologarnAI(Creature* creature) : BossAI(creature, BOSS_KOLOGARN), vehicle(creature->GetVehicleKit()),
                 left(false), right(false)
             {
                 ASSERT(vehicle);
@@ -153,7 +160,7 @@ class boss_kologarn : public CreatureScript
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
             {
-                bool isEncounterInProgress = instance->GetBossState(DATA_KOLOGARN) == IN_PROGRESS;
+                bool isEncounterInProgress = instance->GetBossState(BOSS_KOLOGARN) == IN_PROGRESS;
                 if (who->GetEntry() == NPC_LEFT_ARM)
                 {
                     left = apply;
@@ -332,7 +339,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(DATA_KOLOGARN) : 0;
+                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(BOSS_KOLOGARN) : 0;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
                     caster->CastSpell(caster, spellId, true, NULL, NULL, originalCaster);
@@ -354,7 +361,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
 {
     public:
-        StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) {}
+        StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) { }
 
         bool operator()(WorldObject* target)
         {

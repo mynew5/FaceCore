@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,11 +21,6 @@ SD%Complete: 60
 SDComment: Mechanics' interrrupt heal doesn't work very well, also a proper movement needs to be implemented -> summon further away and move towards target to repair.
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
-
-/* ContentData
-boss_mekgineer_steamrigger
-npc_steamrigger_mechanic
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -53,7 +47,7 @@ enum Spells
 
 enum Creatures
 {
-    NPC_STREAMRIGGER_MECHANIC = 17951
+    NPC_STREAMRIGGER_MECHANIC   = 17951
 };
 
 class boss_mekgineer_steamrigger : public CreatureScript
@@ -63,7 +57,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_mekgineer_steamriggerAI(creature);
+        return GetInstanceAI<boss_mekgineer_steamriggerAI>(creature);
     }
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
@@ -92,16 +86,14 @@ public:
             Summon50 = false;
             Summon25 = false;
 
-            if (instance)
-                instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
+            instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, DONE);
+            instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -113,8 +105,7 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
+            instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
         }
 
         //no known summon spells exist
@@ -203,7 +194,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_steamrigger_mechanicAI(creature);
+        return GetInstanceAI<npc_steamrigger_mechanicAI>(creature);
     }
 
     struct npc_steamrigger_mechanicAI : public ScriptedAI
@@ -223,22 +214,21 @@ public:
         }
 
         void MoveInLineOfSight(Unit* /*who*/) OVERRIDE
-
         {
             //react only if attacked
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
             if (Repair_Timer <= diff)
             {
-                if (instance && instance->GetData64(DATA_MEKGINEERSTEAMRIGGER) && instance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Unit* pMekgineer = Unit::GetUnit(*me, instance->GetData64(DATA_MEKGINEERSTEAMRIGGER)))
+                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MEKGINEER_STEAMRIGGER)))
                     {
-                        if (me->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
+                        if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {
                             //are we already channeling? Doesn't work very well, find better check?
                             if (!me->GetUInt32Value(UNIT_CHANNEL_SPELL))

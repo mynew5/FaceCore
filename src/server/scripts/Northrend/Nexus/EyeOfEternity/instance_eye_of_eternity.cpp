@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,7 +48,7 @@ public:
             alexstraszaBunnyGUID = 0;
         };
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -94,7 +94,7 @@ public:
             instance->AddToMap(go);
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -130,7 +130,7 @@ public:
             }
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -152,7 +152,7 @@ public:
             }
         }
 
-        void OnUnitDeath(Unit* unit)
+        void OnUnitDeath(Unit* unit) OVERRIDE
         {
             if (unit->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -165,7 +165,7 @@ public:
             unit->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId)
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) OVERRIDE
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
@@ -278,7 +278,7 @@ public:
             return 0;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -289,7 +289,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* str)
+        void Load(const char* str) OVERRIDE
         {
             if (!str)
             {

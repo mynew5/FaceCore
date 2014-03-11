@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -73,14 +73,12 @@ enum Spells
     SPELL_SHIELDWALL            = 29390
 };
 
-#define POS_Z               81.73f
-
-float Locations[4][3]=
+Position const Locations[4] =
 {
-    {-10991.0f, -1884.33f, 0.614315f},
-    {-10989.4f, -1885.88f, 0.904913f},
-    {-10978.1f, -1887.07f, 2.035550f},
-    {-10975.9f, -1885.81f, 2.253890f},
+    {-10991.0f, -1884.33f, 81.73f, 0.614315f},
+    {-10989.4f, -1885.88f, 81.73f, 0.904913f},
+    {-10978.1f, -1887.07f, 81.73f, 2.035550f},
+    {-10975.9f, -1885.81f, 81.73f, 2.253890f},
 };
 
 const uint32 Adds[6]=
@@ -100,7 +98,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_moroesAI(creature);
+        return GetInstanceAI<boss_moroesAI>(creature);
     }
 
     struct boss_moroesAI : public ScriptedAI
@@ -137,17 +135,15 @@ public:
 
             Enrage = false;
             InVanish = false;
-            if (me->GetHealth())
+            if (me->IsAlive())
                 SpawnAdds();
 
-            if (instance)
-                instance->SetData(TYPE_MOROES, NOT_STARTED);
+            instance->SetData(TYPE_MOROES, NOT_STARTED);
         }
 
         void StartEvent()
         {
-            if (instance)
-                instance->SetData(TYPE_MOROES, IN_PROGRESS);
+            instance->SetData(TYPE_MOROES, IN_PROGRESS);
 
             DoZoneInCombat();
         }
@@ -170,52 +166,45 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(TYPE_MOROES, DONE);
+            instance->SetData(TYPE_MOROES, DONE);
 
             DeSpawnAdds();
 
             //remove aura from spell Garrote when Moroes dies
-            if (instance)
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
         }
 
         void SpawnAdds()
         {
             DeSpawnAdds();
+
             if (isAddlistEmpty())
             {
-                Creature* creature = NULL;
-                std::vector<uint32> AddList;
+                std::list<uint32> AddList;
 
                 for (uint8 i = 0; i < 6; ++i)
                     AddList.push_back(Adds[i]);
 
-                while (AddList.size() > 4)
-                    AddList.erase((AddList.begin())+(rand()%AddList.size()));
+                Trinity::Containers::RandomResizeList(AddList, 4);
 
                 uint8 i = 0;
-                for (std::vector<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
+                for (std::list<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end() && i < 4; ++itr, ++i)
                 {
                     uint32 entry = *itr;
 
-                    creature = me->SummonCreature(entry, Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    if (creature)
+                    if (Creature* creature = me->SummonCreature(entry, Locations[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                     {
                         AddGUID[i] = creature->GetGUID();
                         AddId[i] = entry;
                     }
-                    ++i;
                 }
-            }else
+            }
+            else
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Creature* creature = me->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    if (creature)
-                    {
+                    if (Creature* creature = me->SummonCreature(AddId[i], Locations[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                         AddGUID[i] = creature->GetGUID();
-                    }
                 }
             }
         }
@@ -235,9 +224,8 @@ public:
             {
                 if (AddGUID[i])
                 {
-                    Creature* temp = Creature::GetCreature((*me), AddGUID[i]);
-                    if (temp && temp->IsAlive())
-                        temp->DisappearAndDie();
+                    if (Creature* temp = ObjectAccessor::GetCreature(*me, AddGUID[i]))
+                        temp->DespawnOrUnsummon();
                 }
             }
         }
@@ -264,7 +252,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (instance && !instance->GetData(TYPE_MOROES))
+            if (!instance->GetData(TYPE_MOROES))
             {
                 EnterEvadeMode();
                 return;
@@ -357,15 +345,11 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void Reset() OVERRIDE
     {
-        if (instance)
-            instance->SetData(TYPE_MOROES, NOT_STARTED);
+        instance->SetData(TYPE_MOROES, NOT_STARTED);
     }
 
     void AcquireGUID()
     {
-        if (!instance)
-            return;
-
         if (Creature* Moroes = Unit::GetCreature(*me, instance->GetData64(DATA_MOROES)))
             for (uint8 i = 0; i < 4; ++i)
                 if (uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
@@ -387,7 +371,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void UpdateAI(uint32 /*diff*/) OVERRIDE
     {
-        if (instance && !instance->GetData(TYPE_MOROES))
+        if (!instance->GetData(TYPE_MOROES))
             EnterEvadeMode();
 
         DoMeleeAttackIfReady();
@@ -401,13 +385,13 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baroness_dorothea_millstipeAI(creature);
+        return GetInstanceAI<boss_baroness_dorothea_millstipeAI>(creature);
     }
 
     struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
     {
         //Shadow Priest
-        boss_baroness_dorothea_millstipeAI(Creature* creature) : boss_moroes_guestAI(creature) {}
+        boss_baroness_dorothea_millstipeAI(Creature* creature) : boss_moroes_guestAI(creature) { }
 
         uint32 ManaBurn_Timer;
         uint32 MindFlay_Timer;
@@ -464,13 +448,13 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_baron_rafe_dreugerAI(creature);
+        return GetInstanceAI<boss_baron_rafe_dreugerAI>(creature);
     }
 
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
     {
         //Retr Pally
-        boss_baron_rafe_dreugerAI(Creature* creature) : boss_moroes_guestAI(creature){}
+        boss_baron_rafe_dreugerAI(Creature* creature) : boss_moroes_guestAI(creature){ }
 
         uint32 HammerOfJustice_Timer;
         uint32 SealOfCommand_Timer;
@@ -521,13 +505,13 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_catriona_von_indiAI(creature);
+        return GetInstanceAI<boss_lady_catriona_von_indiAI>(creature);
     }
 
     struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
     {
         //Holy Priest
-        boss_lady_catriona_von_indiAI(Creature* creature) : boss_moroes_guestAI(creature) {}
+        boss_lady_catriona_von_indiAI(Creature* creature) : boss_moroes_guestAI(creature) { }
 
         uint32 DispelMagic_Timer;
         uint32 GreaterHeal_Timer;
@@ -591,13 +575,13 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lady_keira_berrybuckAI(creature);
+        return GetInstanceAI<boss_lady_keira_berrybuckAI>(creature);
     }
 
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
     {
         //Holy Pally
-        boss_lady_keira_berrybuckAI(Creature* creature) : boss_moroes_guestAI(creature)  {}
+        boss_lady_keira_berrybuckAI(Creature* creature) : boss_moroes_guestAI(creature)  { }
 
         uint32 Cleanse_Timer;
         uint32 GreaterBless_Timer;
@@ -665,13 +649,13 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_robin_darisAI(creature);
+        return GetInstanceAI<boss_lord_robin_darisAI>(creature);
     }
 
     struct boss_lord_robin_darisAI : public boss_moroes_guestAI
     {
         //Arms Warr
-        boss_lord_robin_darisAI(Creature* creature) : boss_moroes_guestAI(creature) {}
+        boss_lord_robin_darisAI(Creature* creature) : boss_moroes_guestAI(creature) { }
 
         uint32 Hamstring_Timer;
         uint32 MortalStrike_Timer;
@@ -721,13 +705,13 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_lord_crispin_ferenceAI(creature);
+        return GetInstanceAI<boss_lord_crispin_ferenceAI>(creature);
     }
 
     struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
     {
         //Arms Warr
-        boss_lord_crispin_ferenceAI(Creature* creature) : boss_moroes_guestAI(creature) {}
+        boss_lord_crispin_ferenceAI(Creature* creature) : boss_moroes_guestAI(creature) { }
 
         uint32 Disarm_Timer;
         uint32 HeroicStrike_Timer;

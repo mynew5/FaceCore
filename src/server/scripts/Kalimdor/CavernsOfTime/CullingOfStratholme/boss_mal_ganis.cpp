@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,7 +66,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_mal_ganisAI(creature);
+        return GetInstanceAI<boss_mal_ganisAI>(creature);
     }
 
     struct boss_mal_ganisAI : public ScriptedAI
@@ -102,15 +102,13 @@ public:
              uiSleepTimer = urand(15000, 20000);
              uiOutroTimer = 1000;
 
-             if (instance)
-                 instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
+             instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
-            if (instance)
-                instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
@@ -149,13 +147,12 @@ public:
                         return;
                     }
 
-                    if (Creature* pArthas = me->GetCreature(*me, instance ? instance->GetData64(DATA_ARTHAS) : 0))
+                    if (Creature* pArthas = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARTHAS)))
                         if (pArthas->isDead())
                         {
                             EnterEvadeMode();
                             me->DisappearAndDie();
-                            if (instance)
-                                instance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
+                            instance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
                         }
 
                     if (uiCarrionSwarmTimer < diff)
@@ -199,7 +196,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(instance ? instance->GetData64(DATA_ARTHAS) : 0);
+                                me->SetTarget(instance->GetData64(DATA_ARTHAS));
                                 me->HandleEmoteCommand(29);
                                 Talk(SAY_ESCAPE_SPEECH_2);
                                 ++uiOutroStep;
@@ -228,13 +225,10 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
-                DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
-                // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
-                DoCastAOE(SPELL_KILL_CREDIT);
-            }
+            instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
+            DoCastAOE(SPELL_MAL_GANIS_KILL_CREDIT);
+            // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
+            DoCastAOE(SPELL_KILL_CREDIT);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

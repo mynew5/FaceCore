@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,6 +35,9 @@ HostileRefManager::~HostileRefManager()
 
 void HostileRefManager::threatAssist(Unit* victim, float baseThreat, SpellInfo const* threatSpell)
 {
+    if (getSize() == 0)
+        return;
+
     HostileReference* ref = getFirst();
     float threat = ThreatCalcHelper::calcThreat(victim, iOwner, baseThreat, (threatSpell ? threatSpell->GetSchoolMask() : SPELL_SCHOOL_MASK_NORMAL), threatSpell);
     threat /= getSize();

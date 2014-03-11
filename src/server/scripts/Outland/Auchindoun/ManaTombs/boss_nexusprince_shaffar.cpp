@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -170,7 +170,7 @@ public:
 
             if (FrostNova_Timer <= diff)
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
 
                 DoCast(me, SPELL_FROSTNOVA);
@@ -194,7 +194,7 @@ public:
             {
                 if (Blink_Timer <= diff)
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
+                    if (me->IsNonMeleeSpellCast(false))
                         me->InterruptNonMeleeSpells(true);
 
                     //expire movement, will prevent from running right back to victim after cast
@@ -210,7 +210,7 @@ public:
 
             if (Beacon_Timer <= diff)
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
 
                 if (!urand(0, 3))
@@ -301,7 +301,7 @@ public:
 
             if (Apprentice_Timer <= diff)
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
 
                 DoCast(me, SPELL_ETHEREAL_APPRENTICE, true);
@@ -331,7 +331,7 @@ public:
 
     struct npc_ethereal_apprenticeAI : public ScriptedAI
     {
-        npc_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ethereal_apprenticeAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Cast_Timer;
 
@@ -365,9 +365,65 @@ public:
 
 };
 
+enum Yor
+{
+    SPELL_DOUBLE_BREATH          = 38361,
+    EVENT_DOUBLE_BREATH          = 1
+};
+
+class npc_yor : public CreatureScript
+{
+public:
+    npc_yor() : CreatureScript("npc_yor") { }
+
+    struct npc_yorAI : public ScriptedAI
+    {
+        npc_yorAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() OVERRIDE { }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE
+        {
+            events.ScheduleEvent(EVENT_DOUBLE_BREATH, urand(6000,9000));
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_DOUBLE_BREATH:
+                        if (me->IsWithinDist(me->GetVictim(), ATTACK_DISTANCE))
+                            DoCastVictim(SPELL_DOUBLE_BREATH);
+                        events.ScheduleEvent(EVENT_DOUBLE_BREATH, urand(6000,9000));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+        private:
+            EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_yorAI(creature);
+    }
+};
+
 void AddSC_boss_nexusprince_shaffar()
 {
     new boss_nexusprince_shaffar();
     new npc_ethereal_beacon();
     new npc_ethereal_apprentice();
+    new npc_yor();
 }

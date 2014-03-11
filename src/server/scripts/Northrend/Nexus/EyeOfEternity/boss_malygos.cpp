@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -96,7 +96,7 @@ enum Spells
     SPELL_PORTAL_BEAM                        = 56046, // Malygos cast on portal to activate it during PHASE_NOT_STARTED
 
     //Phase I
-    SPELL_BERSEKER                           = 60670,
+    SPELL_BERSERK                           = 60670,
     SPELL_MALYGOS_BERSERK                    = 47008, // it's the berserk spell that will hit only Malygos after 10 min of 60670
     SPELL_PORTAL_VISUAL_CLOSED               = 55949,
     SPELL_SUMMON_POWER_PARK                  = 56142,
@@ -106,8 +106,8 @@ enum Spells
     SPELL_ARCANE_STORM_P_I                   = 61693,
     SPELL_VORTEX_1                           = 56237, // seems that frezze object animation
     SPELL_VORTEX_2                           = 55873, // visual effect
-    SPELL_VORTEX_3                           = 56105, // this spell must handle all the script - casted by the boss and to himself
-    SPELL_VORTEX_6                           = 73040, // teleport - (casted to all raid), caster vortex bunnies, targets players.
+    SPELL_VORTEX_3                           = 56105, // this spell must handle all the script - cast by the boss and to himself
+    SPELL_VORTEX_6                           = 73040, // teleport - (cast to all raid), caster vortex bunnies, targets players.
 
     // Phase II
     SPELL_TELEPORT_VISUAL_ONLY               = 41232, // Light blue animation cast by arcane NPCs when spawned on Hover Disks
@@ -117,7 +117,7 @@ enum Spells
     SPELL_SUMMON_ARCANE_BOMB                 = 56429,
     SPELL_ARCANE_BOMB_TRIGGER                = 56430,
     SPELL_ARCANE_BOMB_KNOCKBACK_DAMAGE       = 56431,
-    SPELL_ARCANE_OVERLOAD_1                  = 56432, // casted by npc Arcane Overload ID: 30282
+    SPELL_ARCANE_OVERLOAD_1                  = 56432, // cast by npc Arcane Overload ID: 30282
     // SPELL_ARCANE_OVERLOAD_2               = 56435, // Triggered by 56432 - resizing target
     // SPELL_ARCANE_OVERLOAD_3               = 56438, // Triggered by 56432 - damage reduction
     SPELL_SURGE_OF_POWER_P_II                = 56505,
@@ -376,8 +376,7 @@ public:
 
             SetPhase(PHASE_NOT_STARTED, true);
             me->SetReactState(REACT_PASSIVE);
-            if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         uint32 GetData(uint32 data) const OVERRIDE
@@ -451,7 +450,7 @@ public:
             {
                 case ACTION_LAND_ENCOUNTER_START:
                     events.CancelEventGroup(1);
-                    if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                    if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
                     {
                         Position pos;
                         pos.m_positionZ = alexstraszaBunny->GetPositionZ();
@@ -568,27 +567,22 @@ public:
             // We can't call full function here since it includes DoZoneInCombat(),
             // if someone does it will be returned with a warning.
             me->setActive(true);
-            if (instance)
+            if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
             {
-                if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-
-                instance->SetBossState(DATA_MALYGOS_EVENT, IN_PROGRESS);
+                EnterEvadeMode();
+                return;
             }
 
+            instance->SetBossState(DATA_MALYGOS_EVENT, IN_PROGRESS);
+
             Talk(SAY_START_P_ONE);
-            DoCast(SPELL_BERSEKER); // periodic aura, first tick in 10 minutes
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            DoCast(SPELL_BERSERK); // periodic aura, first tick in 10 minutes
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void EnterEvadeMode() OVERRIDE
         {
-            if (instance)
-                instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
+            instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
 
             SendLightOverride(LIGHT_GET_DEFAULT_FOR_MAP, 1*IN_MILLISECONDS);
 
@@ -628,8 +622,7 @@ public:
                     summons.DespawnAll();
             }
 
-            if (instance)
-                instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
+            instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE
@@ -670,7 +663,7 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
@@ -720,7 +713,8 @@ public:
                     {
                         _firstCyclicMovementStarted = true;
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetFacingToObject(me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)));
+                        if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                            me->SetFacingToObject(alexstraszaBunny);
                         events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, 1*IN_MILLISECONDS, 0, PHASE_TWO);
                     }
                     _flyingOutOfPlatform = false;
@@ -729,7 +723,8 @@ public:
                     break;
                 case POINT_PHASE_ONE_TO_TWO_TRANSITION:
                     me->SetDisableGravity(true);
-                    me->SetFacingToObject(me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)));
+                    if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                        me->SetFacingToObject(alexstraszaBunny);
                     SendLightOverride(LIGHT_ARCANE_RUNES, 5*IN_MILLISECONDS);
                     events.ScheduleEvent(EVENT_FLY_OUT_OF_PLATFORM, 18*IN_MILLISECONDS, 0, PHASE_TWO);
                     break;
@@ -787,7 +782,7 @@ public:
                         me->CastCustomSpell(SPELL_RANDOM_PORTAL, SPELLVALUE_MAX_TARGETS, 1);
                         break;
                     case EVENT_LAND_START_ENCOUNTER:
-                        if (GameObject* iris = me->GetMap()->GetGameObject(instance->GetData64(DATA_FOCUSING_IRIS_GUID)))
+                        if (GameObject* iris = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_FOCUSING_IRIS_GUID)))
                         {
                             me->SetFacingToObject(iris);
                             iris->Delete(); // this is not the best way.
@@ -844,7 +839,7 @@ public:
                     case EVENT_FLY_OUT_OF_PLATFORM:
                         if (!_performingDestroyPlatform)
                         {
-                            if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                            if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
                             {
                                 Position randomPosOnRadius;
                                 // Hardcodded retail value, reason is Z getters can fail... (TO DO: Change to getter when height calculation works on 100%!)
@@ -915,7 +910,7 @@ public:
                         if (!_flyingOutOfPlatform)
                         {
                             DoCast(me, SPELL_SUMMON_ARCANE_BOMB, true);
-                            if (Creature* lastArcaneOverloadBunny = me->GetMap()->GetCreature(_arcaneOverloadGUID))
+                            if (Creature* lastArcaneOverloadBunny = ObjectAccessor::GetCreature(*me, _arcaneOverloadGUID))
                                 DoCast(lastArcaneOverloadBunny, SPELL_ARCANE_BOMB_TRIGGER, true);
                         }
                         events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, urand(15, 16)*IN_MILLISECONDS, 2, PHASE_TWO);
@@ -963,7 +958,7 @@ public:
                                     {
                                         if (passenger->GetTypeId() == TYPEID_PLAYER)
                                         {
-                                            Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
+                                            Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger);
                                             DoCast(tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10, true);
                                         }
                                     }
@@ -1000,7 +995,7 @@ public:
         {
             _JustDied();
             Talk(SAY_DEATH);
-            if (Creature* alexstraszaGiftBoxBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_GIFT_BOX_BUNNY_GUID)))
+            if (Creature* alexstraszaGiftBoxBunny = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_GIFT_BOX_BUNNY_GUID)))
             {
                 if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
@@ -1074,7 +1069,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_malygosAI(creature);
+        return GetInstanceAI<boss_malygosAI>(creature);
     }
 };
 
@@ -1094,7 +1089,7 @@ public:
         {
             if (spell->Id == SPELL_PORTAL_OPENED)
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                 {
                     if (malygos->AI()->GetData(DATA_PHASE) == PHASE_ONE)
                         DoCast(me, SPELL_SUMMON_POWER_PARK, true);
@@ -1108,15 +1103,12 @@ public:
             if (!me->HasAura(SPELL_PORTAL_VISUAL_CLOSED) && !me->HasAura(SPELL_PORTAL_OPENED))
                 DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
 
-            if (_instance)
+            if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE && me->HasAura(SPELL_PORTAL_OPENED))
                 {
-                    if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE && me->HasAura(SPELL_PORTAL_OPENED))
-                    {
-                        me->RemoveAura(SPELL_PORTAL_OPENED);
-                        DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
-                    }
+                    me->RemoveAura(SPELL_PORTAL_OPENED);
+                    DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
                 }
             }
         }
@@ -1127,7 +1119,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_portal_eoeAI(creature);
+        return GetInstanceAI<npc_portal_eoeAI>(creature);
     }
 };
 
@@ -1142,7 +1134,7 @@ public:
         {
             _instance = creature->GetInstanceScript();
             // Talk range was not enough for this encounter
-            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
             MoveToMalygos();
         }
 
@@ -1150,9 +1142,8 @@ public:
         {
             me->GetMotionMaster()->MoveIdle();
 
-            if (_instance)
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
-                    me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
+            if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
+                me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
         }
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE
@@ -1160,7 +1151,7 @@ public:
             if (!_instance)
                 return;
 
-            if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+            if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
             {
                 if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE || _instance->GetBossState(DATA_MALYGOS_EVENT) == FAIL)
                 {
@@ -1190,7 +1181,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_power_sparkAI(creature);
+        return GetInstanceAI<npc_power_sparkAI>(creature);
     }
 };
 
@@ -1292,7 +1283,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_melee_hover_diskAI(creature);
+        return GetInstanceAI<npc_melee_hover_diskAI>(creature);
     }
 };
 
@@ -1374,7 +1365,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_caster_hover_diskAI(creature);
+        return GetInstanceAI<npc_caster_hover_diskAI>(creature);
     }
 };
 
@@ -1439,7 +1430,7 @@ class npc_nexus_lord : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                     malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS) + 1);
             }
 
@@ -1450,7 +1441,7 @@ class npc_nexus_lord : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_nexus_lordAI(creature);
+            return GetInstanceAI<npc_nexus_lordAI>(creature);
         }
 };
 
@@ -1506,7 +1497,7 @@ class npc_scion_of_eternity : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                     malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS) + 1);
             }
 
@@ -1517,7 +1508,7 @@ class npc_scion_of_eternity : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_scion_of_eternityAI(creature);
+            return GetInstanceAI<npc_scion_of_eternityAI>(creature);
         }
 };
 
@@ -1549,7 +1540,7 @@ public:
 
         void DoAction(int32 /*action*/) OVERRIDE
         {
-            if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+            if (Creature* malygos = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
             {
                 if (malygos->AI()->GetData(DATA_PHASE) == PHASE_TWO)
                     me->DespawnOrUnsummon(6*IN_MILLISECONDS);
@@ -1575,7 +1566,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_arcane_overloadAI(creature);
+        return GetInstanceAI<npc_arcane_overloadAI>(creature);
     }
 };
 
@@ -1907,7 +1898,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
                             if (InstanceScript* instance = caster->GetInstanceScript())
                             {
-                                // Teleport spell - I'm not sure but might be it must be casted by each vehicle when it's passenger leaves it.
+                                // Teleport spell - I'm not sure but might be it must be cast by each vehicle when it's passenger leaves it.
                                 if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetData64(DATA_TRIGGER)))
                                     trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
                             }
@@ -1967,7 +1958,7 @@ class spell_arcane_overload : public SpellScriptLoader
             {
                 Creature* arcaneOverload = GetCaster()->ToCreature();
                 targets.remove_if(ExactDistanceCheck(arcaneOverload,
-                    GetSpellInfo()->Effects[EFFECT_0].CalcRadius(arcaneOverload) * arcaneOverload->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                    GetSpellInfo()->Effects[EFFECT_0].CalcRadius(arcaneOverload) * arcaneOverload->GetObjectScale()));
             }
 
             void Register() OVERRIDE
@@ -2054,7 +2045,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
 
                 Creature* caster = GetCaster()->ToCreature();
                 InstanceScript* instance = caster->GetInstanceScript();
-                Creature* malygos = caster->GetMap()->GetCreature(instance->GetData64(DATA_MALYGOS));
+                Creature* malygos = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_MALYGOS));
 
                 // If max possible targets are more than 1 then Scions wouldn't select previosly selected target,
                 // in longer terms this means if spell picks target X then 2nd cast of this spell will pick smth else
@@ -2239,6 +2230,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
         }
 };
 
+// 56070 - Summon Red Dragon Buddy
 class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
 {
     public:
@@ -2253,19 +2245,16 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
+            void SetDest(SpellDestination& dest)
             {
                 // Adjust effect summon position to lower Z
-                WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = { 0.0f, 0.0f, -80.0f, 0.0f };
-                summonPos.RelocateOffset(offset);
-                SetExplTargetDest(summonPos);
-                GetHitDest()->RelocateOffset(offset);
+                Position const offset = { 0.0f, 0.0f, -80.0f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
             void Register() OVERRIDE
             {
-                OnEffectHit += SpellEffectFn(spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
             }
         };
 
@@ -2351,7 +2340,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
                     if (Vehicle* vehicle = target->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(0))
                             if (passenger->GetTypeId() == TYPEID_PLAYER)
-                                caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
+                                caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger);
                 }
             }
 

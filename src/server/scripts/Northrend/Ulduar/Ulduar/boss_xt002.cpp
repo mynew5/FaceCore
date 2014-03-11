@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/*
+    @todo
+        Fix void zone damage
+        If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
+        make the life sparks visible...     /? Need test
+        Codestyle
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -191,7 +199,7 @@ class boss_xt002 : public CreatureScript
 
         struct boss_xt002_AI : public BossAI
         {
-            boss_xt002_AI(Creature* creature) : BossAI(creature, DATA_XT002)
+            boss_xt002_AI(Creature* creature) : BossAI(creature, BOSS_XT002)
             {
             }
 
@@ -210,9 +218,6 @@ class boss_xt002 : public CreatureScript
                 _phase = 1;
                 _heartExposed = 0;
 
-                if (!instance)
-                    return;
-
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
@@ -224,11 +229,8 @@ class boss_xt002 : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                 events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
-                //Tantrum is casted a bit slower the first time.
+                //Tantrum is cast a bit slower the first time.
                 events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2);
-
-                if (!instance)
-                    return;
 
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
@@ -451,11 +453,11 @@ class npc_xt002_heart : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                Creature* xt002 = _instance ? me->GetCreature(*me, _instance->GetData64(DATA_XT002)) : NULL;
+                Creature* xt002 = _instance ? me->GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
                 if (!xt002 || !xt002->AI())
                     return;
 
@@ -469,7 +471,7 @@ class npc_xt002_heart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_xt002_heartAI(creature);
+            return GetInstanceAI<npc_xt002_heartAI>(creature);
         }
 };
 
@@ -485,7 +487,7 @@ class npc_scrapbot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_scrapbotAI(creature);
+            return GetInstanceAI<npc_scrapbotAI>(creature);
         }
 
         struct npc_scrapbotAI : public ScriptedAI
@@ -501,7 +503,7 @@ class npc_scrapbot : public CreatureScript
 
                 _rangeCheckTimer = 500;
 
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
+                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -509,7 +511,7 @@ class npc_scrapbot : public CreatureScript
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
+                    if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
@@ -542,7 +544,7 @@ class npc_pummeller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_pummellerAI(creature);
+            return GetInstanceAI<npc_pummellerAI>(creature);
         }
 
         struct npc_pummellerAI : public ScriptedAI
@@ -558,7 +560,7 @@ class npc_pummeller : public CreatureScript
                 _trampleTimer = TIMER_TRAMPLE;
                 _uppercutTimer = TIMER_UPPERCUT;
 
-                if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
+                if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                 {
                     Position pos;
                     xt002->GetPosition(&pos);
@@ -644,7 +646,7 @@ class npc_boombot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_boombotAI(creature);
+            return GetInstanceAI<npc_boombotAI>(creature);
         }
 
         struct npc_boombotAI : public ScriptedAI
@@ -667,7 +669,7 @@ class npc_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
                 /// @todo proper waypoints?
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(DATA_XT002)))
+                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
@@ -924,7 +926,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(DATA_XT002));
+                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(BOSS_XT002));
                             }
                         }
                     }

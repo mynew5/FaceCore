@@ -82,7 +82,7 @@ namespace
             player->ADD_GOSSIP_ITEM(7, PREV_PAGE, GOSSIP_PREV_PAGEC, 0);
 
         VCatDest_t i (PageC[player] * NB_ITEM_PAGE);
-        for ( ; i < TabCatDest.size() && i < (NB_ITEM_PAGE * (PageC[player] + 1)); ++i)
+        for (; i < TabCatDest.size() && i < (NB_ITEM_PAGE * (PageC[player] + 1)); ++i)
         {
             if (TabCatDest[i].IsAllowedToTeleport(player))
                 player->ADD_GOSSIP_ITEM(7, TabCatDest[i].GetName(player->IsGameMaster()).c_str(), GOSSIP_SHOW_DEST, i);
@@ -101,7 +101,7 @@ namespace
             player->ADD_GOSSIP_ITEM(7, PREV_PAGE, GOSSIP_PREV_PAGED, 0);
 
         CatDest::VDest_t i (PageD[player] * NB_ITEM_PAGE);
-        for ( ; i < TabCatDest[Cat[player]].size() && i < (NB_ITEM_PAGE * (PageD[player] + 1)); ++i)
+        for (; i < TabCatDest[Cat[player]].size() && i < (NB_ITEM_PAGE * (PageD[player] + 1)); ++i)
         {
             player->ADD_GOSSIP_ITEM(5, TabCatDest[Cat[player]].GetDest(i).m_name.c_str(), GOSSIP_TELEPORT, i);
         }
@@ -123,14 +123,14 @@ namespace
         if (player->getLevel() < dest.m_level && !player->IsGameMaster())
         {
             std::string msg ("You do not have the required level. This destination requires level " + ConvertStr(dest.m_level) + ".");
-            creature->MonsterWhisper(msg.c_str(), player->GetGUID());
+            creature->MonsterWhisper(msg.c_str(), player);
             return;
         }
 
         if (player->GetMoney() < dest.m_cost && !player->IsGameMaster())
         {
             std::string msg ("You do not have enough money. The price for teleportation is " + ConvertMoney(dest.m_cost) + ".");
-            creature->MonsterWhisper(msg.c_str(), player->GetGUID());
+            creature->MonsterWhisper(msg.c_str(), player);
             return;
         }
 
@@ -150,10 +150,10 @@ bool OnGossipHello(Player *player, Creature *creature)
 {
     PageC(player) = PageD(player) = Cat(player) = 0;
 
-    if(player->IsInCombat())
+    if (player->IsInCombat())
     {
         player->CLOSE_GOSSIP_MENU();
-        creature->MonsterWhisper("You are in combat. Come back later", player->GetGUID());
+        creature->MonsterWhisper("You are in combat. Come back later", player);
         return true;
     }
     AffichCat(player, creature);
@@ -163,7 +163,7 @@ bool OnGossipHello(Player *player, Creature *creature)
 bool OnGossipSelect(Player *player, Creature *creature, uint32 sender, uint32 param)
 {
     player->PlayerTalkClass->ClearMenus();
-    switch(sender)
+    switch (sender)
     {
       // Display destinations
       case GOSSIP_SHOW_DEST:
@@ -203,7 +203,7 @@ bool OnGossipSelect(Player *player, Creature *creature, uint32 sender, uint32 pa
       // Teleportation
       case GOSSIP_TELEPORT:
         player->CLOSE_GOSSIP_MENU();
-        if(player->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,0)) {
+        if (player->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,0)) {
             creature->CastSpell(player,38588,false); // Healing effect
             player->RemoveAurasDueToSpell(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS);
         }

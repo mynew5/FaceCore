@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,8 +109,7 @@ class boss_alar : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ALAREVENT, NOT_STARTED);
+                instance->SetData(DATA_ALAREVENT, NOT_STARTED);
 
                 Berserk_Timer = 1200000;
                 Platforms_Move_Timer = 0;
@@ -136,8 +135,7 @@ class boss_alar : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ALAREVENT, IN_PROGRESS);
+                instance->SetData(DATA_ALAREVENT, IN_PROGRESS);
 
                 me->SetDisableGravity(true); // after enterevademode will be set walk movement
                 DoZoneInCombat();
@@ -146,8 +144,7 @@ class boss_alar : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_ALAREVENT, DONE);
+                instance->SetData(DATA_ALAREVENT, DONE);
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
@@ -157,7 +154,7 @@ class boss_alar : public CreatureScript
                         summon->AI()->AttackStart(target);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
             void AttackStart(Unit* who) OVERRIDE
             {
@@ -408,7 +405,7 @@ class boss_alar : public CreatureScript
                             if (Summoned)
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                Summoned->SetObjectScale(Summoned->GetFloatValue(OBJECT_FIELD_SCALE_X)*2.5f);
+                                Summoned->SetObjectScale(Summoned->GetObjectScale() * 2.5f);
                                 Summoned->SetDisplayId(11686);
                                 Summoned->setFaction(me->getFaction());
                                 Summoned->SetLevel(me->getLevel());
@@ -426,7 +423,7 @@ class boss_alar : public CreatureScript
 
             void DoMeleeAttackIfReady()
             {
-                if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
+                if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
                 {
                     if (me->IsWithinMeleeRange(me->GetVictim()))
                     {
@@ -451,7 +448,7 @@ class boss_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_alarAI(creature);
+            return GetInstanceAI<boss_alarAI>(creature);
         }
 };
 
@@ -487,7 +484,7 @@ class npc_ember_of_alar : public CreatureScript
                 me->setDeathState(JUST_DIED);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage) OVERRIDE
+            void DamageTaken(Unit* killer, uint32& damage) OVERRIDE
             {
                 if (damage >= me->GetHealth() && killer != me && !toDie)
                 {
@@ -495,7 +492,7 @@ class npc_ember_of_alar : public CreatureScript
                     DoCast(me, SPELL_EMBER_BLAST, true);
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    if (instance && instance->GetData(DATA_ALAREVENT) == 2)
+                    if (instance->GetData(DATA_ALAREVENT) == 2)
                     {
                         if (Unit* Alar = Unit::GetUnit(*me, instance->GetData64(DATA_ALAR)))
                         {
@@ -528,7 +525,7 @@ class npc_ember_of_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_ember_of_alarAI(creature);
+            return GetInstanceAI<npc_ember_of_alarAI>(creature);
         }
 };
 
@@ -539,13 +536,13 @@ class npc_flame_patch_alar : public CreatureScript
 
         struct npc_flame_patch_alarAI : public ScriptedAI
         {
-            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
-            void Reset() OVERRIDE {}
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
-            void AttackStart(Unit* /*who*/) OVERRIDE {}
-            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+            npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) { }
+            void Reset() OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void AttackStart(Unit* /*who*/) OVERRIDE { }
+            void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE

@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "WorldPacket.h"
 #include "Opcodes.h"
+#include "Chat.h"
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -54,9 +55,9 @@ public:
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
-        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -80,7 +81,7 @@ public:
             ArchiYell          = false;
         }
 
-        bool IsEncounterInProgress() const
+        bool IsEncounterInProgress() const OVERRIDE
         {
             for (uint8 i = 0; i < EncounterCount; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -89,7 +90,7 @@ public:
             return false;
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -113,7 +114,7 @@ public:
             }
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -185,8 +186,8 @@ public:
                                     {
                                          if (i->GetSource())
                                          {
-                                            WorldPacket packet(SMSG_MESSAGECHAT, 200);
-                                            unit->BuildMonsterChat(&packet, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->GetSource()->GetGUID());
+                                            WorldPacket packet;
+                                            ChatHandler::BuildChatPacket(packet, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, unit, i->GetSource(), YELL_EFFORTS);
                                             i->GetSource()->GetSession()->SendPacket(&packet);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);
@@ -245,7 +246,7 @@ public:
                     break;
             }
 
-             TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Hyjal: Instance data updated for event %u (Data=%u)", type, data);
+             TC_LOG_DEBUG("scripts", "Instance Hyjal: Instance data updated for event %u (Data=%u)", type, data);
 
             if (data == DONE)
             {
@@ -282,12 +283,12 @@ public:
             return 0;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             return str_data;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,7 +63,7 @@ public:
 
     struct npc_spirit_of_olumAI : public ScriptedAI
     {
-        npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) { }
 
         void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
         {
@@ -207,7 +207,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_wrathbone_flayerAI(creature);
+        return GetInstanceAI<npc_wrathbone_flayerAI>(creature);
     }
 };
 

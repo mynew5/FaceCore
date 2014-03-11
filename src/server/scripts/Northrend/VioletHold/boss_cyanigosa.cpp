@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,7 +50,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_cyanigosaAI(creature);
+        return GetInstanceAI<boss_cyanigosaAI>(creature);
     }
 
     struct boss_cyanigosaAI : public ScriptedAI
@@ -75,24 +75,22 @@ public:
             uiManaDestructionTimer = 30000;
             uiTailSweepTimer = 20000;
             uiUncontrollableEnergyTimer = 25000;
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+            instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
+            if (instance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
                 instance->SetData(DATA_REMOVE_NPC, 0);
@@ -144,8 +142,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
+            instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim) OVERRIDE

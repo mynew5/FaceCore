@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@ EndScriptData */
 enum Supremus
 {
     EMOTE_NEW_TARGET            = 0,
-    EMOTE_PUNCH_GROUND          = 1,                //Talk(EMOTE_PUNCH_GROUND);
+    EMOTE_PUNCH_GROUND          = 1,
     EMOTE_GROUND_CRACK          = 2,
 
     //Spells
@@ -70,7 +70,7 @@ public:
 
     struct molten_flameAI : public NullCreatureAI
     {
-        molten_flameAI(Creature* creature) : NullCreatureAI(creature) {}
+        molten_flameAI(Creature* creature) : NullCreatureAI(creature) { }
 
         void InitializeAI() OVERRIDE
         {
@@ -90,7 +90,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_supremusAI(creature);
+        return GetInstanceAI<boss_supremusAI>(creature);
     }
 
     struct boss_supremusAI : public ScriptedAI
@@ -107,15 +107,8 @@ public:
 
         void Reset() OVERRIDE
         {
-            if (instance)
-            {
-                if (me->IsAlive())
-                {
-                    instance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
-                    //ToggleDoors(true);
-                }
-                //else ToggleDoors(false);
-            }
+            if (me->IsAlive())
+                instance->SetBossState(DATA_SUPREMUS, NOT_STARTED);
 
             phase = 0;
 
@@ -125,8 +118,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_SUPREMUS, IN_PROGRESS);
 
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
@@ -162,11 +154,8 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-            {
-                instance->SetData(DATA_SUPREMUSEVENT, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
-            }
+            instance->SetBossState(DATA_SUPREMUS, DONE);
+
             summons.DespawnAll();
         }
 
@@ -289,9 +278,9 @@ public:
         }
         uint32 wait;
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void DoAction(int32 /*info*/) OVERRIDE

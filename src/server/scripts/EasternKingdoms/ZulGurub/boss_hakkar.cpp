@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,11 +66,11 @@ enum Events
 
 class boss_hakkar : public CreatureScript
 {
-    public: boss_hakkar() : CreatureScript("boss_hakkar") {}
+    public: boss_hakkar() : CreatureScript("boss_hakkar") { }
 
         struct boss_hakkarAI : public BossAI
         {
-            boss_hakkarAI(Creature* creature) : BossAI(creature, DATA_HAKKAR) {}
+            boss_hakkarAI(Creature* creature) : BossAI(creature, DATA_HAKKAR) { }
 
             void Reset() OVERRIDE
             {
@@ -169,7 +169,7 @@ class boss_hakkar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_hakkarAI(creature);
+            return GetInstanceAI<boss_hakkarAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -105,7 +105,7 @@ class boss_auriaya : public CreatureScript
 
         struct boss_auriayaAI : public BossAI
         {
-            boss_auriayaAI(Creature* creature) : BossAI(creature, DATA_AURIAYA)
+            boss_auriayaAI(Creature* creature) : BossAI(creature, BOSS_AURIAYA)
             {
             }
 
@@ -305,7 +305,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
             void UpdateAI(uint32 /*diff*/) OVERRIDE
             {
-                if (instance->GetBossState(DATA_AURIAYA) != IN_PROGRESS)
+                if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
 
@@ -315,7 +315,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_auriaya_seeping_triggerAI(creature);
+            return GetInstanceAI<npc_auriaya_seeping_triggerAI>(creature);
         }
 };
 
@@ -379,7 +379,7 @@ class npc_sanctum_sentry : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
             }
 
@@ -390,7 +390,7 @@ class npc_sanctum_sentry : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_sanctum_sentryAI(creature);
+            return GetInstanceAI<npc_sanctum_sentryAI>(creature);
         }
 };
 
@@ -455,7 +455,7 @@ class npc_feral_defender : public CreatureScript
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AURIAYA)))
+                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
             }
 
@@ -466,7 +466,7 @@ class npc_feral_defender : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_feral_defenderAI(creature);
+            return GetInstanceAI<npc_feral_defenderAI>(creature);
         }
 };
 

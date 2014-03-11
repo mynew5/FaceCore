@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,9 +31,11 @@ enum PriestSpells
 {
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
+    SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
+    SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
@@ -50,6 +52,82 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT           = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+};
+
+class PowerCheck
+{
+    public:
+        explicit PowerCheck(Powers const power) : _power(power) { }
+
+        bool operator()(WorldObject* obj) const
+        {
+            if (Unit* target = obj->ToUnit())
+                return target->getPowerType() != _power;
+
+            return true;
+        }
+
+    private:
+        Powers const _power;
+};
+
+class RaidCheck
+{
+    public:
+        explicit RaidCheck(Unit const* caster) : _caster(caster) { }
+
+        bool operator()(WorldObject* obj) const
+        {
+            if (Unit* target = obj->ToUnit())
+                return !_caster->IsInRaidWith(target);
+
+            return true;
+        }
+
+    private:
+        Unit const* _caster;
+};
+
+// -34861 - Circle of Healing
+class spell_pri_circle_of_healing : public SpellScriptLoader
+{
+    public:
+        spell_pri_circle_of_healing() : SpellScriptLoader("spell_pri_circle_of_healing") { }
+
+        class spell_pri_circle_of_healing_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_circle_of_healing_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(RaidCheck(GetCaster()));
+
+                uint32 const maxTargets = GetCaster()->HasAura(SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING) ? 6 : 5; // Glyph of Circle of Healing
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pri_circle_of_healing_SpellScript();
+        }
 };
 
 // -47509 - Divine Aegis
@@ -102,6 +180,41 @@ class spell_pri_divine_aegis : public SpellScriptLoader
         }
 };
 
+// 64844 - Divine Hymn
+class spell_pri_divine_hymn : public SpellScriptLoader
+{
+    public:
+        spell_pri_divine_hymn() : SpellScriptLoader("spell_pri_divine_hymn") { }
+
+        class spell_pri_divine_hymn_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_divine_hymn_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(RaidCheck(GetCaster()));
+
+                uint32 const maxTargets = 3;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pri_divine_hymn_SpellScript();
+        }
+};
+
 // 55680 - Glyph of Prayer of Healing
 class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
 {
@@ -140,7 +253,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
         }
 };
 
-// -47788 - Guardian Spirit
+// 47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public SpellScriptLoader
 {
     public:
@@ -197,6 +310,77 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         }
 };
 
+// 64904 - Hymn of Hope
+class spell_pri_hymn_of_hope : public SpellScriptLoader
+{
+    public:
+        spell_pri_hymn_of_hope() : SpellScriptLoader("spell_pri_hymn_of_hope") { }
+
+        class spell_pri_hymn_of_hope_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_hymn_of_hope_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(PowerCheck(POWER_MANA));
+                targets.remove_if(RaidCheck(GetCaster()));
+
+                uint32 const maxTargets = 3;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::PowerPctOrderPred(POWER_MANA));
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_hymn_of_hope_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pri_hymn_of_hope_SpellScript();
+        }
+};
+
+// 37594 - Greater Heal Refund
+class spell_pri_item_greater_heal_refund : public SpellScriptLoader
+{
+    public:
+        spell_pri_item_greater_heal_refund() : SpellScriptLoader("spell_pri_item_greater_heal_refund") { }
+
+        class spell_pri_item_greater_heal_refund_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_item_greater_heal_refund_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ITEM_EFFICIENCY))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_ITEM_EFFICIENCY, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_item_greater_heal_refund_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pri_item_greater_heal_refund_AuraScript();
+        }
+};
+
 // -7001 - Lightwell Renew
 class spell_pri_lightwell_renew : public SpellScriptLoader
 {
@@ -229,7 +413,7 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
         }
 };
 
-// -8129 - Mana Burn
+// 8129 - Mana Burn
 class spell_pri_mana_burn : public SpellScriptLoader
 {
     public:
@@ -382,13 +566,15 @@ class spell_pri_penance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1))
-                    return false;
-                // can't use other spell than this penance due to spell_ranks dependency
-                if (sSpellMgr->GetFirstSpellInChain(SPELL_PRIEST_PENANCE_R1) != sSpellMgr->GetFirstSpellInChain(spellInfo->Id))
+                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1);
+                if (!firstRankSpellInfo)
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spellInfo->Id);
+                // can't use other spell than this penance due to spell_ranks dependency
+                if (!spellInfo->IsRankOf(firstRankSpellInfo))
+                    return false;
+
+                uint8 rank = spellInfo->GetRank();
                 if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank, true))
                     return false;
                 if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank, true))
@@ -405,12 +591,12 @@ class spell_pri_penance : public SpellScriptLoader
                     if (!unitTarget->IsAlive())
                         return;
 
-                    uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                    uint8 rank = GetSpellInfo()->GetRank();
 
                     if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
                     else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
                 }
             }
 
@@ -491,12 +677,11 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 if (dmgInfo.GetAttacker() == target)
                     return;
 
-                if (Unit* caster = GetCaster())
-                    if (AuraEffect* talentAurEff = caster->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
-                    {
-                        int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                        target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-                    }
+                if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
+                {
+                    int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
+                    target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                }
             }
 
             void Register() OVERRIDE
@@ -633,7 +818,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL))
                     return false;
@@ -666,9 +851,13 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_circle_of_healing();
     new spell_pri_divine_aegis();
+    new spell_pri_divine_hymn();
     new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_guardian_spirit();
+    new spell_pri_hymn_of_hope();
+    new spell_pri_item_greater_heal_refund();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
     new spell_pri_mana_leech();

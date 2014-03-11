@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -64,7 +64,7 @@ public:
 
     struct npc_shenthulAI : public ScriptedAI
     {
-        npc_shenthulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shenthulAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool CanTalk;
         bool CanEmote;
@@ -81,7 +81,7 @@ public:
             PlayerGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -89,7 +89,7 @@ public:
             {
                 if (ResetTimer <= diff)
                 {
-                    if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     {
                         if (player->GetTypeId() == TYPEID_PLAYER && player->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE)
                             player->FailQuest(QUEST_SHATTERED_SALUTE);
@@ -211,7 +211,7 @@ public:
 
     struct npc_thrall_warchiefAI : public ScriptedAI
     {
-        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ChainLightningTimer;
         uint32 ShockTimer;
@@ -222,7 +222,7 @@ public:
             ShockTimer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,15 +34,15 @@ class instance_ramparts : public InstanceMapScript
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            void Initialize()
+            void Initialize() OVERRIDE
             {
                 SetBossNumber(EncounterCount);
                 felIronChestGUID = 0;
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -53,7 +53,7 @@ class instance_ramparts : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -72,7 +72,7 @@ class instance_ramparts : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() OVERRIDE
             {
                 OUT_SAVE_INST_DATA;
 
@@ -83,7 +83,7 @@ class instance_ramparts : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* strIn)
+            void Load(const char* strIn) OVERRIDE
             {
                 if (!strIn)
                 {
@@ -106,7 +106,8 @@ class instance_ramparts : public InstanceMapScript
                         loadStream >> tmpState;
                         if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                             tmpState = NOT_STARTED;
-                            SetBossState(i, EncounterState(tmpState));
+
+                        SetBossState(i, EncounterState(tmpState));
                     }
                 }
                 else
@@ -120,7 +121,7 @@ class instance_ramparts : public InstanceMapScript
                 bool spawned;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_ramparts_InstanceMapScript(map);
         }

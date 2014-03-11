@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -70,7 +70,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_medivh_bmAI(creature);
+        return GetInstanceAI<npc_medivh_bmAI>(creature);
     }
 
     struct npc_medivh_bmAI : public ScriptedAI
@@ -92,9 +92,10 @@ public:
         void Reset() OVERRIDE
         {
             SpellCorrupt_Timer = 0;
-
-            if (!instance)
-                return;
+            Check_Timer = 0;
+            Life75 = true;
+            Life50 = true;
+            Life25 = true;
 
             if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 DoCast(me, SPELL_CHANNEL, true);
@@ -105,11 +106,7 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
-            if (!instance)
-                return;
-
             if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS || instance->GetData(TYPE_MEDIVH) == DONE)
@@ -141,13 +138,13 @@ public:
 
         void AttackStart(Unit* /*who*/) OVERRIDE
         {
-            //if (instance && instance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
-            //return;
+            //if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
+            //    return;
 
             //ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
         {
@@ -171,9 +168,6 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (SpellCorrupt_Timer)
             {
                 if (SpellCorrupt_Timer <= diff)
@@ -264,7 +258,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_time_riftAI(creature);
+        return GetInstanceAI<npc_time_riftAI>(creature);
     }
 
     struct npc_time_riftAI : public ScriptedAI
@@ -287,9 +281,6 @@ public:
             TimeRiftWave_Timer = 15000;
             mRiftWaveCount = 0;
 
-            if (!instance)
-                return;
-
             mPortalCount = instance->GetData(DATA_PORTAL_COUNT);
 
             if (mPortalCount < 6)
@@ -299,14 +290,14 @@ public:
             else mWaveId = 1;
 
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void DoSummonAtRift(uint32 creature_entry)
         {
             if (!creature_entry)
                 return;
 
-            if (instance && instance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
+            if (instance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
             {
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAllAuras();
@@ -320,7 +311,7 @@ public:
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
             if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
-                if (Unit* temp = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_MEDIVH) : 0))
+                if (Unit* temp = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_MEDIVH)))
                     Summon->AddThreat(temp, 0.0f);
         }
 
@@ -332,7 +323,7 @@ public:
             uint32 entry = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
+            TC_LOG_DEBUG("scripts", "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
 
             ++mRiftWaveCount;
 
@@ -345,19 +336,16 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (!instance)
-                return;
-
             if (TimeRiftWave_Timer <= diff)
             {
                 DoSelectSummon();
                 TimeRiftWave_Timer = 15000;
             } else TimeRiftWave_Timer -= diff;
 
-            if (me->IsNonMeleeSpellCasted(false))
+            if (me->IsNonMeleeSpellCast(false))
                 return;
 
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_time_rift: not casting anylonger, i need to die.");
+            TC_LOG_DEBUG("scripts", "npc_time_rift: not casting anylonger, i need to die.");
             me->setDeathState(JUST_DIED);
 
             if (instance->GetData(TYPE_RIFT) == IN_PROGRESS)

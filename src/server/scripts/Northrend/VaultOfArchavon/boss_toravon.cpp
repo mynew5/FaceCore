@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -128,7 +128,7 @@ class npc_frost_warder : public CreatureScript
 
         struct npc_frost_warderAI : public ScriptedAI
         {
-            npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() OVERRIDE
             {
@@ -241,7 +241,7 @@ class npc_frozen_orb_stalker : public CreatureScript
             npc_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 creature->SetVisible(false);
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                 creature->SetReactState(REACT_PASSIVE);
 
                 instance = creature->GetInstanceScript();
@@ -256,7 +256,7 @@ class npc_frozen_orb_stalker : public CreatureScript
                     return;
 
                 spawned = true;
-                Unit* toravon = me->GetCreature(*me, instance ? instance->GetData64(DATA_TORAVON) : 0);
+                Unit* toravon = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TORAVON));
                 if (!toravon)
                     return;
 
@@ -277,7 +277,7 @@ class npc_frozen_orb_stalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_frozen_orb_stalkerAI(creature);
+            return GetInstanceAI<npc_frozen_orb_stalkerAI>(creature);
         }
 };
 

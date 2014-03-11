@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -267,7 +267,7 @@ class boss_freya : public CreatureScript
 
         struct boss_freyaAI : public BossAI
         {
-            boss_freyaAI(Creature* creature) : BossAI(creature, DATA_FREYA) { }
+            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA) { }
 
             uint64 ElementalGUID[3][2];
 
@@ -329,7 +329,7 @@ class boss_freya : public CreatureScript
                 Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
                 {
-                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRIGHTLEAF + n));
+                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
                     if (Elder[n] && Elder[n]->IsAlive())
                     {
                         me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
@@ -433,7 +433,7 @@ class boss_freya : public CreatureScript
                         case EVENT_STRENGTHENED_IRON_ROOTS:
                             Talk(EMOTE_IRON_ROOTS);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_ROOTS_FREYA))
-                                target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be casted by Target self
+                                target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be cast by Target self
                             events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(12000, 20000));
                             break;
                         case EVENT_GROUND_TREMOR:
@@ -604,7 +604,7 @@ class boss_freya : public CreatureScript
                 Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
                 {
-                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRIGHTLEAF + n));
+                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
                     if (Elder[n] && Elder[n]->IsAlive())
                     {
                         Elder[n]->RemoveAllAuras();
@@ -677,7 +677,7 @@ class boss_elder_brightleaf : public CreatureScript
 
         struct boss_elder_brightleafAI : public BossAI
         {
-            boss_elder_brightleafAI(Creature* creature) : BossAI(creature, DATA_BRIGHTLEAF)
+            boss_elder_brightleafAI(Creature* creature) : BossAI(creature, BOSS_BRIGHTLEAF)
             {
             }
 
@@ -706,10 +706,10 @@ class boss_elder_brightleaf : public CreatureScript
 
                 if (killer->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IRONBRANCH)))
+                    if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
 
-                    if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STONEBARK)))
+                    if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_STONEBARK)))
                         Stonebark->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
             }
@@ -798,7 +798,7 @@ class boss_elder_stonebark : public CreatureScript
 
         struct boss_elder_stonebarkAI : public BossAI
         {
-            boss_elder_stonebarkAI(Creature* creature) : BossAI(creature, DATA_STONEBARK)
+            boss_elder_stonebarkAI(Creature* creature) : BossAI(creature, BOSS_STONEBARK)
             {
             }
 
@@ -827,10 +827,10 @@ class boss_elder_stonebark : public CreatureScript
 
                 if (killer->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IRONBRANCH)))
+                    if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
 
-                    if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRIGHTLEAF)))
+                    if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF)))
                         Brightleaf->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
             }
@@ -925,7 +925,7 @@ class boss_elder_ironbranch : public CreatureScript
 
         struct boss_elder_ironbranchAI : public BossAI
         {
-            boss_elder_ironbranchAI(Creature* creature) : BossAI(creature, DATA_IRONBRANCH)
+            boss_elder_ironbranchAI(Creature* creature) : BossAI(creature, BOSS_IRONBRANCH)
             {
             }
 
@@ -954,10 +954,10 @@ class boss_elder_ironbranch : public CreatureScript
 
                 if (killer->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BRIGHTLEAF)))
+                    if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF)))
                         Brightleaf->AI()->DoAction(ACTION_ELDER_DEATH);
 
-                    if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_STONEBARK)))
+                    if (Creature* Stonebark = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_STONEBARK)))
                         Stonebark->AI()->DoAction(ACTION_ELDER_DEATH);
                 }
             }
@@ -1100,7 +1100,7 @@ class npc_ancient_water_spirit : public CreatureScript
             npc_ancient_water_spiritAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                     waveCount = CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
             }
 
@@ -1131,7 +1131,7 @@ class npc_ancient_water_spirit : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                 {
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(1);
@@ -1146,7 +1146,7 @@ class npc_ancient_water_spirit : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_ancient_water_spiritAI(creature);
+            return GetInstanceAI<npc_ancient_water_spiritAI>(creature);
         }
 };
 
@@ -1160,7 +1160,7 @@ class npc_storm_lasher : public CreatureScript
             npc_storm_lasherAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                     waveCount = CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
             }
 
@@ -1197,7 +1197,7 @@ class npc_storm_lasher : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                 {
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(2);
@@ -1213,7 +1213,7 @@ class npc_storm_lasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_storm_lasherAI(creature);
+            return GetInstanceAI<npc_storm_lasherAI>(creature);
         }
 };
 
@@ -1227,7 +1227,7 @@ class npc_snaplasher : public CreatureScript
             npc_snaplasherAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                     waveCount = CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
             }
 
@@ -1244,7 +1244,7 @@ class npc_snaplasher : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                 {
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
                     CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(4);
@@ -1258,7 +1258,7 @@ class npc_snaplasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_snaplasherAI(creature);
+            return GetInstanceAI<npc_snaplasherAI>(creature);
         }
 };
 
@@ -1522,7 +1522,7 @@ class npc_unstable_sun_beam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_unstable_sun_beamAI(creature);
+            return GetInstanceAI<npc_unstable_sun_beamAI>(creature);
         }
 };
 

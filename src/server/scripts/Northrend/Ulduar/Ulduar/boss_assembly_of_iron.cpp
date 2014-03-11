@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Assembly of Iron encounter
+SD%Complete: 60%
+SDComment: chain lightning won't cast, supercharge don't work (auras don't stack from different casters)
+SDCategory: Ulduar - Ulduar
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -132,7 +139,7 @@ class boss_steelbreaker : public CreatureScript
 
         struct boss_steelbreakerAI : public BossAI
         {
-            boss_steelbreakerAI(Creature* creature) : BossAI(creature, DATA_ASSEMBLY_OF_IRON) { }
+            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
 
             uint32 phase;
 
@@ -185,7 +192,7 @@ class boss_steelbreaker : public CreatureScript
             {
                 _JustDied();
 
-                if (instance->GetBossState(DATA_ASSEMBLY_OF_IRON) == DONE)
+                if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
                 {
                     DoCastAOE(SPELL_KILL_CREDIT, true);
                     Talk(SAY_STEELBREAKER_ENCOUNTER_DEFEATED);
@@ -269,7 +276,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
         struct boss_runemaster_molgeimAI : public BossAI
         {
-            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, DATA_ASSEMBLY_OF_IRON) { }
+            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
 
             uint32 phase;
 
@@ -322,7 +329,7 @@ class boss_runemaster_molgeim : public CreatureScript
             {
                 _JustDied();
 
-                if (instance->GetBossState(DATA_ASSEMBLY_OF_IRON) == DONE)
+                if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
                 {
                     DoCastAOE(SPELL_KILL_CREDIT, true);
                     Talk(SAY_MOLGEIM_ENCOUNTER_DEFEATED);
@@ -426,7 +433,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
         struct boss_stormcaller_brundirAI : public BossAI
         {
-            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, DATA_ASSEMBLY_OF_IRON) { }
+            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
 
             uint32 phase;
 
@@ -487,7 +494,7 @@ class boss_stormcaller_brundir : public CreatureScript
             {
                 _JustDied();
 
-                if (instance->GetBossState(DATA_ASSEMBLY_OF_IRON) == DONE)
+                if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
                 {
                     DoCastAOE(SPELL_KILL_CREDIT, true);
                     Talk(SAY_BRUNDIR_ENCOUNTER_DEFEATED);

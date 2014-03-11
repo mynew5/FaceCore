@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,7 +92,8 @@ enum CreaturesIds
     CREATURE_CYANIGOSA                              = 31134,
     CREATURE_SINCLARI                               = 30658,
     CREATURE_SABOTEOUR                              = 31079,
-    NPC_VIOLET_HOLD_GUARD                           = 30659
+    NPC_VIOLET_HOLD_GUARD                           = 30659,
+    NPC_DEFENSE_SYSTEM                              = 30837
 };
 
 enum WorldStateIds
@@ -100,6 +101,11 @@ enum WorldStateIds
     WORLD_STATE_VH              = 3816,
     WORLD_STATE_VH_PRISON_STATE = 3815,
     WORLD_STATE_VH_WAVE_COUNT   = 3810,
+};
+
+enum Events
+{
+    EVENT_ACTIVATE_CRYSTAL = 20001
 };
 
 #endif

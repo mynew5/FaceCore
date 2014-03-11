@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,32 @@
 #include "DBCStores.h"
 #include "Item.h"
 #include "AccountMgr.h"
+
+bool WorldSession::CanOpenMailBox(uint64 guid)
+{
+    if (guid == _player->GetGUID())
+    {
+        if (!HasPermission(rbac::RBAC_PERM_COMMAND_MAILBOX))
+        {
+            TC_LOG_WARN("cheat", "%s attempt open mailbox in cheating way.", _player->GetName().c_str());
+            return false;
+        }
+    }
+    else if (IS_GAMEOBJECT_GUID(guid))
+    {
+        if (!_player->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_MAILBOX))
+            return false;
+    }
+    else if (IS_CRE_OR_VEH_OR_PET_GUID(guid))
+    {
+        if (!_player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_MAILBOX))
+            return false;
+    }
+    else
+        return false;
+
+    return true;
+}
 
 void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
@@ -62,9 +88,8 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     // packet read complete, now do check
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     if (receiverName.empty())
         return;
@@ -83,7 +108,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (!receiverGuid)
     {
-        TC_LOG_INFO(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s "
+        TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: not existed!) with subject %s "
             "and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
             player->GetGUIDLow(), receiverName.c_str(), subject.c_str(), body.c_str(),
             items_count, money, COD, unk1, unk2);
@@ -91,7 +116,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         return;
     }
 
-    TC_LOG_INFO(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s "
+    TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s "
         "includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
         player->GetGUIDLow(), receiverName.c_str(), GUID_LOPART(receiverGuid), subject.c_str(),
         body.c_str(), items_count, money, COD, unk1, unk2);
@@ -175,7 +200,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
-    if (!accountBound && player->GetTeam() != receiverTeam && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_MAIL))
+    if (!accountBound && player->GetTeam() != receiverTeam && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_MAIL))
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
         return;
@@ -252,7 +277,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (items_count > 0 || money > 0)
     {
-        bool log = HasPermission(RBAC_PERM_LOG_GM_TRADE);
+        bool log = HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE);
         if (items_count > 0)
         {
             for (uint8 i = 0; i < items_count; ++i)
@@ -308,9 +333,8 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
     recvData >> mailbox;
     recvData >> mailId;
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     Player* player = _player;
     Mail* m = player->GetMail(mailId);
@@ -333,9 +357,8 @@ void WorldSession::HandleMailDelete(WorldPacket& recvData)
     recvData >> mailId;
     recvData.read_skip<uint32>();                          // mailTemplateId
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     Mail* m = _player->GetMail(mailId);
     Player* player = _player;
@@ -362,9 +385,8 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
     recvData >> mailId;
     recvData.read_skip<uint64>();                          // original sender GUID for return to, not used
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     Player* player = _player;
     Mail* m = player->GetMail(mailId);
@@ -428,9 +450,8 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     recvData >> mailId;
     recvData >> itemId;                                    // item guid low
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     Player* player = _player;
 
@@ -465,7 +486,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
             uint32 sender_accId = 0;
 
-            if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
+            if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
             {
                 std::string sender_name;
                 if (receiver)
@@ -523,9 +544,8 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
     recvData >> mailbox;
     recvData >> mailId;
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     Player* player = _player;
 
@@ -561,9 +581,8 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
     uint64 mailbox;
     recvData >> mailbox;
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     Player* player = _player;
 
@@ -685,9 +704,8 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     recvData >> mailbox;
     recvData >> mailId;
 
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(mailbox, UNIT_NPC_FLAG_MAILBOX))
-            return;
+    if (!CanOpenMailBox(mailbox))
+        return;
 
     Player* player = _player;
 
@@ -723,7 +741,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
-    TC_LOG_INFO(LOG_FILTER_NETWORKIO, "HandleMailCreateTextItem mailid=%u", mailId);
+    TC_LOG_INFO("network", "HandleMailCreateTextItem mailid=%u", mailId);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);

@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -158,15 +158,11 @@ public:
 
             PerformanceReady = false;
 
-            if (instance)
-                m_uiEventId = instance->GetData(DATA_OPERA_PERFORMANCE);
+            m_uiEventId = instance->GetData(DATA_OPERA_PERFORMANCE);
         }
 
         void StartEvent()
         {
-            if (!instance)
-                return;
-
             instance->SetData(TYPE_OPERA, IN_PROGRESS);
 
             //resets count for this event, in case earlier failed
@@ -176,13 +172,10 @@ public:
             Start(false, false);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
-            if (!instance)
-                return;
-
             switch (waypointId)
             {
                 case 0:
@@ -247,7 +240,7 @@ public:
 
         void PrepareEncounter()
         {
-            TC_LOG_DEBUG(LOG_FILTER_TSCR, "Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
+            TC_LOG_DEBUG("scripts", "Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
             uint8 index = 0;
             uint8 count = 0;
 
@@ -361,17 +354,17 @@ public:
             case GOSSIP_ACTION_INFO_DEF+3:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_OZ;
-                TC_LOG_INFO(LOG_FILTER_TSCR, "player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
+                TC_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_HOOD;
-                TC_LOG_INFO(LOG_FILTER_TSCR, "player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
+                TC_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_RAJ;
-                TC_LOG_INFO(LOG_FILTER_TSCR, "player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
+                TC_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
                 break;
         }
 
@@ -412,7 +405,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_barnesAI(creature);
+        return GetInstanceAI<npc_barnesAI>(creature);
     }
 };
 
@@ -476,7 +469,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_image_of_medivhAI(creature);
+        return GetInstanceAI<npc_image_of_medivhAI>(creature);
     }
 
     struct npc_image_of_medivhAI : public ScriptedAI
@@ -500,19 +493,22 @@ public:
         void Reset() OVERRIDE
         {
             ArcanagosGUID = 0;
+            EventStarted = false;
+            YellTimer = 0;
 
-            if (instance && instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
+            if (instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
             {
                 instance->SetData64(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
                 (*me).GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);
                 Step = 0;
-            }else
+            }
+            else
             {
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();
             }
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
@@ -535,7 +531,7 @@ public:
                 return;
             ArcanagosGUID = Arcanagos->GetGUID();
             Arcanagos->SetDisableGravity(true);
-            (*Arcanagos).GetMotionMaster()->MovePoint(0, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2]);
+            Arcanagos->GetMotionMaster()->MovePoint(0, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2]);
             Arcanagos->SetOrientation(ArcanagosPos[3]);
             me->SetOrientation(MedivPos[3]);
             YellTimer = 10000;
@@ -549,25 +545,25 @@ public:
             {
             case 0: return 9999999;
             case 1:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, NULL);
                 return 10000;
             case 2:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, NULL);
                 return 20000;
             case 3:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, NULL);
                 return 10000;
             case 4:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, NULL);
                 return 20000;
             case 5:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, NULL);
                 return 20000;
             case 6:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, NULL);
                 return 10000;
             case 7:
                 FireArcanagosTimer = 500;
@@ -577,7 +573,7 @@ public:
                 DoCast(me, SPELL_MANA_SHIELD);
                 return 10000;
             case 9:
-                me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
+                me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, NULL, false);
                 return 10000;
             case 10:
                 if (arca)
@@ -585,7 +581,7 @@ public:
                 return 1000;
             case 11:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, NULL);
                 return 5000;
             case 12:
                 arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
@@ -594,7 +590,7 @@ public:
                 arca->SetSpeed(MOVE_FLIGHT, 2.0f);
                 return 10000;
             case 13:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, NULL);
                 return 10000;
             case 14:
                 me->SetVisible(false);
@@ -614,7 +610,8 @@ public:
                 }
                 return 50000;
             case 15:
-                arca->DealDamage(arca, arca->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                if (arca)
+                    arca->DealDamage(arca, arca->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 return 5000;
             default : return 9999999;
             }

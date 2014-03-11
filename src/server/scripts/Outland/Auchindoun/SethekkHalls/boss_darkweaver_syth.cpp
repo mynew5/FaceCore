@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,14 +25,18 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "sethekk_halls.h"
 
-enum DarkweaverSyth
+enum Says
 {
     SAY_SUMMON                  = 0,
     SAY_AGGRO                   = 1,
     SAY_SLAY                    = 2,
-    SAY_DEATH                   = 3,
+    SAY_DEATH                   = 3
+};
 
+enum Spells
+{
     SPELL_FROST_SHOCK           = 21401, //37865
     SPELL_FLAME_SHOCK           = 34354,
     SPELL_SHADOW_SHOCK          = 30138,
@@ -51,40 +55,27 @@ enum DarkweaverSyth
     SPELL_SHADOW_BUFFET         = 33529
 };
 
+enum Events
+{
+    EVENT_FLAME_SHOCK           = 1,
+    EVENT_ARCANE_SHOCK          = 2,
+    EVENT_FROST_SHOCK           = 3,
+    EVENT_SHADOW_SHOCK          = 4,
+    EVENT_CHAIN_LIGHTNING       = 5
+};
+
 class boss_darkweaver_syth : public CreatureScript
 {
 public:
     boss_darkweaver_syth() : CreatureScript("boss_darkweaver_syth") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    struct boss_darkweaver_sythAI : public BossAI
     {
-        return new boss_darkweaver_sythAI(creature);
-    }
-
-    struct boss_darkweaver_sythAI : public ScriptedAI
-    {
-        boss_darkweaver_sythAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        uint32 flameshock_timer;
-        uint32 arcaneshock_timer;
-        uint32 frostshock_timer;
-        uint32 shadowshock_timer;
-        uint32 chainlightning_timer;
-
-        bool summon90;
-        bool summon50;
-        bool summon10;
+        boss_darkweaver_sythAI(Creature* creature) : BossAI(creature, DATA_DARKWEAVER_SYTH) { }
 
         void Reset() OVERRIDE
         {
-            flameshock_timer = 2000;
-            arcaneshock_timer = 4000;
-            frostshock_timer = 6000;
-            shadowshock_timer = 8000;
-            chainlightning_timer = 15000;
-
+            _Reset();
             summon90 = false;
             summon50 = false;
             summon10 = false;
@@ -92,20 +83,26 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
+            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
+            events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
+            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8000);
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15000);
+
             Talk(SAY_AGGRO);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
+            _JustDied();
             Talk(SAY_DEATH);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            if (rand()%2)
-                return;
-
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summoned) OVERRIDE
@@ -118,7 +115,7 @@ public:
         {
             Talk(SAY_SUMMON);
 
-            if (me->IsNonMeleeSpellCasted(false))
+            if (me->IsNonMeleeSpellCast(false))
                 me->InterruptNonMeleeSpells(false);
 
             DoCast(me, SPELL_SUMMON_SYTH_ARCANE, true);   //front
@@ -131,6 +128,42 @@ public:
         {
             if (!UpdateVictim())
                 return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_FLAME_SHOCK:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_FLAME_SHOCK);
+                        events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
+                        break;
+                    case EVENT_ARCANE_SHOCK:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ARCANE_SHOCK);
+                        events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(10000, 15000));
+                        break;
+                    case EVENT_FROST_SHOCK:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_FROST_SHOCK);
+                        events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10000, 15000));
+                        break;
+                    case EVENT_SHADOW_SHOCK:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SHADOW_SHOCK);
+                        events.ScheduleEvent(EVENT_SHADOW_SHOCK, urand(10000, 15000));
+                        break;
+                    case EVENT_CHAIN_LIGHTNING:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_CHAIN_LIGHTNING);
+                        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             if (HealthBelowPct(90) && !summon90)
             {
@@ -150,50 +183,19 @@ public:
                 summon10 = true;
             }
 
-            if (flameshock_timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_FLAME_SHOCK);
-
-                flameshock_timer = urand(10000, 15000);
-            } else flameshock_timer -= diff;
-
-            if (arcaneshock_timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_ARCANE_SHOCK);
-
-                arcaneshock_timer = urand(10000, 15000);
-            } else arcaneshock_timer -= diff;
-
-            if (frostshock_timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_FROST_SHOCK);
-
-                frostshock_timer = urand(10000, 15000);
-            } else frostshock_timer -= diff;
-
-            if (shadowshock_timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_SHADOW_SHOCK);
-
-                shadowshock_timer = urand(10000, 15000);
-            } else shadowshock_timer -= diff;
-
-            if (chainlightning_timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHAIN_LIGHTNING);
-
-                chainlightning_timer = 25000;
-            } else chainlightning_timer -= diff;
-
             DoMeleeAttackIfReady();
         }
+
+        private:
+            bool summon90;
+            bool summon50;
+            bool summon10;
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetSethekkHallsAI<boss_darkweaver_sythAI>(creature);
+    }
 };
 
 /* ELEMENTALS */
@@ -218,7 +220,7 @@ public:
             flamebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -277,7 +279,7 @@ public:
             arcanebuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -331,7 +333,7 @@ public:
             frostbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -386,7 +388,7 @@ public:
             shadowbuffet_timer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,6 +13,13 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * Comment: there is missing code on triggers,
+ *          brann bronzebeard needs correct gossip info.
+ *          requires more work involving area triggers.
+ *          if reached brann speaks through his radio..
  */
 
 #include "ScriptMgr.h"
@@ -217,7 +224,7 @@ class boss_flame_leviathan : public CreatureScript
 
         struct boss_flame_leviathanAI : public BossAI
         {
-            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, DATA_LEVIATHAN), vehicle(creature->GetVehicleKit())
+            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN), vehicle(creature->GetVehicleKit())
             {
             }
 
@@ -528,7 +535,7 @@ class boss_flame_leviathan : public CreatureScript
             }
 
             private:
-                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough GetVictim this way -
+                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough getVictim this way -
                 //! I also removed the spellInfo check
                 void DoBatteringRamIfReady()
                 {
@@ -582,19 +589,17 @@ class boss_flame_leviathan_seat : public CreatureScript
                     else if (Creature* leviathan = me->GetVehicleCreatureBase())
                         leviathan->AI()->Talk(SAY_PLAYER_RIDING);
 
-                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(SEAT_TURRET))
-                        if (Creature* turret = passenger->ToCreature())
-                        {
-                            turret->setFaction(me->GetVehicleBase()->getFaction());
-                            turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
-                            turret->AI()->AttackStart(who);
-                        }
-                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(SEAT_DEVICE))
-                        if (Creature* device = passenger->ToCreature())
-                        {
-                            device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                            device->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        }
+                    if (Creature* turret = me->GetVehicleKit()->GetPassenger(SEAT_TURRET)->ToCreature())
+                    {
+                        turret->setFaction(me->GetVehicleBase()->getFaction());
+                        turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
+                        turret->AI()->AttackStart(who);
+                    }
+                    if (Creature* device = me->GetVehicleKit()->GetPassenger(SEAT_DEVICE)->ToCreature())
+                    {
+                        device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        device->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    }
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
@@ -614,7 +619,7 @@ class boss_flame_leviathan_seat : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_flame_leviathan_seatAI(creature);
+            return GetInstanceAI<boss_flame_leviathan_seatAI>(creature);
         }
 };
 
@@ -675,7 +680,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
 
         struct boss_flame_leviathan_defense_turretAI : public TurretAI
         {
-            boss_flame_leviathan_defense_turretAI(Creature* creature) : TurretAI(creature) {}
+            boss_flame_leviathan_defense_turretAI(Creature* creature) : TurretAI(creature) { }
 
             void DamageTaken(Unit* who, uint32 &damage) OVERRIDE
             {
@@ -853,7 +858,7 @@ class npc_pool_of_tar : public CreatureScript
                     me->CastSpell(me, SPELL_BLAZE, true);
             }
 
-            void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+            void UpdateAI(uint32 /*diff*/) OVERRIDE { }
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -893,7 +898,7 @@ class npc_colossus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_colossusAI(creature);
+            return GetInstanceAI<npc_colossusAI>(creature);
         }
 };
 
@@ -1149,7 +1154,7 @@ class npc_lorekeeper : public CreatureScript
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
         {
-            player->PlayerTalkClass->ClearMenus();
+            player->CLOSE_GOSSIP_MENU();
             InstanceScript* instance = creature->GetInstanceScript();
             if (!instance)
                 return true;
@@ -1157,20 +1162,14 @@ class npc_lorekeeper : public CreatureScript
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    if (player)
-                    {
-                        player->PrepareGossipMenu(creature);
-                        instance->instance->LoadGrid(364, -16); //make sure leviathan is loaded
+                    player->PrepareGossipMenu(creature);
+                    instance->instance->LoadGrid(364, -16); //make sure leviathan is loaded
 
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                    }
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    if (player)
-                        player->CLOSE_GOSSIP_MENU();
-
-                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(DATA_LEVIATHAN)))
+                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
                     {
                         leviathan->AI()->DoAction(ACTION_START_HARD_MODE);
                         creature->SetVisible(false);
@@ -1193,7 +1192,7 @@ class npc_lorekeeper : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetData(DATA_LEVIATHAN) !=DONE && player)
+            if (instance && instance->GetData(BOSS_LEVIATHAN) != DONE && player)
             {
                 player->PrepareGossipMenu(creature);
 
@@ -1286,8 +1285,7 @@ class go_ulduar_tower : public GameObjectScript
                     break;
             }
 
-            Creature* trigger = go->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true);
-            if (trigger)
+            if (Creature* trigger = go->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true))
                 trigger->DisappearAndDie();
         }
 };
@@ -1499,7 +1497,7 @@ class spell_auto_repair : public SpellScriptLoader
     };
 
     public:
-        spell_auto_repair() : SpellScriptLoader("spell_auto_repair") {}
+        spell_auto_repair() : SpellScriptLoader("spell_auto_repair") { }
 
         class spell_auto_repair_SpellScript : public SpellScript
         {
@@ -1531,7 +1529,7 @@ class spell_auto_repair : public SpellScriptLoader
                 if (!driver)
                     return;
 
-                driver->MonsterTextEmote(EMOTE_REPAIR, driver->GetGUID(), true);
+                driver->MonsterTextEmote(EMOTE_REPAIR, driver, true);
 
                 InstanceScript* instance = driver->GetInstanceScript();
                 if (!instance)
@@ -1608,7 +1606,7 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
-        explicit FlameLeviathanPursuedTargetSelector(Unit* unit) : _me(unit) {};
+        explicit FlameLeviathanPursuedTargetSelector(Unit* unit) : _me(unit) { };
 
         bool operator()(WorldObject* target) const
         {
@@ -1646,7 +1644,7 @@ class FlameLeviathanPursuedTargetSelector
 class spell_pursue : public SpellScriptLoader
 {
     public:
-        spell_pursue() : SpellScriptLoader("spell_pursue") {}
+        spell_pursue() : SpellScriptLoader("spell_pursue") { }
 
         class spell_pursue_SpellScript : public SpellScript
         {
@@ -1691,9 +1689,9 @@ class spell_pursue : public SpellScriptLoader
 
                 for (SeatMap::const_iterator itr = caster->GetVehicleKit()->Seats.begin(); itr != caster->GetVehicleKit()->Seats.end(); ++itr)
                 {
-                    if (IS_PLAYER_GUID(itr->second.Passenger.Guid))
+                    if (Player* passenger = ObjectAccessor::GetPlayer(*caster, itr->second.Passenger.Guid))
                     {
-                        caster->AI()->Talk(EMOTE_PURSUE, itr->second.Passenger.Guid);
+                        caster->AI()->Talk(EMOTE_PURSUE, passenger);
                         return;
                     }
                 }
@@ -1718,7 +1716,7 @@ class spell_pursue : public SpellScriptLoader
 class spell_vehicle_throw_passenger : public SpellScriptLoader
 {
     public:
-        spell_vehicle_throw_passenger() : SpellScriptLoader("spell_vehicle_throw_passenger") {}
+        spell_vehicle_throw_passenger() : SpellScriptLoader("spell_vehicle_throw_passenger") { }
 
         class spell_vehicle_throw_passenger_SpellScript : public SpellScript
         {

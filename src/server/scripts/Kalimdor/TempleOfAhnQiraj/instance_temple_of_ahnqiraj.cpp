@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,7 +39,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 
         struct instance_temple_of_ahnqiraj_InstanceMapScript : public InstanceScript
         {
-            instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             //If Vem is dead...
             bool IsBossDied[3];
@@ -56,7 +56,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 
             uint32 CthunPhase;
 
-            void Initialize()
+            void Initialize() OVERRIDE
             {
                 IsBossDied[0] = false;
                 IsBossDied[1] = false;
@@ -74,7 +74,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 CthunPhase = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch (creature->GetEntry())
                 {
@@ -99,7 +99,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 }
             }
 
-            bool IsEncounterInProgress() const
+            bool IsEncounterInProgress() const OVERRIDE
             {
                 //not active in AQ40
                 return false;

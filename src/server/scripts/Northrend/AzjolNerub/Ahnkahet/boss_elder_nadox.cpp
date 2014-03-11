@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,12 +41,6 @@ enum Spells
     SPELL_GUARDIAN_AURA         = 56151
 };
 
-enum Creatures
-{
-    NPC_AHNKAHAR_SWARMER        = 30178,
-    NPC_AHNKAHAR_GUARDIAN       = 30176
-};
-
 enum Events
 {
     EVENT_PLAGUE = 1,
@@ -62,37 +56,21 @@ class boss_elder_nadox : public CreatureScript
     public:
         boss_elder_nadox() : CreatureScript("boss_elder_nadox") { }
 
-        struct boss_elder_nadoxAI : public ScriptedAI
+        struct boss_elder_nadoxAI : public BossAI
         {
-            boss_elder_nadoxAI(Creature* creature) : ScriptedAI(creature), summons(me)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            bool GuardianDied;
-            uint8 AmountHealthModifier;
-            InstanceScript* instance;
-            SummonList summons;
-            EventMap events;
+            boss_elder_nadoxAI(Creature* creature) : BossAI(creature, DATA_ELDER_NADOX) { }
 
             void Reset() OVERRIDE
             {
-                events.Reset();
-                summons.DespawnAll();
-
+                _Reset();
                 AmountHealthModifier = 1;
                 GuardianDied = false;
-
-                if (instance)
-                    instance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
-
-                if (instance)
-                    instance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
 
                 events.ScheduleEvent(EVENT_PLAGUE, 13 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10 * IN_MILLISECONDS);
@@ -102,12 +80,6 @@ class boss_elder_nadox : public CreatureScript
                     events.ScheduleEvent(EVENT_RAGE, 12 * IN_MILLISECONDS);
                     events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5 * IN_MILLISECONDS);
                 }
-            }
-
-            void JustSummoned(Creature* summon) OVERRIDE
-            {
-                summons.Summon(summon);
-                summon->AI()->DoZoneInCombat();
             }
 
             void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) OVERRIDE
@@ -124,19 +96,16 @@ class boss_elder_nadox : public CreatureScript
                 return 0;
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* who) OVERRIDE
             {
-                Talk(SAY_SLAY);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-
-                summons.DespawnAll();
-
-                if (instance)
-                    instance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -178,18 +147,22 @@ class boss_elder_nadox : public CreatureScript
 
                 if (me->HealthBelowPct(100 - AmountHealthModifier * 25))
                 {
-                    Talk(EMOTE_HATCHES, me->GetGUID());
+                    Talk(EMOTE_HATCHES, me);
                     DoCast(me, SPELL_SUMMON_SWARM_GUARD);
                     ++AmountHealthModifier;
                 }
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            bool GuardianDied;
+            uint8 AmountHealthModifier;
         };
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_elder_nadoxAI(creature);
+            return GetAhnKahetAI<boss_elder_nadoxAI>(creature);
         }
 };
 
@@ -259,15 +232,14 @@ public:
         npc_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            creature->UpdateAllStats();
         }
 
-        void Reset() OVERRIDE {}
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void AttackStart(Unit* /*victim*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void Reset() OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*victim*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(uint32 /*diff*/) OVERRIDE {}
+        void UpdateAI(uint32 /*diff*/) OVERRIDE { }
     };
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
@@ -318,7 +290,7 @@ public:
 class achievement_respect_your_elders : public AchievementCriteriaScript
 {
 public:
-    achievement_respect_your_elders() : AchievementCriteriaScript("achievement_respect_your_elders") {}
+    achievement_respect_your_elders() : AchievementCriteriaScript("achievement_respect_your_elders") { }
 
     bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
     {

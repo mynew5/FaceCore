@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -96,7 +96,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const OVERRIDE
     {
-        return new boss_felblood_kaelthasAI(c);
+        return GetInstanceAI<boss_felblood_kaelthasAI>(c);
     }
 
     struct boss_felblood_kaelthasAI : public ScriptedAI
@@ -150,16 +150,12 @@ public:
 
             Phase = 0;
 
-            if (instance)
-                instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
+            instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEATH);
-
-            if (!instance)
-                return;
 
             instance->SetData(DATA_KAELTHAS_EVENT, DONE);
 
@@ -176,9 +172,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (!instance)
-                return;
-
             instance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
         }
 
@@ -371,8 +364,7 @@ public:
                                     Talk(SAY_GRAVITY_LAPSE);
                                     FirstGravityLapse = false;
 
-                                    if (instance)
-                                        instance->SetData(DATA_KAELTHAS_STATUES, 1);
+                                    instance->SetData(DATA_KAELTHAS_STATUES, 1);
                                 }
                                 else
                                     Talk(SAY_RECAST_GRAVITY);
@@ -461,8 +453,8 @@ public:
             DoCast(me, SPELL_FLAMESTRIKE2, true);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -482,7 +474,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const OVERRIDE
     {
-        return new npc_felkael_phoenixAI(c);
+        return GetInstanceAI<npc_felkael_phoenixAI>(c);
     }
 
     struct npc_felkael_phoenixAI : public ScriptedAI
@@ -509,7 +501,7 @@ public:
             FakeDeath = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void DamageTaken(Unit* /*killer*/, uint32 &damage) OVERRIDE
         {
@@ -523,7 +515,7 @@ public:
                 return;
             }
             //Don't really die in all phases of Kael'Thas
-            if (instance && instance->GetData(DATA_KAELTHAS_EVENT) == 0)
+            if (instance->GetData(DATA_KAELTHAS_EVENT) == 0)
             {
                 //prevent death
                 damage = 0;
@@ -600,7 +592,7 @@ public:
 
     struct npc_felkael_phoenix_eggAI : public ScriptedAI
     {
-        npc_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 HatchTimer;
 
@@ -609,8 +601,8 @@ public:
             HatchTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -652,7 +644,7 @@ public:
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

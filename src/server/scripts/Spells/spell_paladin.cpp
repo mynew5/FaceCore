@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,14 +55,35 @@ enum PaladinSpells
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
 
+    SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
+
+    SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
+    SPELL_PALADIN_JUDGEMENT_OF_JUSTICE           = 20184,
+    SPELL_PALADIN_JUDGEMENT_OF_LIGHT             = 20185,
+    SPELL_PALADIN_JUDGEMENT_OF_WISDOM            = 20186,
+
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
 
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
 
+    SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
+    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
+    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
+
+    SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA   = 63510,
+    SPELL_PALADIN_IMPROVED_DEVOTION_AURA         = 63514,
+    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
+    SPELL_PALADIN_AURA_MASTERY_IMMUNE            = 64364,
+
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
     SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
+};
+
+enum PaladinSpellIcons
+{
+    PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
 };
 
 // 31850 - Ardent Defender
@@ -138,6 +159,80 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_pal_ardent_defender_AuraScript();
+        }
+};
+
+// 31821 - Aura Mastery
+class spell_pal_aura_mastery : public SpellScriptLoader
+{
+    public:
+        spell_pal_aura_mastery() : SpellScriptLoader("spell_pal_aura_mastery") { }
+
+        class spell_pal_aura_mastery_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_aura_mastery_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_AURA_MASTERY_IMMUNE))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_AURA_MASTERY_IMMUNE, true);
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveOwnedAura(SPELL_PALADIN_AURA_MASTERY_IMMUNE, GetCasterGUID());
+            }
+
+            void Register() OVERRIDE
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_pal_aura_mastery_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_aura_mastery_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_aura_mastery_AuraScript();
+        }
+};
+
+// 64364 - Aura Mastery Immune
+class spell_pal_aura_mastery_immune : public SpellScriptLoader
+{
+    public:
+        spell_pal_aura_mastery_immune() : SpellScriptLoader("spell_pal_aura_mastery_immune") { }
+
+        class spell_pal_aura_mastery_immune_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_aura_mastery_immune_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_CONCENTRACTION_AURA))
+                    return false;
+                return true;
+            }
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                return target->HasAura(SPELL_PALADIN_CONCENTRACTION_AURA, GetCasterGUID());
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_pal_aura_mastery_immune_AuraScript::CheckAreaTarget);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_aura_mastery_immune_AuraScript();
         }
 };
 
@@ -271,7 +366,6 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
@@ -474,6 +568,39 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         }
 };
 
+// 54968 - Glyph of Holy Light
+class spell_pal_glyph_of_holy_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_holy_light() : SpellScriptLoader("spell_pal_glyph_of_holy_light") { }
+
+        class spell_pal_glyph_of_holy_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_holy_light_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                uint32 const maxTargets = GetSpellInfo()->MaxAffectedTargets;
+
+                if (targets.size() > maxTargets)
+                {
+                    targets.sort(Trinity::HealthPctOrderPred());
+                    targets.resize(maxTargets);
+                }
+            }
+
+            void Register() OVERRIDE
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_glyph_of_holy_light_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pal_glyph_of_holy_light_SpellScript();
+        }
+};
+
 // 63521 - Guarded by The Light
 class spell_pal_guarded_by_the_light : public SpellScriptLoader
 {
@@ -597,16 +724,17 @@ class spell_pal_holy_shock : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_holy_shock_SpellScript);
 
-            bool Validate(SpellInfo const* spell) OVERRIDE
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1))
+                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1);
+                if (!firstRankSpellInfo)
                     return false;
 
                 // can't use other spell than holy shock due to spell_ranks dependency
-                if (sSpellMgr->GetFirstSpellInChain(SPELL_PALADIN_HOLY_SHOCK_R1) != sSpellMgr->GetFirstSpellInChain(spell->Id))
+                if (!spellInfo->IsRankOf(firstRankSpellInfo))
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spell->Id);
+                uint8 rank = spellInfo->GetRank();
                 if (!sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank, true) || !sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank, true))
                     return false;
 
@@ -618,11 +746,11 @@ class spell_pal_holy_shock : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
                 {
-                    uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                    uint8 rank = GetSpellInfo()->GetRank();
                     if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank), true, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank), true);
                     else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank), true, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank), true);
                 }
             }
 
@@ -656,6 +784,209 @@ class spell_pal_holy_shock : public SpellScriptLoader
         {
             return new spell_pal_holy_shock_SpellScript();
         }
+};
+
+// Maybe this is incorrect
+// These spells should always be cast on login, regardless of whether the player has the talent or not
+
+// -20254 - Improved Concentration Aura
+// -20138 - Improved Devotion Aura
+//  31869 - Sanctified Retribution
+// -53379 - Swift Retribution
+class spell_pal_improved_aura : public SpellScriptLoader
+{
+    public:
+        spell_pal_improved_aura(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+
+        class spell_pal_improved_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_improved_aura_AuraScript);
+
+        public:
+            spell_pal_improved_aura_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(_spellId)
+                    || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1)
+                    || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_SWIFT_RETRIBUTION_R1))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (!target->GetOwnedAura(_spellId))
+                    target->CastSpell(target, _spellId, true);
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                uint32 spellId = GetSpellInfo()->GetFirstRankSpell()->Id;
+
+                if ((spellId == SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1 && GetTarget()->GetAuraOfRankedSpell(SPELL_PALADIN_SWIFT_RETRIBUTION_R1))
+                    || (spellId == SPELL_PALADIN_SWIFT_RETRIBUTION_R1 && GetTarget()->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1)))
+                    return;
+
+                GetTarget()->RemoveOwnedAura(_spellId, GetCasterGUID());
+            }
+
+            void Register() OVERRIDE
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_pal_improved_aura_AuraScript::HandleEffectApply, EFFECT_FIRST_FOUND, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_improved_aura_AuraScript::HandleEffectRemove, EFFECT_FIRST_FOUND, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+
+        private:
+            uint32 _spellId;
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_improved_aura_AuraScript(_spellId);
+        }
+
+    private:
+        uint32 _spellId;
+};
+
+// 63510 - Improved Concentraction Aura (Area Aura)
+// 63514 - Improved Devotion Aura (Area Aura)
+// 63531 - Sanctified Retribution (Area Aura)
+class spell_pal_improved_aura_effect : public SpellScriptLoader
+{
+    public:
+        spell_pal_improved_aura_effect(char const* name) : SpellScriptLoader(name) { }
+
+        class spell_pal_improved_aura_effect_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_improved_aura_effect_AuraScript);
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                Unit::AuraApplicationMap& appliedAuras = target->GetAppliedAuras();
+                for (Unit::AuraApplicationMap::iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
+                {
+                    Aura const* aura = itr->second->GetBase();
+                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && aura->GetCasterGUID() == GetCasterGUID())
+                    {
+                        // Not allow for Retribution Aura (prevent stacking) - Retribution Aura Overflow and Retribution Aura has same spell effects
+                        if (GetSpellInfo()->Id == SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA && aura->GetSpellInfo()->SpellIconID == PALADIN_ICON_ID_RETRIBUTION_AURA)
+                            return false;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            void Register() OVERRIDE
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_pal_improved_aura_effect_AuraScript::CheckAreaTarget);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_improved_aura_effect_AuraScript();
+        }
+};
+
+// 37705 - Healing Discount
+class spell_pal_item_healing_discount : public SpellScriptLoader
+{
+    public:
+        spell_pal_item_healing_discount() : SpellScriptLoader("spell_pal_item_healing_discount") { }
+
+        class spell_pal_item_healing_discount_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_item_healing_discount_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_ITEM_HEALING_TRANCE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, NULL, aurEff);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_item_healing_discount_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const OVERRIDE
+        {
+            return new spell_pal_item_healing_discount_AuraScript();
+        }
+};
+
+// 53407 - Judgement of Justice
+// 20271 - Judgement of Light
+// 53408 - Judgement of Wisdom
+class spell_pal_judgement : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgement(char const* scriptName, uint32 spellId) : SpellScriptLoader(scriptName), _spellId(spellId) { }
+
+        class spell_pal_judgement_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_judgement_SpellScript);
+
+        public:
+            spell_pal_judgement_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENT_DAMAGE)
+                    || !sSpellMgr->GetSpellInfo(_spellId))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId2 = SPELL_PALADIN_JUDGEMENT_DAMAGE;
+
+                // some seals have SPELL_AURA_DUMMY in EFFECT_2
+                Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
+                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                {
+                    if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
+                        if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
+                        {
+                            spellId2 = (*i)->GetAmount();
+                            break;
+                        }
+                }
+
+                GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
+                GetCaster()->CastSpell(GetHitUnit(), spellId2, true);
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+
+        private:
+            uint32 const _spellId;
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_pal_judgement_SpellScript(_spellId);
+        }
+
+    private:
+        uint32 const _spellId;
 };
 
 // 20425 - Judgement of Command
@@ -900,6 +1231,8 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
+    new spell_pal_aura_mastery();
+    new spell_pal_aura_mastery_immune();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_divine_sacrifice();
@@ -907,10 +1240,22 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
+    new spell_pal_glyph_of_holy_light();
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
     new spell_pal_holy_shock();
+    new spell_pal_improved_aura("spell_pal_improved_concentraction_aura", SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA);
+    new spell_pal_improved_aura("spell_pal_improved_devotion_aura", SPELL_PALADIN_IMPROVED_DEVOTION_AURA);
+    new spell_pal_improved_aura("spell_pal_sanctified_retribution", SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA);
+    new spell_pal_improved_aura("spell_pal_swift_retribution", SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA);
+    new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
+    new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
+    new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
+    new spell_pal_item_healing_discount();
+    new spell_pal_judgement("spell_pal_judgement_of_justice", SPELL_PALADIN_JUDGEMENT_OF_JUSTICE);
+    new spell_pal_judgement("spell_pal_judgement_of_light", SPELL_PALADIN_JUDGEMENT_OF_LIGHT);
+    new spell_pal_judgement("spell_pal_judgement_of_wisdom", SPELL_PALADIN_JUDGEMENT_OF_WISDOM);
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();

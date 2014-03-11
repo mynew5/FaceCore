@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,10 +94,10 @@ class boss_festergut : public CreatureScript
             {
                 _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-                events.ScheduleEvent(EVENT_BERSERK, 5*MINUTE*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_GAS_SPORE, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12.5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_BERSERK, 300000);
+                events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
+                events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
+                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
                 me->RemoveAurasDueToSpell(SPELL_BERSERK2);
@@ -126,22 +126,16 @@ class boss_festergut : public CreatureScript
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
                     _gasDummyGUID = gasDummy->GetGUID();
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                    if (professor->IsAlive())
-                        professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
+                    professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
                 DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                // Remove Gastric Bloat on all players
-                if (instance)
-                    instance->DoRemoveAurasDueToSpellOnPlayers(RAID_MODE(72219, 72551, 72552, 72553));
-
                 _JustDied();
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                    if (professor->IsAlive())
-                        professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
+                    professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
 
                 RemoveBlight();
             }
@@ -195,9 +189,8 @@ class boss_festergut : public CreatureScript
                                 DoCast(me, SPELL_PUNGENT_BLIGHT);
                                 _inhaleCounter = 0;
                                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                                    if (professor->IsAlive())
-                                        professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
-                                events.RescheduleEvent(EVENT_GAS_SPORE, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                                    professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
+                                events.RescheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
                             }
                             else
                             {
@@ -208,33 +201,45 @@ class boss_festergut : public CreatureScript
                                     me->CastSpell(me, gaseousBlight[_inhaleCounter], true, NULL, NULL, me->GetGUID());
                             }
 
-                            events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33.5*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33500, 35000));
                             break;
                         }
                         case EVENT_VILE_GAS:
                         {
-                            std::list<Unit*> targets;
+                            std::list<Unit*> ranged, melee;
                             uint32 minTargets = RAID_MODE<uint32>(3, 8, 3, 8);
-                            SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, -5.0f, true);
-                            float minDist = 0.0f;
-                            if (targets.size() >= minTargets)
-                                minDist = -5.0f;
+                            SelectTargetList(ranged, 25, SELECT_TARGET_RANDOM, -5.0f, true);
+                            SelectTargetList(melee, 25, SELECT_TARGET_RANDOM, 5.0f, true);
+                            while (ranged.size() < minTargets)
+                            {
+                                if (melee.empty())
+                                    break;
 
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, minDist, true))
-                                DoCast(target, SPELL_VILE_GAS);
-                            events.ScheduleEvent(EVENT_VILE_GAS, urand(28*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+                                Unit* target = Trinity::Containers::SelectRandomContainerElement(melee);
+                                ranged.push_back(target);
+                                melee.remove(target);
+                            }
+
+                            if (!ranged.empty())
+                            {
+                                Trinity::Containers::RandomResizeList(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
+                                for (std::list<Unit*>::iterator itr = ranged.begin(); itr != ranged.end(); ++itr)
+                                    DoCast(*itr, SPELL_VILE_GAS);
+                            }
+
+                            events.ScheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
                         }
                         case EVENT_GAS_SPORE:
                             Talk(EMOTE_WARN_GAS_SPORE);
                             Talk(EMOTE_GAS_SPORE);
                             me->CastCustomSpell(SPELL_GAS_SPORE, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3), me);
-                            events.ScheduleEvent(EVENT_GAS_SPORE, urand(40*IN_MILLISECONDS, 45*IN_MILLISECONDS));
-                            events.RescheduleEvent(EVENT_VILE_GAS, urand(28*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_GAS_SPORE, urand(40000, 45000));
+                            events.RescheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
                         case EVENT_GASTRIC_BLOAT:
                             DoCastVictim(SPELL_GASTRIC_BLOAT);
-                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(15*IN_MILLISECONDS, 17.5*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(15000, 17500));
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK2);
@@ -293,15 +298,14 @@ class npc_stinky_icc : public CreatureScript
         {
             npc_stinky_iccAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true); // Applies knockback immunity, can't be done at DB
                 _instance = creature->GetInstanceScript();
             }
 
             void Reset() OVERRIDE
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DECIMATE, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3*IN_MILLISECONDS, 7*IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
             }
 
             void EnterCombat(Unit* /*target*/) OVERRIDE
@@ -325,11 +329,11 @@ class npc_stinky_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10*IN_MILLISECONDS, 12.5*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
                             break;
                         default:
                             break;
@@ -485,10 +489,8 @@ void AddSC_boss_festergut()
 {
     new boss_festergut();
     new npc_stinky_icc();
-
     new spell_festergut_pungent_blight();
     new spell_festergut_gastric_bloat();
     new spell_festergut_blighted_spores();
-
     new achievement_flu_shot_shortage();
 }

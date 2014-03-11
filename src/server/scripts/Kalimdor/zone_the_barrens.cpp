@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,7 +109,7 @@ public:
             creature->setFaction(FACTION_ESCORTEE);
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            creature->AI()->Talk(SAY_GIL_START, player->GetGUID());
+            creature->AI()->Talk(SAY_GIL_START, player);
 
             if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest);
@@ -126,7 +126,7 @@ public:
     {
         npc_giltharesAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE {}
+        void Reset() OVERRIDE { }
 
         void WaypointReached(uint32 waypointId) OVERRIDE
         {
@@ -137,22 +137,22 @@ public:
             switch (waypointId)
             {
                 case 16:
-                    Talk(SAY_GIL_AT_LAST, player->GetGUID());
+                    Talk(SAY_GIL_AT_LAST, player);
                     break;
                 case 17:
-                    Talk(SAY_GIL_PROCEED, player->GetGUID());
+                    Talk(SAY_GIL_PROCEED, player);
                     break;
                 case 18:
-                    Talk(SAY_GIL_FREEBOOTERS, player->GetGUID());
+                    Talk(SAY_GIL_FREEBOOTERS, player);
                     break;
                 case 37:
-                    Talk(SAY_GIL_ALMOST, player->GetGUID());
+                    Talk(SAY_GIL_ALMOST, player);
                     break;
                 case 47:
-                    Talk(SAY_GIL_SWEET, player->GetGUID());
+                    Talk(SAY_GIL_SWEET, player);
                     break;
                 case 53:
-                    Talk(SAY_GIL_FREED, player->GetGUID());
+                    Talk(SAY_GIL_FREED, player);
                     player->GroupEventHappens(QUEST_FREE_FROM_HOLD, me);
                     break;
             }
@@ -168,7 +168,7 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER && me->GetAreaId() == AREA_MERCHANT_COAST)
             {
                 //appears to be pretty much random (possible only if escorter not in combat with who yet?)
-                Talk(SAY_GIL_AGGRO, who->GetGUID());
+                Talk(SAY_GIL_AGGRO, who);
             }
         }
     };
@@ -240,7 +240,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
@@ -314,7 +314,7 @@ public:
 
     struct npc_twiggy_flatheadAI : public ScriptedAI
     {
-        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_twiggy_flatheadAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool EventInProgress;
         bool EventGrate;
@@ -345,10 +345,7 @@ public:
             BigWill = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             if (!who || !who->IsAlive() || EventInProgress)
                 return;
@@ -362,22 +359,22 @@ public:
                     }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE {}
-
         void UpdateAI(uint32 diff) OVERRIDE
         {
-            if (EventInProgress) {
-                Player* pWarrior = NULL;
+            if (EventInProgress)
+            {
+                Player* warrior = NULL;
 
                 if (PlayerGUID)
-                    pWarrior = Unit::GetPlayer(*me, PlayerGUID);
+                    warrior = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
-                if (!pWarrior)
+                if (!warrior)
                     return;
 
-                if (!pWarrior->IsAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
+                if (!warrior->IsAlive() && warrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE)
+                {
                     Talk(SAY_TWIGGY_FLATHEAD_DOWN);
-                    pWarrior->FailQuest(1719);
+                    warrior->FailQuest(1719);
 
                     for (uint8 i = 0; i < 6; ++i) // unsummon challengers
                     {
@@ -401,11 +398,12 @@ public:
                 if (!EventGrate && EventInProgress)
                 {
                     float x, y, z;
-                    pWarrior->GetPosition(x, y, z);
+                    warrior->GetPosition(x, y, z);
 
-                    if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
-                        pWarrior->AreaExploredOrEventHappens(1719);
-                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, pWarrior->GetGUID());
+                    if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324)
+                    {
+                        warrior->AreaExploredOrEventHappens(1719);
+                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, warrior);
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
@@ -447,19 +445,20 @@ public:
                         if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
                             Talk(SAY_TWIGGY_FLATHEAD_FRAY);
-                            Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
+                            Creature* creature = ObjectAccessor::GetCreature(*me, AffrayChallenger[Wave]);
                             if (creature && (creature->IsAlive()))
                             {
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 creature->setFaction(14);
-                                creature->AI()->AttackStart(pWarrior);
+                                creature->AI()->AttackStart(warrior);
                                 ++Wave;
                                 WaveTimer = 20000;
                             }
                         }
-                        else if (Wave >= 6 && !EventBigWill) {
+                        else if (Wave >= 6 && !EventBigWill)
+                        {
                             if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                             {
                                 BigWill = creature->GetGUID();
@@ -473,7 +472,7 @@ public:
                         }
                         else if (Wave >= 6 && EventBigWill && BigWill)
                         {
-                            Creature* creature = Unit::GetCreature((*me), BigWill);
+                            Creature* creature = ObjectAccessor::GetCreature(*me, BigWill);
                             if (!creature || !creature->IsAlive())
                             {
                                 Talk(SAY_TWIGGY_FLATHEAD_OVER);
@@ -573,10 +572,10 @@ public:
             switch (PointId)
             {
                 case 9:
-                    Talk(SAY_STARTUP2, player->GetGUID());
+                    Talk(SAY_STARTUP2, player);
                     break;
                 case 18:
-                    Talk(SAY_PROGRESS_1, player->GetGUID());
+                    Talk(SAY_PROGRESS_1, player);
                     SetRun();
                     break;
             }

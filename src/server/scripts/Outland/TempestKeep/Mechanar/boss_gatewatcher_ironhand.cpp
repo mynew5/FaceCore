@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,11 +56,11 @@ enum Events
 class boss_gatewatcher_iron_hand : public CreatureScript
 {
     public:
-        boss_gatewatcher_iron_hand(): CreatureScript("boss_gatewatcher_iron_hand") {}
+        boss_gatewatcher_iron_hand(): CreatureScript("boss_gatewatcher_iron_hand") { }
 
         struct boss_gatewatcher_iron_handAI : public BossAI
         {
-            boss_gatewatcher_iron_handAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_IRON_HAND) {}
+            boss_gatewatcher_iron_handAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_IRON_HAND) { }
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {

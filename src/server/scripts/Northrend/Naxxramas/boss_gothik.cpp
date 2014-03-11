@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -145,7 +145,7 @@ float const PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 // Predicate function to check that the r   efzr unit is NOT on the same side as the source.
 struct NotOnSameSide : public std::unary_function<Unit*, bool>
 {
-    NotOnSameSide(Unit* source) : _onLiveSide(IN_LIVE_SIDE(source)) {}
+    NotOnSameSide(Unit* source) : _onLiveSide(IN_LIVE_SIDE(source)) { }
 
     bool operator() (Unit const* target)
     {
@@ -163,7 +163,7 @@ class boss_gothik : public CreatureScript
 
         struct boss_gothikAI : public BossAI
         {
-            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) {}
+            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) { }
 
             uint32 waveCount;
             typedef std::vector<Creature*> TriggerVct;
@@ -181,8 +181,7 @@ class boss_gothik : public CreatureScript
                 DeadTriggerGUID.clear();
 
                 me->SetReactState(REACT_PASSIVE);
-                if (instance)
-                    instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                 _Reset();
                 mergedSides = false;
                 phaseTwo = false;
@@ -200,7 +199,7 @@ class boss_gothik : public CreatureScript
 
                 if (LiveTriggerGUID.size() < POS_LIVE || DeadTriggerGUID.size() < POS_DEAD)
                 {
-                    TC_LOG_ERROR(LOG_FILTER_TSCR, "Script Gothik: cannot summon triggers!");
+                    TC_LOG_ERROR("scripts", "Script Gothik: cannot summon triggers!");
                     EnterEvadeMode();
                     return;
                 }
@@ -210,8 +209,7 @@ class boss_gothik : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 DoTeleportTo(PosPlatform);
                 Talk(SAY_SPEECH);
-                if (instance)
-                    instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
+                instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
@@ -248,8 +246,7 @@ class boss_gothik : public CreatureScript
                 DeadTriggerGUID.clear();
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
             }
 
             void DoGothikSummon(uint32 entry)
@@ -403,8 +400,7 @@ class boss_gothik : public CreatureScript
                 if (!thirtyPercentReached && HealthBelowPct(30) && phaseTwo)
                 {
                     thirtyPercentReached = true;
-                    if (instance)
-                        instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                    instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -429,8 +425,7 @@ class boss_gothik : public CreatureScript
                                 {
                                     if (!CheckGroupSplitted())
                                     {
-                                        if (instance)
-                                            instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                                        instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                                         DummyEntryCheckPredicate pred;
                                         summons.DoAction(0, pred);  //! Magic numbers fail
                                         summons.DoZoneInCombat();
@@ -500,7 +495,7 @@ class boss_gothik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_gothikAI(creature);
+            return GetInstanceAI<boss_gothikAI>(creature);
         }
 };
 
@@ -514,6 +509,7 @@ class npc_gothik_minion : public CreatureScript
             npc_gothik_minionAI(Creature* creature) : CombatAI(creature)
             {
                 liveSide = IN_LIVE_SIDE(me);
+                gateClose = false;
             }
 
             bool liveSide;

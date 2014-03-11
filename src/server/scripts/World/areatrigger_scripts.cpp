@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -210,7 +210,11 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
                     pPosition = WorldLocation(571, 3802.38f, 3585.95f, 49.5765f, 0.0f);
                     break;
                 case 5340:
-                    pPosition = WorldLocation(571, 3687.91f, 3577.28f, 473.342f, 0.0f);
+                    if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE)
+                        pPosition = WorldLocation(571, 3687.91f, 3577.28f, 473.342f);
+                    else
+                        pPosition = WorldLocation(571, 3739.38f, 3567.09f, 341.58f);
                     break;
                 default:
                     return false;
@@ -243,7 +247,7 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
 {
     public:
 
-        AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") {}
+        AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) OVERRIDE
         {
@@ -338,11 +342,11 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
             {
                 case AT_BREWFEST_DUROTAR:
                     if (Creature* tapper = player->FindNearestCreature(NPC_TAPPER_SWINDLEKEG, 20.0f))
-                        tapper->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                        tapper->AI()->Talk(SAY_WELCOME, player);
                     break;
                 case AT_BREWFEST_DUN_MOROGH:
                     if (Creature* ipfelkofer = player->FindNearestCreature(NPC_IPFELKOFER_IRONKEG, 20.0f))
-                        ipfelkofer->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                        ipfelkofer->AI()->Talk(SAY_WELCOME, player);
                     break;
                 default:
                     break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -78,7 +78,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_najentusAI(creature);
+        return GetInstanceAI<boss_najentusAI>(creature);
     }
 
     struct boss_najentusAI : public ScriptedAI
@@ -99,8 +99,7 @@ public:
 
             SpineTargetGUID = 0;
 
-            if (instance)
-                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
+            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -111,8 +110,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
+            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, DONE);
 
             Talk(SAY_DEATH);
         }
@@ -129,8 +127,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (instance)
-                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
+            instance->SetBossState(DATA_HIGH_WARLORD_NAJENTUS, IN_PROGRESS);
 
             Talk(SAY_AGGRO);
             DoZoneInCombat();
@@ -228,7 +225,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         if (InstanceScript* instance = go->GetInstanceScript())
-            if (Creature* Najentus = Unit::GetCreature(*go, instance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+            if (Creature* Najentus = ObjectAccessor::GetCreature(*go, instance->GetData64(DATA_HIGH_WARLORD_NAJENTUS)))
                 if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                 {
                     player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);

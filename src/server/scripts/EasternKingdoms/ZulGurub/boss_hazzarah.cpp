@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,11 +42,11 @@ enum Events
 
 class boss_hazzarah : public CreatureScript
 {
-    public: boss_hazzarah() : CreatureScript("boss_hazzarah") {}
+    public: boss_hazzarah() : CreatureScript("boss_hazzarah") { }
 
         struct boss_hazzarahAI : public BossAI
         {
-            boss_hazzarahAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
+            boss_hazzarahAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
 
             void Reset() OVERRIDE
             {

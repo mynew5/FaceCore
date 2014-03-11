@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -97,7 +97,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_sergeant_blyAI(creature);
+        return GetInstanceAI<npc_sergeant_blyAI>(creature);
     }
 
     struct npc_sergeant_blyAI : public ScriptedAI
@@ -145,15 +145,12 @@ public:
                             break;
                         case 3:
                             me->setFaction(FACTION_HOSTILE);
-                            if (Player* target = Player::GetPlayer(*me, PlayerGUID))
+                            if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
-                            if (instance)
-                            {
-                                switchFactionIfAlive(instance, ENTRY_RAVEN);
-                                switchFactionIfAlive(instance, ENTRY_ORO);
-                                switchFactionIfAlive(instance, ENTRY_MURTA);
-                            }
+                            switchFactionIfAlive(instance, ENTRY_RAVEN);
+                            switchFactionIfAlive(instance, ENTRY_ORO);
+                            switchFactionIfAlive(instance, ENTRY_MURTA);
                     }
                     postGossipStep++;
                 }
@@ -296,7 +293,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new npc_weegli_blastfuseAI(creature);
+        return GetInstanceAI<npc_weegli_blastfuseAI>(creature);
     }
 
     struct npc_weegli_blastfuseAI : public ScriptedAI
@@ -316,8 +313,7 @@ public:
 
         void Reset() OVERRIDE
         {
-            /*if (instance)
-                instance->SetData(0, NOT_STARTED);*/
+            /*instance->SetData(0, NOT_STARTED);*/
         }
 
         void AttackStart(Unit* victim) OVERRIDE
@@ -327,8 +323,7 @@ public:
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
-            /*if (instance)
-                instance->SetData(0, DONE);*/
+            /*instance->SetData(0, DONE);*/
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -358,22 +353,19 @@ public:
 
         void MovementInform(uint32 /*type*/, uint32 /*id*/) OVERRIDE
         {
-            if (instance)
+            if (instance->GetData(EVENT_PYRAMID) == PYRAMID_CAGES_OPEN)
             {
-                if (instance->GetData(EVENT_PYRAMID) == PYRAMID_CAGES_OPEN)
-                {
-                    instance->SetData(EVENT_PYRAMID, PYRAMID_ARRIVED_AT_STAIR);
-                    Talk(SAY_WEEGLI_OHNO);
-                    me->SetHomePosition(1882.69f, 1272.28f, 41.87f, 0);
-                }
-                else
-                    if (destroyingDoor)
-                    {
-                        instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
-                        /// @todo leave the area...
-                        me->DespawnOrUnsummon();
-                    };
+                instance->SetData(EVENT_PYRAMID, PYRAMID_ARRIVED_AT_STAIR);
+                Talk(SAY_WEEGLI_OHNO);
+                me->SetHomePosition(1882.69f, 1272.28f, 41.87f, 0);
             }
+            else
+                if (destroyingDoor)
+                {
+                    instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
+                    /// @todo leave the area...
+                    me->DespawnOrUnsummon();
+                };
         }
 
         void DoAction(int32 /*param*/) OVERRIDE
@@ -400,12 +392,12 @@ public:
 ## go_shallow_grave
 ######*/
 
-enum
+enum ShallowGrave
 {
-    ZOMBIE           = 7286,
-    DEAD_HERO        = 7276,
-    ZOMBIE_CHANCE    = 65,
-    DEAD_HERO_CHANCE = 10
+    NPC_ZOMBIE          = 7286,
+    NPC_DEAD_HERO       = 7276,
+    CHANCE_ZOMBIE       = 65,
+    CHANCE_DEAD_HERO    = 10
 };
 
 class go_shallow_grave : public GameObjectScript
@@ -419,11 +411,11 @@ public:
         if (go->GetUseCount() == 0)
         {
             uint32 randomchance = urand(0, 100);
-            if (randomchance < ZOMBIE_CHANCE)
-                go->SummonCreature(ZOMBIE, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+            if (randomchance < CHANCE_ZOMBIE)
+                go->SummonCreature(NPC_ZOMBIE, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
             else
-                if ((randomchance - ZOMBIE_CHANCE) < DEAD_HERO_CHANCE)
-                    go->SummonCreature(DEAD_HERO, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                if ((randomchance - CHANCE_ZOMBIE) < CHANCE_DEAD_HERO)
+                    go->SummonCreature(NPC_DEAD_HERO, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
         }
         go->AddUse();
         return false;

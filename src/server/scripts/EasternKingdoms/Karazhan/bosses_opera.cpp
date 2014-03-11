@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -118,7 +118,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_dorotheeAI(creature);
+        return GetInstanceAI<boss_dorotheeAI>(creature);
     }
 
     struct boss_dorotheeAI : public ScriptedAI
@@ -167,8 +167,7 @@ public:
         {
             Talk(SAY_DOROTHEE_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void AttackStart(Unit* who) OVERRIDE
@@ -238,7 +237,7 @@ public:
 
     struct npc_titoAI : public ScriptedAI
     {
-        npc_titoAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_titoAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 DorotheeGUID;
         uint32 YipTimer;
@@ -249,7 +248,7 @@ public:
             YipTimer = 10000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
@@ -259,7 +258,7 @@ public:
                 if (Dorothee && Dorothee->IsAlive())
                 {
                     CAST_AI(boss_dorothee::boss_dorotheeAI, Dorothee->AI())->TitoDied = true;
-                    Talk(SAY_DOROTHEE_TITO_DEATH, Dorothee->GetGUID());
+                    Talk(SAY_DOROTHEE_TITO_DEATH, Dorothee);
                 }
             }
         }
@@ -299,7 +298,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_strawmanAI(creature);
+        return GetInstanceAI<boss_strawmanAI>(creature);
     }
 
     struct boss_strawmanAI : public ScriptedAI
@@ -366,8 +365,7 @@ public:
         {
             Talk(SAY_STRAWMAN_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -414,7 +412,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_tinheadAI(creature);
+        return GetInstanceAI<boss_tinheadAI>(creature);
     }
 
     struct boss_tinheadAI : public ScriptedAI
@@ -472,8 +470,7 @@ public:
         {
             Talk(SAY_TINHEAD_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -524,7 +521,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_roarAI(creature);
+        return GetInstanceAI<boss_roarAI>(creature);
     }
 
     struct boss_roarAI : public ScriptedAI
@@ -580,8 +577,7 @@ public:
         {
             Talk(SAY_ROAR_DEATH);
 
-            if (instance)
-                SummonCroneIfReady(instance, me);
+            SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -633,7 +629,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_croneAI(creature);
+        return GetInstanceAI<boss_croneAI>(creature);
     }
 
     struct boss_croneAI : public ScriptedAI
@@ -675,15 +671,12 @@ public:
         {
             Talk(SAY_CRONE_DEATH);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -724,7 +717,7 @@ public:
 
     struct npc_cycloneAI : public ScriptedAI
     {
-        npc_cycloneAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_cycloneAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 MoveTimer;
 
@@ -733,7 +726,7 @@ public:
             MoveTimer = 1000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void MoveInLineOfSight(Unit* /*who*/) OVERRIDE
 
@@ -813,7 +806,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_bigbadwolfAI(creature);
+        return GetInstanceAI<boss_bigbadwolfAI>(creature);
     }
 
     struct boss_bigbadwolfAI : public ScriptedAI
@@ -865,15 +858,12 @@ public:
         {
             DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -1015,7 +1005,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_julianneAI(creature);
+        return GetInstanceAI<boss_julianneAI>(creature);
     }
 
     struct boss_julianneAI : public ScriptedAI
@@ -1073,7 +1063,7 @@ public:
             RomuloDead = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void AttackStart(Unit* who) OVERRIDE
         {
@@ -1112,14 +1102,11 @@ public:
         {
             Talk(SAY_JULIANNE_DEATH02);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -1138,7 +1125,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_romuloAI(creature);
+        return GetInstanceAI<boss_romuloAI>(creature);
     }
 
     struct boss_romuloAI : public ScriptedAI
@@ -1237,7 +1224,7 @@ public:
                 }
             }
 
-            TC_LOG_ERROR(LOG_FILTER_TSCR, "boss_romuloAI: DamageTaken reach end of code, that should not happen.");
+            TC_LOG_ERROR("scripts", "boss_romuloAI: DamageTaken reach end of code, that should not happen.");
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -1267,15 +1254,12 @@ public:
         {
             Talk(SAY_ROMULO_DEATH);
 
-            if (instance)
-            {
-                instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+            instance->SetData(TYPE_OPERA, DONE);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+            instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-            }
+            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -1483,7 +1467,7 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
 
     if (Phase == PHASE_ROMULO)
     {
-        TC_LOG_ERROR(LOG_FILTER_TSCR, "boss_julianneAI: cannot take damage in PHASE_ROMULO, why was i here?");
+        TC_LOG_ERROR("scripts", "boss_julianneAI: cannot take damage in PHASE_ROMULO, why was i here?");
         damage = 0;
         return;
     }
@@ -1517,7 +1501,7 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
             return;
         }
     }
-    TC_LOG_ERROR(LOG_FILTER_TSCR, "boss_julianneAI: DamageTaken reach end of code, that should not happen.");
+    TC_LOG_ERROR("scripts", "boss_julianneAI: DamageTaken reach end of code, that should not happen.");
 }
 
 void AddSC_bosses_opera()

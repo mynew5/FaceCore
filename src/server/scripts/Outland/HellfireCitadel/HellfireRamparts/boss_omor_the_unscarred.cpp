@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -132,7 +132,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 {
                     if (ShadowWhip_Timer <= diff)
                     {
-                        if (Player* temp = Unit::GetPlayer(*me, PlayerGUID))
+                        if (Player* temp = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                         {
                             //if unit dosen't have this flag, then no pulling back (script will attempt cast, even if orbital strike was resisted)
                             if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
@@ -224,7 +224,7 @@ class boss_omor_the_unscarred : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_omor_the_unscarredAI(creature);
+            return GetInstanceAI<boss_omor_the_unscarredAI>(creature);
         }
 };
 

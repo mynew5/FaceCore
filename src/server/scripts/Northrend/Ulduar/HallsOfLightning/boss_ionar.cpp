@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,7 +72,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_ionarAI(creature);
+        return GetInstanceAI<boss_ionarAI>(creature);
     }
 
     struct boss_ionarAI : public ScriptedAI
@@ -115,16 +115,14 @@ public:
             if (!me->IsVisible())
                 me->SetVisible(true);
 
-            if (instance)
-                instance->SetData(TYPE_IONAR, NOT_STARTED);
+            instance->SetBossState(DATA_IONAR, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(TYPE_IONAR, IN_PROGRESS);
+            instance->SetBossState(DATA_IONAR, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
@@ -133,13 +131,13 @@ public:
 
             lSparkList.DespawnAll();
 
-            if (instance)
-                instance->SetData(TYPE_IONAR, DONE);
+            instance->SetBossState(DATA_IONAR, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* who) OVERRIDE
         {
-            Talk(SAY_SLAY);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) OVERRIDE
@@ -170,7 +168,7 @@ public:
 
             for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
             {
-                if (Creature* pSpark = Unit::GetCreature(*me, *itr))
+                if (Creature* pSpark = ObjectAccessor::GetCreature(*me, *itr))
                 {
                     if (pSpark->IsAlive())
                     {
@@ -278,7 +276,7 @@ public:
 
                 Talk(SAY_SPLIT);
 
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
 
                 DoCast(me, SPELL_DISPERSE, false);
@@ -298,11 +296,6 @@ class npc_spark_of_ionar : public CreatureScript
 {
 public:
     npc_spark_of_ionar() : CreatureScript("npc_spark_of_ionar") { }
-
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_spark_of_ionarAI(creature);
-    }
 
     struct npc_spark_of_ionarAI : public ScriptedAI
     {
@@ -338,7 +331,7 @@ public:
         void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             // Despawn if the encounter is not running
-            if (instance && instance->GetData(TYPE_IONAR) != IN_PROGRESS)
+            if (instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
             {
                 me->DespawnOrUnsummon();
                 return;
@@ -347,24 +340,21 @@ public:
             // Prevent them to follow players through the whole instance
             if (uiCheckTimer <= uiDiff)
             {
-                if (instance)
+                Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IONAR));
+                if (ionar && ionar->IsAlive())
                 {
-                    Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
-                    if (pIonar && pIonar->IsAlive())
+                    if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)
                     {
-                        if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)
-                        {
-                            Position pos;
-                            pIonar->GetPosition(&pos);
+                        Position pos;
+                        ionar->GetPosition(&pos);
 
-                            me->SetSpeed(MOVE_RUN, 2.0f);
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
-                        }
+                        me->SetSpeed(MOVE_RUN, 2.0f);
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
-                    else
-                        me->DespawnOrUnsummon();
                 }
+                else
+                    me->DespawnOrUnsummon();
                 uiCheckTimer = 2*IN_MILLISECONDS;
             }
             else
@@ -374,6 +364,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return GetInstanceAI<npc_spark_of_ionarAI>(creature);
+    }
 };
 
 void AddSC_boss_ionar()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,7 @@ public:
 
     struct instance_nexus_InstanceMapScript : public InstanceScript
     {
-        instance_nexus_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_nexus_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
@@ -53,7 +53,7 @@ public:
 
         std::string strInstData;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -64,7 +64,7 @@ public:
             TelestrasContainmentSphere = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             Map::PlayerList const &players = instance->GetPlayers();
             uint32 TeamInInstance = 0;
@@ -126,7 +126,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -234,7 +234,7 @@ public:
             return 0;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             return strInstData;
         }

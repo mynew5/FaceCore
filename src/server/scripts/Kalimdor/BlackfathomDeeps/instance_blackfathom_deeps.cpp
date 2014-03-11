@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -64,7 +64,7 @@ public:
 
     struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
-        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint64 twilightLordKelrisGUID;
         uint64 shrine1GUID;
@@ -79,7 +79,7 @@ public:
         uint8 countFires;
         uint8 deathTimes;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             memset(&encounter, 0, sizeof(encounter));
 
@@ -95,7 +95,7 @@ public:
             deathTimes = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -108,7 +108,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,11 +40,11 @@ enum Misc
 
 class boss_renataki : public CreatureScript
 {
-    public: boss_renataki() : CreatureScript("boss_renataki") {}
+    public: boss_renataki() : CreatureScript("boss_renataki") { }
 
         struct boss_renatakiAI : public BossAI
         {
-            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
+            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
 
             uint32 Invisible_Timer;
             uint32 Ambush_Timer;

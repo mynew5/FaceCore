@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -116,7 +116,7 @@ class boss_ignis : public CreatureScript
 
         struct boss_ignis_AI : public BossAI
         {
-            boss_ignis_AI(Creature* creature) : BossAI(creature,DATA_IGNIS), _vehicle(me->GetVehicleKit())
+            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit())
             {
                 ASSERT(_vehicle);
             }
@@ -311,7 +311,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_IGNIS)))
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
@@ -432,11 +432,10 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ignis_slag_pot_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_IMBUED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_SLAG_IMBUED))
                     return false;
                 return true;
             }

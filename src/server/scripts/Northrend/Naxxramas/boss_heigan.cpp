@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,12 +61,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_heiganAI(creature);
+        return GetInstanceAI<boss_heiganAI>(creature);
     }
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) {}
+        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) { }
 
         uint32 eruptSection;
         bool eruptDirection;

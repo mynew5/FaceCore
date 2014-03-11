@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,7 +57,7 @@ class instance_deadmines : public InstanceMapScript
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint64 FactoryDoorGUID;
             uint64 IronCladDoorGUID;
@@ -72,7 +72,7 @@ class instance_deadmines : public InstanceMapScript
             uint32 PiratesDelay_Timer;
             uint64 uiSmiteChestGUID;
 
-            void Initialize()
+            void Initialize() OVERRIDE
             {
                 FactoryDoorGUID = 0;
                 IronCladDoorGUID = 0;
@@ -86,7 +86,7 @@ class instance_deadmines : public InstanceMapScript
                 uiSmiteChestGUID = 0;
             }
 
-            virtual void Update(uint32 diff)
+            virtual void Update(uint32 diff) OVERRIDE
             {
                 if (!IronCladDoorGUID || !DefiasCannonGUID || !DoorLeverGUID)
                     return;
@@ -101,7 +101,7 @@ class instance_deadmines : public InstanceMapScript
                         CannonBlast_Timer = DATA_CANNON_BLAST_TIMER;
                         // it's a hack - Mr. Smite should do that but his too far away
                         pIronCladDoor->SetName("Mr. Smite");
-                        pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, 0);
+                        pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, NULL);
                         DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM1);
                         State = CANNON_BLAST_INITIATED;
                         break;
@@ -113,7 +113,7 @@ class instance_deadmines : public InstanceMapScript
                             ShootCannon();
                             BlastOutDoor();
                             LeverStucked();
-                            pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, 0);
+                            pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, NULL);
                             DoPlaySound(pIronCladDoor, SOUND_MR_SMITE_ALARM2);
                             State = PIRATES_ATTACK;
                         } else CannonBlast_Timer -= diff;
@@ -188,7 +188,7 @@ class instance_deadmines : public InstanceMapScript
                     pDoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {

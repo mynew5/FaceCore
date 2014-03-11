@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -248,7 +248,7 @@ const Position PosWeavers[MAX_WEAVERS] =
 // predicate function to select not charmed target
 struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
 {
-    NotCharmedTargetSelector() {}
+    NotCharmedTargetSelector() { }
 
     bool operator()(Unit const* target) const
     {
@@ -283,6 +283,18 @@ public:
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
+        void ResetPlayerScale()
+        {
+            std::map<uint64, float>::const_iterator itr;
+            for (itr = chained.begin(); itr != chained.end(); ++itr)
+            {
+                if (Player* charmed = ObjectAccessor::GetPlayer(*me, itr->first))
+                    charmed->SetObjectScale(itr->second);
+            }
+
+            chained.clear();
+        }
+
         void Reset() OVERRIDE
         {
             _Reset();
@@ -292,20 +304,13 @@ public:
 
             me->setFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            std::map<uint64, float>::const_iterator itr;
-            for (itr = chained.begin(); itr != chained.end(); ++itr)
-            {
-                if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
-                    charmed->SetObjectScale((*itr).second);
-            }
 
-            chained.clear();
+            ResetPlayerScale();
             spawns.DespawnAll();
 
             FindGameObjects();
 
-            if (instance)
-                instance->SetData(DATA_ABOMINATION_KILLED, 0);
+            instance->SetData(DATA_ABOMINATION_KILLED, 0);
 
             if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
             {
@@ -340,13 +345,7 @@ public:
             _JustDied();
             Talk(SAY_DEATH);
 
-            std::map<uint64, float>::const_iterator itr;
-            for (itr = chained.begin(); itr != chained.end(); ++itr)
-            {
-                if (Player* player = Unit::GetPlayer(*me, (*itr).first))
-                    player->SetObjectScale((*itr).second);
-            }
-            chained.clear();
+            ResetPlayerScale();
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
@@ -375,11 +374,11 @@ public:
 
         void FindGameObjects()
         {
-            PortalsGUID[0] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL01) : 0;
-            PortalsGUID[1] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL02) : 0;
-            PortalsGUID[2] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL03) : 0;
-            PortalsGUID[3] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL04) : 0;
-            KTTriggerGUID = instance ? instance->GetData64(DATA_KELTHUZAD_TRIGGER) : 0;
+            PortalsGUID[0] = instance->GetData64(DATA_KELTHUZAD_PORTAL01);
+            PortalsGUID[1] = instance->GetData64(DATA_KELTHUZAD_PORTAL02);
+            PortalsGUID[2] = instance->GetData64(DATA_KELTHUZAD_PORTAL03);
+            PortalsGUID[3] = instance->GetData64(DATA_KELTHUZAD_PORTAL04);
+            KTTriggerGUID = instance->GetData64(DATA_KELTHUZAD_TRIGGER);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -507,7 +506,7 @@ public:
                                 if (target && !target->IsCharmed() && (chained.find(target->GetGUID()) == chained.end()))
                                 {
                                     DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
-                                    float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                                    float scale = target->GetObjectScale();
                                     chained.insert(std::make_pair(target->GetGUID(), scale));
                                     target->SetObjectScale(scale * 2);
                                     events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm
@@ -523,11 +522,11 @@ public:
                             std::map<uint64, float>::iterator itr;
                             for (itr = chained.begin(); itr != chained.end();)
                             {
-                                if (Unit* player = Unit::GetPlayer(*me, (*itr).first))
+                                if (Unit* player = ObjectAccessor::GetPlayer(*me, itr->first))
                                 {
                                     if (!player->IsCharmed())
                                     {
-                                        player->SetObjectScale((*itr).second);
+                                        player->SetObjectScale(itr->second);
                                         std::map<uint64, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);
@@ -649,7 +648,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_kelthuzadAI(creature);
+        return GetInstanceAI<boss_kelthuzadAI>(creature);
     }
 };
 
@@ -758,8 +757,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (_instance)
-                    _instance->SetData(DATA_ABOMINATION_KILLED, _instance->GetData(DATA_ABOMINATION_KILLED) + 1);
+                _instance->SetData(DATA_ABOMINATION_KILLED, _instance->GetData(DATA_ABOMINATION_KILLED) + 1);
             }
 
         private:
@@ -769,7 +767,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_kelthuzad_abominationAI(creature);
+            return GetInstanceAI<npc_kelthuzad_abominationAI>(creature);
         }
 };
 

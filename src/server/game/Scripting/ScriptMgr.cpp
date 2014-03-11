@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,9 +30,15 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "GossipDef.h"
-#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 #include "Player.h"
 #include "WorldPacket.h"
+
+namespace
+{
+    typedef std::set<ScriptObject*> ExampleScriptContainer;
+    ExampleScriptContainer ExampleScripts;
+}
 
 // This is the global static registry of scripts.
 template<class TScript>
@@ -57,7 +63,7 @@ class ScriptRegistry
             {
                 if (it->second == script)
                 {
-                    TC_LOG_ERROR(LOG_FILTER_TSCR, "Script '%s' has same memory pointer as '%s'.",
+                    TC_LOG_ERROR("scripts", "Script '%s' has same memory pointer as '%s'.",
                         script->GetName().c_str(), it->second->GetName().c_str());
 
                     return;
@@ -93,7 +99,7 @@ class ScriptRegistry
                     else
                     {
                         // If the script is already assigned -> delete it!
-                        TC_LOG_ERROR(LOG_FILTER_TSCR, "Script '%s' already assigned with the same script name, so the script can't work.",
+                        TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
                             script->GetName().c_str());
 
                         ASSERT(false); // Error that should be fixed ASAP.
@@ -103,8 +109,11 @@ class ScriptRegistry
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
                     if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "Script named '%s' does not have a script name assigned in database.",
+                        TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
                             script->GetName().c_str());
+
+                    // These scripts don't get stored anywhere so throw them into this to avoid leaking memory
+                    ExampleScripts.insert(script);
                 }
             }
             else
@@ -161,16 +170,16 @@ class ScriptRegistry
     if (!V) \
         return R;
 
-
+struct TSpellSummary
+{
+    uint8 Targets;                                          // set of enum SelectTarget
+    uint8 Effects;                                          // set of enum SelectEffect
+} *SpellSummary;
 
 ScriptMgr::ScriptMgr()
-    : _scriptCount(0), _scheduledScripts(0)
-{
-}
+    : _scriptCount(0), _scheduledScripts(0) { }
 
-ScriptMgr::~ScriptMgr()
-{
-}
+ScriptMgr::~ScriptMgr() { }
 
 void ScriptMgr::Initialize()
 {
@@ -180,12 +189,12 @@ void ScriptMgr::Initialize()
 	// Load TeleNPC2 - maybe not the best place to load it ...
 	LoadNpcTele();
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading C++ scripts");
+    TC_LOG_INFO("server.loading", "Loading C++ scripts");
 
     FillSpellSummary();
     AddScripts();
 
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ScriptMgr::Unload()
@@ -223,6 +232,13 @@ void ScriptMgr::Unload()
     SCR_CLEAR(UnitScript);
 
     #undef SCR_CLEAR
+
+    for (ExampleScriptContainer::iterator itr = ExampleScripts.begin(); itr != ExampleScripts.end(); ++itr)
+        delete *itr;
+    ExampleScripts.clear();
+
+    delete[] SpellSummary;
+    delete[] UnitAI::AISpellInfo;
 }
 
 void ScriptMgr::LoadDatabase()
@@ -230,14 +246,10 @@ void ScriptMgr::LoadDatabase()
     sScriptSystemMgr->LoadScriptWaypoints();
 }
 
-struct TSpellSummary
-{
-    uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect
-} *SpellSummary;
-
 void ScriptMgr::FillSpellSummary()
 {
+    UnitAI::FillAISpellInfo();
+
     SpellSummary = new TSpellSummary[sSpellMgr->GetSpellInfoStoreSize()];
 
     SpellInfo const* pTempSpell;
@@ -769,8 +781,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 
-    /// @todo 100 is a funny magic number to have hanging around here...
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, 100);
+    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->GetDialogStatus(player, creature);
 }
@@ -855,8 +866,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 
-    /// @todo 100 is a funny magic number to have hanging around here...
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, 100);
+    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->GetDialogStatus(player, go);
 }
@@ -1355,6 +1365,16 @@ void ScriptMgr::OnGroupDisband(Group* group)
 }
 
 // Unit
+void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, uint32& gain)
+{
+    FOREACH_SCRIPT(UnitScript)->OnHeal(healer, reciever, gain);
+}
+
+void ScriptMgr::OnDamage(Unit* attacker, Unit* victim, uint32& damage)
+{
+    FOREACH_SCRIPT(UnitScript)->OnDamage(attacker, victim, damage);
+}
+
 void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->ModifyPeriodicDamageAurasTick(target, attacker, damage);
@@ -1405,7 +1425,7 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<Map>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsWorldMap())
-        TC_LOG_ERROR(LOG_FILTER_TSCR, "WorldMapScript for map %u is invalid.", mapId);
+        TC_LOG_ERROR("scripts", "WorldMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<WorldMapScript>::AddScript(this);
 }
@@ -1414,7 +1434,7 @@ InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<InstanceMap>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsDungeon())
-        TC_LOG_ERROR(LOG_FILTER_TSCR, "InstanceMapScript for map %u is invalid.", mapId);
+        TC_LOG_ERROR("scripts", "InstanceMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<InstanceMapScript>::AddScript(this);
 }
@@ -1423,7 +1443,7 @@ BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsBattleground())
-        TC_LOG_ERROR(LOG_FILTER_TSCR, "BattlegroundMapScript for map %u is invalid.", mapId);
+        TC_LOG_ERROR("scripts", "BattlegroundMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<BattlegroundMapScript>::AddScript(this);
 }

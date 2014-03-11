@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,21 +61,9 @@ class npc_aged_dying_ancient_kodo : public CreatureScript
 public:
     npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
-    {
-        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
-        {
-            player->TalkedToCreature(creature->GetEntry(), 0);
-            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-        }
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
     struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
-        npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
@@ -111,6 +99,18 @@ public:
         }
     };
 
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    {
+        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+        {
+            player->TalkedToCreature(creature->GetEntry(), 0);
+            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
+        }
+
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
+    }
+
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_aged_dying_ancient_kodoAI(creature);
@@ -126,7 +126,7 @@ public:
 enum Iruxos
 {
     QUEST_HAND_IRUXOS   = 5381,
-    NPC_DEMON_SPIRIT    = 11876,
+    NPC_DEMON_SPIRIT    = 11876
 };
 
 class go_iruxos : public GameObjectScript
@@ -157,13 +157,55 @@ class npc_dalinda : public CreatureScript
 public:
     npc_dalinda() : CreatureScript("npc_dalinda") { }
 
+    struct npc_dalindaAI : public npc_escortAI
+    {
+        npc_dalindaAI(Creature* creature) : npc_escortAI(creature) { }
+
+        void Reset() OVERRIDE { }
+
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+
+        void JustDied(Unit* /*killer*/) OVERRIDE
+        {
+            if (Player* player = GetPlayerForEscort())
+                player->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
+            return;
+        }
+
+        void WaypointReached(uint32 waypointId) OVERRIDE
+        {
+            Player* player = GetPlayerForEscort();
+
+            switch (waypointId)
+            {
+                case 1:
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    break;
+                case 15:
+                    if (player)
+                        player->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
+                    break;
+            }
+        }
+
+        void UpdateAI(uint32 diff) OVERRIDE
+        {
+            npc_escortAI::UpdateAI(diff);
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) OVERRIDE
     {
         if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
        {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_dalinda::npc_dalindaAI, creature->AI()))
+            if (npc_escortAI* escortAI = CAST_AI(npc_dalinda::npc_dalindaAI, creature->AI()))
             {
-                pEscortAI->Start(true, false, player->GetGUID());
+                escortAI->Start(true, false, player->GetGUID());
                 creature->setFaction(113);
             }
         }
@@ -174,46 +216,6 @@ public:
     {
         return new npc_dalindaAI(creature);
     }
-
-    struct npc_dalindaAI : public npc_escortAI
-    {
-        npc_dalindaAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) OVERRIDE
-        {
-            Player* player = GetPlayerForEscort();
-
-            switch (waypointId)
-            {
-                case 1:
-                    me->IsStandState();
-                    break;
-                case 15:
-                    if (player)
-                        player->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
-                    break;
-            }
-        }
-
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
-
-        void Reset() OVERRIDE {}
-
-        void JustDied(Unit* /*killer*/) OVERRIDE
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
-            return;
-        }
-
-        void UpdateAI(uint32 Diff) OVERRIDE
-        {
-            npc_escortAI::UpdateAI(Diff);
-            if (!UpdateVictim())
-                return;
-            DoMeleeAttackIfReady();
-        }
-    };
 };
 
 /*######
@@ -223,8 +225,7 @@ public:
 enum DemonPortal
 {
     NPC_DEMON_GUARDIAN          = 11937,
-
-    QUEST_PORTAL_OF_THE_LEGION  = 5581,
+    QUEST_PORTAL_OF_THE_LEGION  = 5581
 };
 
 class go_demon_portal : public GameObjectScript

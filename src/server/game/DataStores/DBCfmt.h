@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,7 +71,7 @@ char const GtRegenMPPerSptfmt[] = "f";
 char const Holidaysfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
 char const Itemfmt[] = "niiiiiii";
 char const ItemBagFamilyfmt[] = "nxxxxxxxxxxxxxxxxx";
-//char const ItemDisplayTemplateEntryfmt[] = "nxxxxxxxxxxixxxxxxxxxxx";
+char const ItemDisplayTemplateEntryfmt[] = "nxxxxsxxxxxxxxxxxxxxxxxxx";
 //char const ItemCondExtCostsEntryfmt[] = "xiii";
 char const ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiiiix";
 char const ItemLimitCategoryEntryfmt[] = "nxxxxxxxxxxxxxxxxxii";
@@ -97,6 +97,7 @@ char const SkillLinefmt[] = "nixssssssssssssssssxxxxxxxxxxxxxxxxxxixxxxxxxxxxxxx
 char const SkillLineAbilityfmt[] = "niiiixxiiiiixx";
 char const SoundEntriesfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const SpellCastTimefmt[] = "nixx";
+char const SpellCategoryfmt[] = "ni";
 char const SpellDifficultyfmt[] = "niiii";
 const std::string CustomSpellDifficultyfmt = "ppppp";
 const std::string CustomSpellDifficultyIndex = "id";
@@ -120,6 +121,8 @@ char const TaxiPathEntryfmt[] = "niii";
 char const TaxiPathNodeEntryfmt[] = "diiifffiiii";
 char const TeamContributionPointsfmt[] = "df";
 char const TotemCategoryEntryfmt[] = "nxxxxxxxxxxxxxxxxxii";
+char const TransportAnimationfmt[] = "diifffx";
+char const TransportRotationfmt[] = "diiffff";
 char const VehicleEntryfmt[] = "niffffiiiiiiiifffffffffffffffssssfifiixx";
 char const VehicleSeatEntryfmt[] = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiiixxxxxxxxxxxx";
 char const WMOAreaTableEntryfmt[] = "niiixxxxxiixxxxxxxxxxxxxxxxx";

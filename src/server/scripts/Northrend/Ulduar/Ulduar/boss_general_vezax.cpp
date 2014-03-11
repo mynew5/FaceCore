@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ enum VezaxEmotes
     EMOTE_SURGE_OF_DARKNESS                      = 8,
 
     // Saronite Vapor
-    EMOTE_VAPORS                                 = 9
+    EMOTE_VAPORS                                 = 0
 };
 
 enum VezaxSpells
@@ -103,7 +103,7 @@ class boss_general_vezax : public CreatureScript
 
         struct boss_general_vezaxAI : public BossAI
         {
-            boss_general_vezaxAI(Creature* creature) : BossAI(creature, DATA_VEZAX)
+            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
             {
             }
 
@@ -332,7 +332,7 @@ class boss_saronite_animus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(DATA_VEZAX)))
+                if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
                     Vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
             }
 
@@ -369,7 +369,7 @@ class boss_saronite_animus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_saronite_animusAI(creature);
+            return GetInstanceAI<boss_saronite_animusAI>(creature);
         }
 };
 
@@ -427,7 +427,7 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30000);
 
-                    if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(DATA_VEZAX)))
+                    if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
                         Vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }
@@ -439,18 +439,25 @@ class npc_saronite_vapors : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_saronite_vaporsAI(creature);
+            return GetInstanceAI<npc_saronite_vaporsAI>(creature);
         }
 };
 
-class spell_mark_of_the_faceless : public SpellScriptLoader
+class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
 {
     public:
-        spell_mark_of_the_faceless() : SpellScriptLoader("spell_mark_of_the_faceless") { }
+        spell_general_vezax_mark_of_the_faceless() : SpellScriptLoader("spell_general_vezax_mark_of_the_faceless") { }
 
-        class spell_mark_of_the_faceless_AuraScript : public AuraScript
+        class spell_general_vezax_mark_of_the_faceless_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mark_of_the_faceless_AuraScript);
+            PrepareAuraScript(spell_general_vezax_mark_of_the_faceless_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FACELESS_DAMAGE))
+                    return false;
+                return true;
+            }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
@@ -460,13 +467,42 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_the_faceless_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_general_vezax_mark_of_the_faceless_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const OVERRIDE
         {
-            return new spell_mark_of_the_faceless_AuraScript();
+            return new spell_general_vezax_mark_of_the_faceless_AuraScript();
+        }
+};
+
+class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
+{
+    public:
+        spell_general_vezax_mark_of_the_faceless_leech() : SpellScriptLoader("spell_general_vezax_mark_of_the_faceless_leech") { }
+
+        class spell_general_vezax_mark_of_the_faceless_leech_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_general_vezax_mark_of_the_faceless_leech_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove(GetExplTargetWorldObject());
+
+                if (targets.empty())
+                    FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_general_vezax_mark_of_the_faceless_leech_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_general_vezax_mark_of_the_faceless_leech_SpellScript();
         }
 };
 
@@ -554,7 +590,8 @@ void AddSC_boss_general_vezax()
     new boss_general_vezax();
     new boss_saronite_animus();
     new npc_saronite_vapors();
-    new spell_mark_of_the_faceless();
+    new spell_general_vezax_mark_of_the_faceless();
+    new spell_general_vezax_mark_of_the_faceless_leech();
     new spell_general_vezax_saronite_vapors();
     new achievement_shadowdodger();
     new achievement_smell_saronite();

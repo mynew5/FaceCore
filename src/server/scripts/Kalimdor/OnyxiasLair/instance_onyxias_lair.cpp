@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,12 +43,12 @@ public:
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             SetBossNumber(EncounterCount);
 
@@ -61,7 +61,7 @@ public:
             achievSheDeepBreathMore  = true;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -71,7 +71,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
@@ -93,7 +93,7 @@ public:
             }
         }
 
-        void OnGameObjectRemove(GameObject* go)
+        void OnGameObjectRemove(GameObject* go) OVERRIDE
         {
             if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
@@ -133,7 +133,7 @@ public:
             FloorEruptionGUID[1].erase(floorEruptedGUID);
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -196,7 +196,7 @@ public:
             return 0;
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 diff) OVERRIDE
         {
             if (GetBossState(DATA_ONYXIA) == IN_PROGRESS)
             {
@@ -226,9 +226,9 @@ public:
             }
         }
 
-        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0)
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*source*/, Unit const* /*target = NULL*/, uint32 /*miscValue1 = 0*/) OVERRIDE
         {
-            switch (criteria_id)
+            switch (criteriaId)
             {
                 case ACHIEV_CRITERIA_MANY_WHELPS_10_PLAYER:  // Criteria for achievement 4403: Many Whelps! Handle It! (10 player) Hatch 50 eggs in 10s
                 case ACHIEV_CRITERIA_MANY_WHELPS_25_PLAYER:  // Criteria for achievement 4406: Many Whelps! Handle It! (25 player) Hatch 50 eggs in 10s
@@ -240,7 +240,7 @@ public:
             return false;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -251,7 +251,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* strIn)
+        void Load(const char* strIn) OVERRIDE
         {
             if (!strIn)
             {
@@ -274,7 +274,8 @@ public:
                     loadStream >> tmpState;
                     if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                         tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
+
+                    SetBossState(i, EncounterState(tmpState));
                 }
             }
             else

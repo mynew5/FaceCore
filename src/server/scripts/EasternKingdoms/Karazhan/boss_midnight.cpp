@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,6 +82,7 @@ public:
         void Reset() OVERRIDE
         {
             ResetTimer = 0;
+            Midnight = 0;
         }
 
         void EnterEvadeMode() OVERRIDE
@@ -90,7 +91,7 @@ public:
             ResetTimer = 2000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
@@ -126,7 +127,7 @@ public:
 
     struct boss_midnightAI : public ScriptedAI
     {
-        boss_midnightAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_midnightAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 Attumen;
         uint8 Phase;
@@ -142,14 +143,14 @@ public:
             me->SetVisible(true);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (Phase == 2)
             {
                 if (Unit* unit = Unit::GetUnit(*me, Attumen))
-                    Talk(SAY_MIDNIGHT_KILL, unit->GetGUID());
+                    Talk(SAY_MIDNIGHT_KILL, unit);
             }
         }
 
@@ -166,7 +167,7 @@ public:
                     Attumen = attumen->GetGUID();
                     attumen->AI()->AttackStart(me->GetVictim());
                     SetMidnight(attumen, me->GetGUID());
-                    Talk(SAY_APPEAR, Attumen);
+                    Talk(SAY_APPEAR, attumen);
                 }
             }
             else if (Phase == 2 && HealthBelowPct(25))
@@ -204,7 +205,7 @@ public:
 
         void Mount(Unit* pAttumen)
         {
-            Talk(SAY_MOUNT, pAttumen->GetGUID());
+            Talk(SAY_MOUNT, pAttumen);
             Phase = 3;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             pAttumen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

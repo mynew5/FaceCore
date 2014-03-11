@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -157,7 +157,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(20000, 25000), EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 CleanAuras();
-                _offtank = NULL;
+                _offtankGUID = 0;
                 _vampires.clear();
                 _creditBloodQuickening = false;
                 _killMinchar = false;
@@ -178,9 +178,17 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, IN_PROGRESS);
                 CleanAuras();
 
+                GetDamageCounter()->CombatBegin(me);
+                GetHealingCounter()->CombatBegin(me, true);
+
                 DoCast(me, SPELL_SHROUD_OF_SORROW, true);
                 DoCast(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
                 _creditBloodQuickening = instance->GetData(DATA_BLOOD_QUICKENING_STATE) == IN_PROGRESS;
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage) OVERRIDE
+            {
+                GetDamageCounter()->InputValue(attacker, damage);
             }
 
             void JustDied(Unit* killer) OVERRIDE
@@ -190,6 +198,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 if (Is25ManRaid() && me->HasAura(SPELL_SHADOWS_FATE))
                     DoCastAOE(SPELL_BLOOD_INFUSION_CREDIT, true);
+
+                GetDamageCounter()->CombatComplete();
+                GetHealingCounter()->CombatComplete();
 
                 CleanAuras();
                 // Blah, credit the quest
@@ -366,29 +377,33 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             if (me->GetVictim())
                             {
                                 Player* newOfftank = SelectRandomTarget(true);
-                                if (_offtank != newOfftank)
+                                if (newOfftank)
                                 {
-                                    _offtank = newOfftank;
-                                    if (_offtank)
+                                    if (_offtankGUID != newOfftank->GetGUID())
                                     {
+                                        _offtankGUID = newOfftank->GetGUID();
+
                                         // both spells have SPELL_ATTR5_SINGLE_TARGET_SPELL, no manual removal needed
-                                        _offtank->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                        me->GetVictim()->CastSpell(_offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
+                                        newOfftank->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                        me->GetVictim()->CastSpell(newOfftank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                         DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
-                                        if (Is25ManRaid() && _offtank->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE &&
-                                            _offtank->HasAura(SPELL_UNSATED_CRAVING) && !_offtank->HasAura(SPELL_THIRST_QUENCHED) &&
-                                            !_offtank->HasAura(SPELL_GUSHING_WOUND))
-                                            _offtank->CastSpell(_offtank, SPELL_GUSHING_WOUND, TRIGGERED_FULL_MASK);
+                                        if (Is25ManRaid() && newOfftank->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE &&
+                                            newOfftank->HasAura(SPELL_UNSATED_CRAVING) && !newOfftank->HasAura(SPELL_THIRST_QUENCHED) &&
+                                            !newOfftank->HasAura(SPELL_GUSHING_WOUND))
+                                            newOfftank->CastSpell(newOfftank, SPELL_GUSHING_WOUND, TRIGGERED_FULL_MASK);
 
                                     }
                                 }
+                                else
+                                    _offtankGUID = 0;
                             }
                             events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                             break;
                         }
                         case EVENT_DELIRIOUS_SLASH:
-                            if (_offtank && !me->HasByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER))
-                                DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
+                            if (_offtankGUID && !me->HasByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER))
+                                if (Player* _offtank = ObjectAccessor::GetPlayer(*me, _offtankGUID))
+                                    DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
                             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_PACT_OF_THE_DARKFALLEN:
@@ -408,7 +423,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         case EVENT_SWARMING_SHADOWS:
                             if (Player* target = SelectRandomTarget(false))
                             {
-                                Talk(EMOTE_SWARMING_SHADOWS, target->GetGUID());
+                                Talk(EMOTE_SWARMING_SHADOWS, target);
                                 Talk(SAY_SWARMING_SHADOWS);
                                 DoCast(target, SPELL_SWARMING_SHADOWS);
                             }
@@ -470,7 +485,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     if (Unit* refTarget = (*itr)->getTarget())
-                        if (refTarget != me->GetVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank || (refTarget != _offtank)))
+                        if (refTarget != me->GetVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank || (refTarget->GetGUID() != _offtankGUID)))
                             tempTargets.push_back(refTarget->ToPlayer());
 
                 if (tempTargets.empty())
@@ -493,7 +508,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             std::set<uint64> _vampires;
             std::set<uint64> _bloodboltedPlayers;
-            Player* _offtank;
+            uint64 _offtankGUID;
             bool _creditBloodQuickening;
             bool _killMinchar;
         };
@@ -597,7 +612,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
-                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST, GetTarget()->GetGUID());
+                        bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST, GetTarget());
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -632,7 +647,7 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
 class BloodboltHitCheck
 {
     public:
-        explicit BloodboltHitCheck(LanaThelAI* ai) : _ai(ai) {}
+        explicit BloodboltHitCheck(LanaThelAI* ai) : _ai(ai) { }
 
         bool operator()(WorldObject* object) const
         {

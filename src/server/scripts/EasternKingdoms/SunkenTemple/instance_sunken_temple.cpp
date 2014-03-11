@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -79,7 +79,7 @@ public:
         bool s5;
         bool s6;
 
-        void Initialize()
+        void Initialize() OVERRIDE
         {
             GOAtalaiStatue1 = 0;
             GOAtalaiStatue2 = 0;
@@ -99,7 +99,7 @@ public:
             s6 = false;
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {

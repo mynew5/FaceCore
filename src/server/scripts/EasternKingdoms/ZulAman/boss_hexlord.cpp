@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -222,7 +222,7 @@ struct boss_hexlord_addAI : public ScriptedAI
         instance = creature->GetInstanceScript();
     }
 
-    void Reset() OVERRIDE {}
+    void Reset() OVERRIDE { }
 
     void EnterCombat(Unit* /*who*/) OVERRIDE
     {
@@ -231,7 +231,7 @@ struct boss_hexlord_addAI : public ScriptedAI
 
     void UpdateAI(uint32 /*diff*/) OVERRIDE
     {
-        if (instance && instance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
+        if (instance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
         {
             EnterEvadeMode();
             return;
@@ -278,8 +278,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
             void Reset() OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HEXLORDEVENT, NOT_STARTED);
+                instance->SetData(DATA_HEXLORDEVENT, NOT_STARTED);
 
                 SpiritBolts_Timer = 20000;
                 DrainPower_Timer = 60000;
@@ -296,11 +295,10 @@ class boss_hexlord_malacrass : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
+                instance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
 
                 DoZoneInCombat();
-                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
+                me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
 
                 for (uint8 i = 0; i < 4; ++i)
@@ -321,11 +319,11 @@ class boss_hexlord_malacrass : public CreatureScript
                 switch (urand(0, 1))
                 {
                     case 0:
-                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, 0);
+                        me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
                         DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
                         break;
                     case 1:
-                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, 0);
+                        me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
                         DoPlaySoundToSet(me, SOUND_YELL_KILL_TWO);
                         break;
                 }
@@ -333,10 +331,9 @@ class boss_hexlord_malacrass : public CreatureScript
 
             void JustDied(Unit* /*killer*/) OVERRIDE
             {
-                if (instance)
-                    instance->SetData(DATA_HEXLORDEVENT, DONE);
+                instance->SetData(DATA_HEXLORDEVENT, DONE);
 
-                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
+                me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);
 
                 for (uint8 i = 0; i < 4; ++i)
@@ -410,7 +407,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 if (DrainPower_Timer <= diff)
                 {
                     DoCast(me, SPELL_DRAIN_POWER, true);
-                    me->MonsterYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(me, SOUND_YELL_DRAIN_POWER);
                     DrainPower_Timer = urand(40000, 55000);    // must cast in 60 sec, or buff/debuff will disappear
                 } else DrainPower_Timer -= diff;
@@ -422,7 +419,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     else
                     {
                         DoCast(me, SPELL_SPIRIT_BOLTS, false);
-                        me->MonsterYell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL, 0);
+                        me->MonsterYell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL, NULL);
                         DoPlaySoundToSet(me, SOUND_YELL_SPIRIT_BOLTS);
                         SpiritBolts_Timer = 40000;
                         SiphonSoul_Timer = 10000;    // ready to drain
@@ -510,7 +507,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_hex_lord_malacrassAI(creature);
+            return GetInstanceAI<boss_hex_lord_malacrassAI>(creature);
         }
 };
 
@@ -526,7 +523,7 @@ class boss_thurg : public CreatureScript
         struct boss_thurgAI : public boss_hexlord_addAI
         {
 
-            boss_thurgAI(Creature* creature) : boss_hexlord_addAI(creature) {}
+            boss_thurgAI(Creature* creature) : boss_hexlord_addAI(creature) { }
 
             uint32 bloodlust_timer;
             uint32 cleave_timer;
@@ -567,7 +564,7 @@ class boss_thurg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_thurgAI(creature);
+            return GetInstanceAI<boss_thurgAI>(creature);
         }
 };
 
@@ -583,7 +580,7 @@ class boss_alyson_antille : public CreatureScript
         struct boss_alyson_antilleAI : public boss_hexlord_addAI
         {
             //Holy Priest
-            boss_alyson_antilleAI(Creature* creature) : boss_hexlord_addAI(creature) {}
+            boss_alyson_antilleAI(Creature* creature) : boss_hexlord_addAI(creature) { }
 
             uint32 flashheal_timer;
             uint32 dispelmagic_timer;
@@ -664,13 +661,13 @@ class boss_alyson_antille : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_alyson_antilleAI(creature);
+            return GetInstanceAI<boss_alyson_antilleAI>(creature);
         }
 };
 
 struct boss_gazakrothAI : public boss_hexlord_addAI
 {
-    boss_gazakrothAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+    boss_gazakrothAI(Creature* creature) : boss_hexlord_addAI(creature)  { }
 
     uint32 firebolt_timer;
 
@@ -721,7 +718,7 @@ class boss_lord_raadan : public CreatureScript
 
         struct boss_lord_raadanAI : public boss_hexlord_addAI
         {
-            boss_lord_raadanAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+            boss_lord_raadanAI(Creature* creature) : boss_hexlord_addAI(creature)  { }
 
             uint32 flamebreath_timer;
             uint32 thunderclap_timer;
@@ -757,7 +754,7 @@ class boss_lord_raadan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_lord_raadanAI(creature);
+            return GetInstanceAI<boss_lord_raadanAI>(creature);
         }
 };
 
@@ -772,7 +769,7 @@ class boss_darkheart : public CreatureScript
 
         struct boss_darkheartAI : public boss_hexlord_addAI
         {
-            boss_darkheartAI(Creature* creature) : boss_hexlord_addAI(creature)  {}
+            boss_darkheartAI(Creature* creature) : boss_hexlord_addAI(creature)  { }
 
             uint32 psychicwail_timer;
 
@@ -798,7 +795,7 @@ class boss_darkheart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_darkheartAI(creature);
+            return GetInstanceAI<boss_darkheartAI>(creature);
         }
 };
 
@@ -814,7 +811,7 @@ class boss_slither : public CreatureScript
 
         struct boss_slitherAI : public boss_hexlord_addAI
         {
-            boss_slitherAI(Creature* creature) : boss_hexlord_addAI(creature) {}
+            boss_slitherAI(Creature* creature) : boss_hexlord_addAI(creature) { }
 
             uint32 venomspit_timer;
 
@@ -857,7 +854,7 @@ class boss_slither : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_slitherAI(creature);
+            return GetInstanceAI<boss_slitherAI>(creature);
         }
 };
 
@@ -872,7 +869,7 @@ class boss_fenstalker : public CreatureScript
 
         struct boss_fenstalkerAI : public boss_hexlord_addAI
         {
-            boss_fenstalkerAI(Creature* creature) : boss_hexlord_addAI(creature) {}
+            boss_fenstalkerAI(Creature* creature) : boss_hexlord_addAI(creature) { }
 
             uint32 volatileinf_timer;
 
@@ -900,7 +897,7 @@ class boss_fenstalker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_fenstalkerAI(creature);
+            return GetInstanceAI<boss_fenstalkerAI>(creature);
         }
 };
 
@@ -915,7 +912,7 @@ class boss_koragg : public CreatureScript
 
         struct boss_koraggAI : public boss_hexlord_addAI
         {
-            boss_koraggAI(Creature* creature) : boss_hexlord_addAI(creature) {}
+            boss_koraggAI(Creature* creature) : boss_hexlord_addAI(creature) { }
 
             uint32 coldstare_timer;
             uint32 mightyblow_timer;
@@ -950,7 +947,7 @@ class boss_koragg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new boss_koraggAI(creature);
+            return GetInstanceAI<boss_koraggAI>(creature);
         }
 };
 

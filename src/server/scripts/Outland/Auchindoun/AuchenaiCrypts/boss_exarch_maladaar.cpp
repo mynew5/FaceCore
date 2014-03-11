@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,13 +61,14 @@ public:
 
     struct npc_stolen_soulAI : public ScriptedAI
     {
-        npc_stolen_soulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_stolen_soulAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint8 myClass;
         uint32 Class_Timer;
 
         void Reset() OVERRIDE
         {
+            myClass = CLASS_NONE;
             Class_Timer = 1000;
         }
 
@@ -249,7 +250,7 @@ public:
 
             if (!Avatar_summoned && HealthBelowPct(25))
             {
-                if (me->IsNonMeleeSpellCasted(false))
+                if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);
 
                 Talk(SAY_SUMMON);
@@ -265,7 +266,7 @@ public:
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (me->IsNonMeleeSpellCasted(false))
+                        if (me->IsNonMeleeSpellCast(false))
                             me->InterruptNonMeleeSpells(true);
 
                         Talk(SAY_ROAR);
@@ -314,7 +315,7 @@ public:
 
     struct npc_avatar_of_martyredAI : public ScriptedAI
     {
-        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Mortal_Strike_timer;
 

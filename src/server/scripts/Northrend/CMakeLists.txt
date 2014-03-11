@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -46,6 +46,7 @@ set(scripts_STAT_SRCS
   Northrend/ChamberOfAspects/ObsidianSanctum/instance_obsidian_sanctum.cpp
   Northrend/ChamberOfAspects/ObsidianSanctum/obsidian_sanctum.h
   Northrend/ChamberOfAspects/ObsidianSanctum/boss_sartharion.cpp
+  Northrend/ChamberOfAspects/ObsidianSanctum/obsidian_sanctum.cpp
   Northrend/ChamberOfAspects/RubySanctum/instance_ruby_sanctum.cpp
   Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.h
   Northrend/ChamberOfAspects/RubySanctum/ruby_sanctum.cpp
@@ -58,8 +59,6 @@ set(scripts_STAT_SRCS
   Northrend/FrozenHalls/HallsOfReflection/instance_halls_of_reflection.cpp
   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.cpp
   Northrend/FrozenHalls/HallsOfReflection/boss_marwyn.cpp
-  Northrend/FrozenHalls/HallsOfReflection/boss_lich_king_hor.cpp
-  Northrend/FrozenHalls/HallsOfReflection/npc_the_lich_king_hor.cpp
   Northrend/FrozenHalls/PitOfSaron/boss_forgemaster_garfrost.cpp
   Northrend/FrozenHalls/PitOfSaron/boss_krickandick.cpp
   Northrend/FrozenHalls/PitOfSaron/pit_of_saron.cpp
@@ -128,11 +127,11 @@ set(scripts_STAT_SRCS
   Northrend/VaultOfArchavon/boss_emalon.cpp
   Northrend/VaultOfArchavon/boss_toravon.cpp
   Northrend/zone_sholazar_basin.cpp
-  Northrend/UtgardeKeep/UtgardePinnacle/boss_palehoof.cpp
   Northrend/UtgardeKeep/UtgardePinnacle/boss_svala.cpp
-  Northrend/UtgardeKeep/UtgardePinnacle/instance_pinnacle.cpp
-  Northrend/UtgardeKeep/UtgardePinnacle/boss_ymiron.cpp
+  Northrend/UtgardeKeep/UtgardePinnacle/boss_palehoof.cpp
   Northrend/UtgardeKeep/UtgardePinnacle/boss_skadi.cpp
+  Northrend/UtgardeKeep/UtgardePinnacle/boss_ymiron.cpp
+  Northrend/UtgardeKeep/UtgardePinnacle/instance_utgarde_pinnacle.cpp
   Northrend/UtgardeKeep/UtgardePinnacle/utgarde_pinnacle.h
   Northrend/UtgardeKeep/UtgardeKeep/boss_ingvar_the_plunderer.cpp
   Northrend/UtgardeKeep/UtgardeKeep/boss_skarvald_dalronn.cpp
@@ -168,7 +167,6 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.h
   Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
-  Northrend/IcecrownCitadel/icc_trash.cpp
   Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
   Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
   Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
@@ -197,7 +195,7 @@ set(scripts_STAT_SRCS
   Northrend/DraktharonKeep/boss_novos.cpp
   Northrend/DraktharonKeep/drak_tharon_keep.h
   Northrend/DraktharonKeep/boss_tharon_ja.cpp
-  Northrend/DraktharonKeep/boss_dred.cpp
+  Northrend/DraktharonKeep/boss_king_dred.cpp
 )
 
 message("  -> Prepared: Northrend")

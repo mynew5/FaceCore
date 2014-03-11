@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,11 +48,11 @@ public:
 
     struct boss_commander_stoutbeardAI : public ScriptedAI
     {
-        boss_commander_stoutbeardAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_commander_stoutbeardAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() OVERRIDE {}
-        void AttackStart(Unit* /*who*/) OVERRIDE {}
-        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE {}
+        void Reset() OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 /*diff*/) OVERRIDE
         {

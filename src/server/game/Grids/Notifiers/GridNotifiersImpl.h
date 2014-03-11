@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,13 +36,6 @@ inline void Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
         vis_guids.erase(iter->GetSource()->GetGUID());
         i_player.UpdateVisibilityOf(iter->GetSource(), i_data, i_visibleNow);
     }
-}
-
-inline void Trinity::ObjectUpdater::Visit(CreatureMapType &m)
-{
-    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->GetSource()->IsInWorld())
-            iter->GetSource()->Update(i_timeDiff);
 }
 
 // SEARCHERS & LIST SEARCHERS & WORKERS
@@ -524,14 +517,16 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
     WorldPacket* data;
 
     // create if not cached yet
-    if (i_data_cache.size() < cache_idx+1 || !i_data_cache[cache_idx])
+    if (i_data_cache.size() < cache_idx + 1 || !i_data_cache[cache_idx])
     {
-        if (i_data_cache.size() < cache_idx+1)
-            i_data_cache.resize(cache_idx+1);
+        if (i_data_cache.size() < cache_idx + 1)
+            i_data_cache.resize(cache_idx + 1);
 
-        data = new WorldPacket(SMSG_MESSAGECHAT, 200);
+        data = new WorldPacket();
 
         i_builder(*data, loc_idx);
+
+        ASSERT(data->GetOpcode() != MSG_NULL_ACTION);
 
         i_data_cache[cache_idx] = data;
     }

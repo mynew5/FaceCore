@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@ enum Spells
     H_SPELL_HATEFUL_STRIKE                      = 59192,
     SPELL_FRENZY                                = 28131,
     SPELL_BERSERK                               = 26662,
-    SPELL_SLIME_BOLT                            = 32309,
+    SPELL_SLIME_BOLT                            = 32309
 };
 
 enum Yells
@@ -45,9 +45,9 @@ enum Events
     EVENT_SLIME
 };
 
-enum
+enum Misc
 {
-    ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286,
+    ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286
 };
 
 class boss_patchwerk : public CreatureScript
@@ -57,12 +57,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_patchwerkAI(creature);
+        return GetInstanceAI<boss_patchwerkAI>(creature);
     }
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature* creature) : BossAI(creature, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* creature) : BossAI(creature, BOSS_PATCHWERK) { }
 
         bool Enraged;
 
@@ -70,8 +70,7 @@ public:
         {
             _Reset();
 
-            if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
 
         void KilledUnit(Unit* /*Victim*/) OVERRIDE
@@ -94,8 +93,7 @@ public:
             events.ScheduleEvent(EVENT_HATEFUL, 1000);
             events.ScheduleEvent(EVENT_BERSERK, 360000);
 
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE

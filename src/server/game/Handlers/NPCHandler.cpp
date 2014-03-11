@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,7 +56,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
@@ -78,14 +78,14 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 {
     uint64 guid;
 
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BANKER_ACTIVATE");
 
     recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
@@ -99,6 +99,13 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendShowBank(uint64 guid)
 {
     WorldPacket data(SMSG_SHOW_BANK, 8);
+    data << guid;
+    SendPacket(&data);
+}
+
+void WorldSession::SendShowMailBox(uint64 guid)
+{
+    WorldPacket data(SMSG_SHOW_MAILBOX, 8);
     data << guid;
     SendPacket(&data);
 }
@@ -119,12 +126,12 @@ void WorldSession::SendTrainerList(uint64 guid)
 
 void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList");
+    TC_LOG_DEBUG("network", "WORLD: SendTrainerList");
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
@@ -136,14 +143,14 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
 
     if (!ci)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", GUID_LOPART(guid));
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", GUID_LOPART(guid));
         return;
     }
 
     TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
     if (!trainer_spells)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Training spells not found for creature (GUID: %u Entry: %u)",
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Training spells not found for creature (GUID: %u Entry: %u)",
             GUID_LOPART(guid), unit->GetEntry());
         return;
     }
@@ -237,12 +244,12 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     uint32 spellId = 0;
 
     recvData >> guid >> spellId;
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
@@ -290,7 +297,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GOSSIP_HELLO");
 
     uint64 guid;
     recvData >> guid;
@@ -298,7 +305,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
@@ -339,7 +346,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 
 /*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_PACKETIO, "WORLD: CMSG_GOSSIP_SELECT_OPTION");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
     uint32 option;
     uint32 unk;
@@ -350,15 +357,15 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 
     if (_player->PlayerTalkClass->GossipOptionCoded(option))
     {
-        TC_LOG_DEBUG(LOG_FILTER_PACKETIO, "reading string");
+        TC_LOG_DEBUG("network", "reading string");
         recvData >> code;
-        TC_LOG_DEBUG(LOG_FILTER_PACKETIO, "string read: %s", code.c_str());
+        TC_LOG_DEBUG("network", "string read: %s", code.c_str());
     }
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_PACKETIO, "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
@@ -380,16 +387,15 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
     uint64 guid;
-
     recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
@@ -403,7 +409,6 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendSpiritResurrect()
 {
     _player->ResurrectPlayer(0.5f, true);
-
     _player->DurabilityLossAll(0.25f, true);
 
     // get corpse nearest graveyard
@@ -444,7 +449,7 @@ void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_INNKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
         return;
     }
 
@@ -476,7 +481,7 @@ void WorldSession::SendBindPoint(Creature* npc)
 
 void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recv MSG_LIST_STABLED_PETS");
+    TC_LOG_DEBUG("network", "WORLD: Recv MSG_LIST_STABLED_PETS");
     uint64 npcGUID;
 
     recvData >> npcGUID;
@@ -512,7 +517,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
     if (!GetPlayer())
         return;
 
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recv MSG_LIST_STABLED_PETS Send.");
+    TC_LOG_DEBUG("network", "WORLD: Recv MSG_LIST_STABLED_PETS Send.");
 
     WorldPacket data(MSG_LIST_STABLED_PETS, 200);           // guess size
 
@@ -569,7 +574,7 @@ void WorldSession::SendStableResult(uint8 res)
 
 void WorldSession::HandleStablePet(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_STABLE_PET");
+    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_STABLE_PET");
     uint64 npcGUID;
 
     recvData >> npcGUID;
@@ -644,7 +649,7 @@ void WorldSession::HandleStablePetCallback(PreparedQueryResult result)
 
 void WorldSession::HandleUnstablePet(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_UNSTABLE_PET.");
+    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_UNSTABLE_PET.");
     uint64 npcGUID;
     uint32 petnumber;
 
@@ -725,7 +730,7 @@ void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 
 
 void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_BUY_STABLE_SLOT.");
+    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_BUY_STABLE_SLOT.");
     uint64 npcGUID;
 
     recvData >> npcGUID;
@@ -758,12 +763,12 @@ void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
 
 void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "HandleStableRevivePet: Not implemented");
+    TC_LOG_DEBUG("network", "HandleStableRevivePet: Not implemented");
 }
 
 void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_STABLE_SWAP_PET.");
+    TC_LOG_DEBUG("network", "WORLD: Recv CMSG_STABLE_SWAP_PET.");
     uint64 npcGUID;
     uint32 petId;
 
@@ -855,7 +860,7 @@ void WorldSession::HandleStableSwapPetCallback(PreparedQueryResult result, uint3
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REPAIR_ITEM");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_REPAIR_ITEM");
 
     uint64 npcGUID, itemGUID;
     uint8 guildBank;                                        // new in 2.3.2, bool that means from guild bank money
@@ -865,7 +870,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleRepairItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
         return;
     }
 
@@ -878,7 +883,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
     if (itemGUID)
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "ITEM: Repair item, itemGUID = %u, npcGUID = %u", GUID_LOPART(itemGUID), GUID_LOPART(npcGUID));
+        TC_LOG_DEBUG("network", "ITEM: Repair item, itemGUID = %u, npcGUID = %u", GUID_LOPART(itemGUID), GUID_LOPART(npcGUID));
 
         Item* item = _player->GetItemByGuid(itemGUID);
         if (item)
@@ -886,7 +891,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "ITEM: Repair all items, npcGUID = %u", GUID_LOPART(npcGUID));
+        TC_LOG_DEBUG("network", "ITEM: Repair all items, npcGUID = %u", GUID_LOPART(npcGUID));
         _player->DurabilityRepairAll(true, discountMod, guildBank);
     }
 }

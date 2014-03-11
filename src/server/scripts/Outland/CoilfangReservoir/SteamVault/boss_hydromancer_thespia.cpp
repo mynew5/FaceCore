@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,18 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Hydromancer_Thespia
-SD%Complete: 80
-SDComment: Needs additional adjustments (when instance script is adjusted)
-SDCategory: Coilfang Resevoir, The Steamvault
-EndScriptData */
-
-/* ContentData
-boss_hydromancer_thespia
-npc_coilfang_waterelemental
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -54,7 +41,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
-        return new boss_thespiaAI(creature);
+        return GetInstanceAI<boss_thespiaAI>(creature);
     }
 
     struct boss_thespiaAI : public ScriptedAI
@@ -76,16 +63,14 @@ public:
             LungBurst_Timer = 7000;
             EnvelopingWinds_Timer = 9000;
 
-            if (instance)
-                instance->SetData(TYPE_HYDROMANCER_THESPIA, NOT_STARTED);
+            instance->SetBossState(DATA_HYDROMANCER_THESPIA, NOT_STARTED);
         }
 
         void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(SAY_DEAD);
 
-            if (instance)
-                instance->SetData(TYPE_HYDROMANCER_THESPIA, DONE);
+            instance->SetBossState(DATA_HYDROMANCER_THESPIA, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) OVERRIDE
@@ -97,8 +82,7 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(TYPE_HYDROMANCER_THESPIA, IN_PROGRESS);
+            instance->SetBossState(DATA_HYDROMANCER_THESPIA, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -159,7 +143,7 @@ public:
 
     struct npc_coilfang_waterelementalAI : public ScriptedAI
     {
-        npc_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WaterBoltVolley_Timer;
 
@@ -168,7 +152,7 @@ public:
             WaterBoltVolley_Timer = 3000+rand()%3000;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE {}
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void UpdateAI(uint32 diff) OVERRIDE
         {

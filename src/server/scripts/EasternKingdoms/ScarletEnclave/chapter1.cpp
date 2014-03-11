@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -143,8 +143,8 @@ public:
                 wait_timer = 5000;
                 me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
-                if (Player* starter = Unit::GetPlayer(*me, playerGUID))
-                    sCreatureTextMgr->SendChat(me, SAY_EVENT_ATTACK, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, starter);
+                if (Player* starter = ObjectAccessor::GetPlayer(*me, playerGUID))
+                    sCreatureTextMgr->SendChat(me, SAY_EVENT_ATTACK, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, starter);
 
                 phase = PHASE_TO_ATTACK;
             }
@@ -180,7 +180,7 @@ public:
                         anchorGUID = anchor->GetGUID();
                     }
                     else
-                        TC_LOG_ERROR(LOG_FILTER_TSCR, "npc_unworthy_initiateAI: unable to find anchor!");
+                        TC_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find anchor!");
 
                     float dist = 99.0f;
                     GameObject* prison = NULL;
@@ -200,7 +200,7 @@ public:
                     if (prison)
                         prison->ResetDoorOrButton();
                     else
-                        TC_LOG_ERROR(LOG_FILTER_TSCR, "npc_unworthy_initiateAI: unable to find prison!");
+                        TC_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find prison!");
                 }
                 break;
             case PHASE_TO_EQUIP:
@@ -211,7 +211,7 @@ public:
                     else
                     {
                         me->GetMotionMaster()->MovePoint(1, anchorX, anchorY, me->GetPositionZ());
-                        //TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
+                        //TC_LOG_DEBUG("scripts", "npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
                         phase = PHASE_EQUIPING;
                         wait_timer = 0;
                     }
@@ -228,8 +228,8 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         phase = PHASE_ATTACKING;
 
-                        if (Player* target = Unit::GetPlayer(*me, playerGUID))
-                            me->AI()->AttackStart(target);
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, playerGUID))
+                            AttackStart(target);
                         wait_timer = 0;
                     }
                 }
@@ -288,7 +288,7 @@ public:
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
     {
-        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) {}
+        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) { }
 
         uint64 prisonerGUID;
 
@@ -371,7 +371,7 @@ public:
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
-            sCreatureTextMgr->SendChat(creature, SAY_DUEL, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+            sCreatureTextMgr->SendChat(creature, SAY_DUEL, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
 
             player->CastSpell(creature, SPELL_DUEL, false);
             player->CastSpell(player, SPELL_DUEL_FLAG, true);
@@ -505,93 +505,89 @@ public:
 ## npc_dark_rider_of_acherus
 ######*/
 
-enum Spells_DR
+enum DarkRiderOfAcherus
 {
+    SAY_DARK_RIDER              = 0,
     SPELL_DESPAWN_HORSE         = 51918
-};
-
-enum Says_DR
-{
-    SAY_DARK_RIDER              = 0
 };
 
 class npc_dark_rider_of_acherus : public CreatureScript
 {
-public:
-    npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
+    public:
+        npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
-    {
-        return new npc_dark_rider_of_acherusAI(creature);
-    }
-
-    struct npc_dark_rider_of_acherusAI : public ScriptedAI
-    {
-        npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 PhaseTimer;
-        uint32 Phase;
-        bool Intro;
-        uint64 TargetGUID;
-
-        void Reset() OVERRIDE
+        struct npc_dark_rider_of_acherusAI : public ScriptedAI
         {
-            PhaseTimer = 4000;
-            Phase = 0;
-            Intro = false;
-            TargetGUID = 0;
-        }
+            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
-        {
-            if (!Intro || !TargetGUID)
-                return;
-
-            if (PhaseTimer <= diff)
+            void Reset() OVERRIDE
             {
-                switch (Phase)
+                PhaseTimer = 4000;
+                Phase = 0;
+                Intro = false;
+                TargetGUID = 0;
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!Intro || !TargetGUID)
+                    return;
+
+                if (PhaseTimer <= diff)
                 {
-                   case 0:
-                        me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
-                        PhaseTimer = 5000;
-                        Phase = 1;
-                        break;
-                    case 1:
-                        if (Unit* target = Unit::GetUnit(*me, TargetGUID))
-                            DoCast(target, SPELL_DESPAWN_HORSE, true);
-                        PhaseTimer = 3000;
-                        Phase = 2;
-                        break;
-                    case 2:
-                        me->SetVisible(false);
-                        PhaseTimer = 2000;
-                        Phase = 3;
-                        break;
-                    case 3:
-                        me->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
+                    switch (Phase)
+                    {
+                       case 0:
+                            Talk(SAY_DARK_RIDER);
+                            PhaseTimer = 5000;
+                            Phase = 1;
+                            break;
+                        case 1:
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
+                                DoCast(target, SPELL_DESPAWN_HORSE, true);
+                            PhaseTimer = 3000;
+                            Phase = 2;
+                            break;
+                        case 2:
+                            me->SetVisible(false);
+                            PhaseTimer = 2000;
+                            Phase = 3;
+                            break;
+                        case 3:
+                            me->DespawnOrUnsummon();
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            } else PhaseTimer -= diff;
+                else
+                    PhaseTimer -= diff;
+            }
 
-        }
+            void InitDespawnHorse(Unit* who)
+            {
+                if (!who)
+                    return;
 
-        void InitDespawnHorse(Unit* who)
+                TargetGUID = who->GetGUID();
+                me->SetWalk(true);
+                me->SetSpeed(MOVE_RUN, 0.4f);
+                me->GetMotionMaster()->MoveChase(who);
+                me->SetTarget(TargetGUID);
+                Intro = true;
+            }
+
+        private:
+            uint32 PhaseTimer;
+            uint32 Phase;
+            bool Intro;
+            uint64 TargetGUID;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            if (!who)
-                return;
-
-            TargetGUID = who->GetGUID();
-            me->SetWalk(true);
-            me->SetSpeed(MOVE_RUN, 0.4f);
-            me->GetMotionMaster()->MoveChase(who);
-            me->SetTarget(TargetGUID);
-            Intro = true;
+            return new npc_dark_rider_of_acherusAI(creature);
         }
-
-    };
-
 };
 
 /*######
@@ -619,7 +615,7 @@ public:
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
     {
-        npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
@@ -644,7 +640,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
-
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -692,7 +687,7 @@ public:
 
     struct npc_ros_dark_riderAI : public ScriptedAI
     {
-        npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) { }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
@@ -747,7 +742,7 @@ public:
 
     struct npc_dkc1_gothikAI : public ScriptedAI
     {
-        npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 

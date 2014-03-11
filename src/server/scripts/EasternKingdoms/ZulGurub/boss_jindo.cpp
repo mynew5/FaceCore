@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,11 +59,11 @@ Position const TeleportLoc = {-11583.7783f, -1249.4278f, 77.5471f, 4.745f};
 
 class boss_jindo : public CreatureScript
 {
-    public: boss_jindo() : CreatureScript("boss_jindo") {}
+    public: boss_jindo() : CreatureScript("boss_jindo") { }
 
         struct boss_jindoAI : public BossAI
         {
-            boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) {}
+            boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) { }
 
             void Reset() OVERRIDE
             {
@@ -217,12 +217,9 @@ class npc_healing_ward : public CreatureScript
                 //Heal_Timer
                 if (Heal_Timer <= diff)
                 {
-                    if (instance)
-                    {
-                        Unit* pJindo = Unit::GetUnit(*me, instance->GetData64(DATA_JINDO));
-                        if (pJindo)
-                            DoCast(pJindo, SPELL_HEAL);
-                    }
+                    Unit* pJindo = Unit::GetUnit(*me, instance->GetData64(DATA_JINDO));
+                    if (pJindo)
+                        DoCast(pJindo, SPELL_HEAL);
                     Heal_Timer = 3000;
                 } else Heal_Timer -= diff;
 
@@ -232,7 +229,7 @@ class npc_healing_ward : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
-            return new npc_healing_wardAI(creature);
+            return GetInstanceAI<npc_healing_wardAI>(creature);
         }
 };
 
@@ -248,7 +245,7 @@ class npc_shade_of_jindo : public CreatureScript
 
         struct npc_shade_of_jindoAI : public ScriptedAI
         {
-            npc_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 ShadowShock_Timer;
 
@@ -258,7 +255,7 @@ class npc_shade_of_jindo : public CreatureScript
                 DoCast(me, SPELL_INVISIBLE, true);
             }
 
-            void EnterCombat(Unit* /*who*/)OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
             void UpdateAI(uint32 diff) OVERRIDE
             {
